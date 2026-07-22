@@ -1,0 +1,208 @@
+# OECDscaleup
+
+`OECDscaleup` builds the firm-level “high-growth firm” (HGF) / scale-up
+indicators used in the OECD Scale Up project from confidential national
+firm microdata, and produces the disclosure-checked aggregate
+tabulations (characteristics, transitions/evolutions, contribution,
+predictors) shared back with the OECD.
+
+It is a behaviour-preserving translation of the OECD’s original Stata
+pipeline (`MASTER_OECD_p2.do` and 5 worker `.do` files, version 1.0,
+`scaleup@oecd.org`) — see
+[`NEWS.md`](https://amannj.github.io/OECDscaleup/NEWS.md) for what
+changed in the translation and why.
+
+Firm-level microdata is confidential and never leaves the country whose
+national statistical institute holds it, so **no real data ships with
+this package** — every input this package needs is documented in
+`variable_dictionary_v1.xlsx` from the original Stata package.
+
+## Installation
+
+This package isn’t on CRAN — it’s distributed internally to the OECD
+Scale Up project’s participating national statistical institutes.
+Install from source:
+
+``` r
+
+# from a local clone/copy of the package source
+devtools::install_local("path/to/OECDscaleup")
+
+# or, from a git remote your organisation hosts internally
+devtools::install_git("https://your-internal-git-host/OECDscaleup.git")
+```
+
+The package uses [renv](https://rstudio.github.io/renv/) to pin its
+exact dependency versions (`renv.lock`); run
+[`renv::restore()`](https://rstudio.github.io/renv/reference/restore.html)
+after cloning the source repository if you’re developing on it directly.
+
+## Usage
+
+``` r
+
+library(OECDscaleup)
+
+cfg <- config_scaleup(
+  country = "FR",
+  input_dir = "path/to/input",   # base_financials_FR.dta, etc.
+  output_dir = "path/to/output"
+)
+
+# reads the raw .dta inputs, runs the full pipeline, writes every output CSV
+outputs <- run_scaleup_pipeline(cfg)
+```
+
+Every pipeline stage is also available as a pure function (data frame
+in, data frame out) if you already have your data loaded in R:
+
+``` r
+
+accounts_indicators <- build_accounts_indicators(cfg, base_financials)
+characteristics     <- compute_characteristics(cfg, accounts_indicators)
+persistence         <- compute_persistence(cfg, accounts_indicators)
+contribution        <- compute_contribution(cfg, accounts_indicators)
+predictors          <- compute_predictors(cfg, accounts_indicators)
+```
+
+See
+[`vignette("OECDscaleup")`](https://amannj.github.io/OECDscaleup/articles/OECDscaleup.md)
+for a complete walkthrough with a synthetic worked example, including
+how to use the `dominance` confidentiality-check statistics.
+
+## Development
+
+``` r
+
+devtools::test()      # run the test suite
+devtools::document()  # regenerate NAMESPACE/man pages after editing roxygen comments
+devtools::check()     # full package check
+```
+
+See
+[`CONTRIBUTING.md`](https://amannj.github.io/OECDscaleup/CONTRIBUTING.md)
+for more.
+
+## License
+
+MIT — see
+[`LICENSE.md`](https://amannj.github.io/OECDscaleup/LICENSE.md).
+
+# Package index
+
+## All functions
+
+- [`approx_median()`](https://amannj.github.io/OECDscaleup/reference/approx_median.md)
+  : Disclosure-safe "approximate median" (average of 5 central sorted
+  values)
+
+- [`build_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_accounts_indicators.md)
+  : Build the firm-year analytical panel and its derived indicators
+
+- [`compute_characteristics()`](https://amannj.github.io/OECDscaleup/reference/compute_characteristics.md)
+  : Descriptive characteristics of scaler and non-scaler populations
+
+- [`compute_contribution()`](https://amannj.github.io/OECDscaleup/reference/compute_contribution.md)
+  : Job/turnover creation-destruction accounting by firm sample
+
+- [`compute_persistence()`](https://amannj.github.io/OECDscaleup/reference/compute_persistence.md)
+  : Growth trajectories before/after a scaling event ("transitions" and
+  "evolutions")
+
+- [`compute_predictors()`](https://amannj.github.io/OECDscaleup/reference/compute_predictors.md)
+  : Classify scalers by pre-period predictor quartile and regress
+  scaling on them
+
+- [`config_scaleup()`](https://amannj.github.io/OECDscaleup/reference/config_scaleup.md)
+  : Build a Scale-Up pipeline configuration
+
+- [`country_patches`](https://amannj.github.io/OECDscaleup/reference/country_patches.md)
+  : Country-specific data patches
+
+- [`cut_stata()`](https://amannj.github.io/OECDscaleup/reference/cut_stata.md)
+  :
+
+  Bin a numeric variable into intervals (Stata's
+  `egen ... = cut(x), at(...)`)
+
+- [`decode_category()`](https://amannj.github.io/OECDscaleup/reference/decode_category.md)
+  : Decode a category column to its readable string label
+
+- [`dominance_share()`](https://amannj.github.io/OECDscaleup/reference/dominance_share.md)
+  : Dominance-rule concentration share (disclosure-control statistic)
+
+- [`exchange_rates`](https://amannj.github.io/OECDscaleup/reference/exchange_rates.md)
+  : Annual average Eurostat exchange rates
+
+- [`first_occurrence_flag()`](https://amannj.github.io/OECDscaleup/reference/first_occurrence_flag.md)
+  : Flag a firm's chronologically first occurrence of a 0/1 event
+
+- [`has_column()`](https://amannj.github.io/OECDscaleup/reference/has_column.md)
+  : Check whether a column exists and is non-empty in a data frame
+
+- [`panel_diff1()`](https://amannj.github.io/OECDscaleup/reference/panel_diff1.md)
+  :
+
+  First-difference panel operator (Stata's `D1.var`)
+
+- [`panel_lag()`](https://amannj.github.io/OECDscaleup/reference/panel_lag.md)
+  :
+
+  Gap-aware panel lag (Stata's `Ln.var`, e.g. `l3.employment`)
+
+- [`panel_lead()`](https://amannj.github.io/OECDscaleup/reference/panel_lead.md)
+  :
+
+  Gap-aware panel lead (Stata's `Fn.var`, e.g. `f3.employment`)
+
+- [`panel_sdiff()`](https://amannj.github.io/OECDscaleup/reference/panel_sdiff.md)
+  :
+
+  n-period difference panel operator (Stata's `Sn.var`, e.g.
+  `S3.employment`)
+
+- [`percentile_stata()`](https://amannj.github.io/OECDscaleup/reference/percentile_stata.md)
+  : Percentile, using Stata's algorithm (Hyndman & Fan "Type 2")
+
+- [`quartile_bin()`](https://amannj.github.io/OECDscaleup/reference/quartile_bin.md)
+  :
+
+  Grouped equal-frequency quartile bins (Stata's `xtile ..., nq(4)`)
+
+- [`round_half_up()`](https://amannj.github.io/OECDscaleup/reference/round_half_up.md)
+  :
+
+  Round half away from zero (Stata's
+  [`round()`](https://rdrr.io/r/base/Round.html) convention)
+
+- [`run_scaleup_pipeline()`](https://amannj.github.io/OECDscaleup/reference/run_scaleup_pipeline.md)
+  : Run the full Scale-Up pipeline, reading and writing files on disk
+
+- [`stata_num()`](https://amannj.github.io/OECDscaleup/reference/stata_num.md)
+  : Prepare a numeric vector for Stata-style comparison against a
+  constant
+
+- [`stata_replace()`](https://amannj.github.io/OECDscaleup/reference/stata_replace.md)
+  :
+
+  Stata-style conditional replace, preserving the existing value on `NA`
+
+- [`tl3_typology`](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md)
+  : TL3/NUTS3 region urbanisation typology
+
+- [`winsorize_both()`](https://amannj.github.io/OECDscaleup/reference/winsorize_both.md)
+  :
+
+  Winsorize both tails to `NA`
+
+- [`winsorize_upper()`](https://amannj.github.io/OECDscaleup/reference/winsorize_upper.md)
+  :
+
+  Winsorize the upper tail to `NA`
+
+# Articles
+
+### All vignettes
+
+- [Getting Started with
+  OECDscaleup](https://amannj.github.io/OECDscaleup/articles/OECDscaleup.md):
