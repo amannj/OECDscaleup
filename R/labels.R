@@ -1,0 +1,65 @@
+#' Value-label maps (Stata's `label define` / `label values`)
+#'
+#' Most category variables in the source Stata code are stored as
+#' hand-assigned integer codes with an attached value-label map, later
+#' `decode`d back to readable strings for output "group" columns. R has no
+#' storage-efficiency reason to keep these as integers, so this package keeps
+#' only the variables whose codes are genuinely compared/ranged against
+#' specific numbers elsewhere in the logic (`age_cat`, `size_cat`,
+#' `tech_grad`, plus the classification codes in `compute_persistence()` and
+#' `compute_predictors()`) as integers with a label map here; every other
+#' category (`sector_1d`, `region_2d`, `ind_a38`, `reg_techgrad`, `size_age`,
+#' `typology_UR`) is kept as a plain character string throughout, since
+#' nothing ever compares them to a specific hardcoded value. See
+#' `Pseudocode/00_conventions.md`'s `ENCODE`/`DECODE` primitive note.
+#'
+#' `multiplant`, `independent`, and `foreign_owned` are a deliberate dual-use
+#' case: they stay `0`/`1` numeric throughout (so they can be averaged into
+#' `share_*` columns), and are only mapped to `"Yes"`/`"No"`/`"Affiliate"`/
+#' `"Independent"` at the specific points where the source itself calls
+#' `decode` on them (when used as a `by`-category rather than an outcome).
+#'
+#' @keywords internal
+value_labels <- list(
+  age_cat = c(`0` = "Young (0-5)", `6` = "Medium-age (6-10)", `11` = "Mature (11+)"),
+  size_cat = c(
+    `0` = "size 0-9", `10` = "size 10-19", `20` = "size 20-49",
+    `50` = "size 50-99", `100` = "size 100-249", `250` = "size 250+"
+  ),
+  tech_grad = c(
+    `1` = "Medium-high tech mfg", `2` = "Medium-low tech mfg & extractive",
+    `3` = "Advanced services", `4` = "Other services tradable",
+    `5` = "Education, social, health", `6` = "Construction",
+    `7` = "Other services non-tradable"
+  ),
+  multiplant = c(`0` = "No", `1` = "Yes"),
+  independent = c(`0` = "Affiliate", `1` = "Independent"),
+  foreign_owned = c(`0` = "No", `1` = "Yes"),
+  ALL = c(`1` = "full sample")
+)
+
+#' Decode a category column to its readable string label
+#'
+#' Generic dispatcher used everywhere the source calls `decode <cat>, gen
+#' (group)` on a loop variable that could be any of several category columns.
+#' If `cat_name` has an entry in [value_labels], look up each value there;
+#' otherwise (e.g. `region_2d`, `ind_a38`, `reg_techgrad`) the column is
+#' already a plain string and is returned as-is.
+#'
+#' A leading lag prefix (`L1`, `L2`, `L3`, `L6`, ...) is stripped before the
+#' lookup, so e.g. `decode_category(x, "L3age_cat")` resolves to the same map
+#' as `decode_category(x, "age_cat")` — lagged category columns always mean
+#' the same categories as their contemporaneous counterpart.
+#'
+#' @param x The category column (integer-coded or already character).
+#' @param cat_name Name of the category (used to find the label map).
+#' @return A character vector.
+#' @export
+decode_category <- function(x, cat_name) {
+  base_name <- sub("^L[0-9]+", "", cat_name)
+  map <- value_labels[[base_name]]
+  if (is.null(map)) {
+    return(as.character(x))
+  }
+  unname(map[as.character(x)])
+}

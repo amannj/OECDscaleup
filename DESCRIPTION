@@ -1,0 +1,34 @@
+Package: OECDscaleup
+Title: Construct OECD Scale-Up High-Growth-Firm Indicators
+Version: 0.1.0
+Authors@R:
+    person("OECD", "Scale Up Team", , "scaleup@oecd.org", role = c("aut", "cre", "cph"))
+Description: Builds the firm-level high-growth-firm (HGF) / scale-up
+    indicators used in the OECD Scale Up project from confidential
+    national firm microdata, and produces the disclosure-checked
+    aggregate tabulations (characteristics, transitions/evolutions,
+    contribution, predictors) shared back with the OECD. A behaviour-
+    preserving translation of the OECD "Second Package" Stata pipeline
+    (see 'data-raw/' for provenance).
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Depends:
+    R (>= 4.1)
+Imports:
+    collapse,
+    dplyr,
+    fixest,
+    haven,
+    rlang,
+    statar,
+    stats,
+    utils
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0
+LazyData: true

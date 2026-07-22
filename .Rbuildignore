@@ -1,0 +1,8 @@
+^renv$
+^renv\.lock$
+^LICENSE\.md$
+^\.github$
+^CONTRIBUTING\.md$
+^data-raw$
+^OECDscaleup\.Rproj$
+^\.Rproj\.user$

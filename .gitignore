@@ -1,0 +1,13 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Rprofile.local
+inst/doc
+docs
+
+# renv/.gitignore already ignores renv/library, renv/local, etc.
+# (renv.lock and renv/activate.R are tracked, as intended).
+.httr-oauth
+.DS_Store
+.quarto

@@ -1,0 +1,179 @@
+---
+title: "Getting Started with OECDscaleup"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with OECDscaleup}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+```{r setup}
+library(OECDscaleup)
+```
+
+## What this package does
+
+This package builds the firm-level "high-growth firm" (HGF) / scale-up
+indicators used in the OECD Scale Up project, and produces the
+disclosure-checked aggregate tables shared back with the OECD. It is a
+behaviour-preserving translation of the OECD's original Stata pipeline
+(`MASTER_OECD_p2.do` and 5 worker `.do` files) — see `Analysis/stata.md` and
+`Pseudocode/*.md` in the package source repository for the full analysis this
+translation was built from.
+
+Firm-level microdata is confidential and never leaves the country whose
+national statistical institute holds it, so **no real data ships with this
+package**. Every example below uses small, fabricated data purely to
+demonstrate the interface — the actual numbers are meaningless.
+
+## The pipeline at a glance
+
+Five pipeline functions, matching the five original `.do` files one-to-one:
+
+1. `build_accounts_indicators()` — cleans raw firm-level data and constructs
+   every derived indicator (growth rates, HGF flags, categories, multi-factor
+   productivity, ...). Every other stage depends on its output.
+2. `compute_characteristics()` — descriptive statistics of scaler
+   populations.
+3. `compute_persistence()` — growth trajectories before/after a scaling
+   event ("transitions" and "evolutions").
+4. `compute_contribution()` — job/turnover creation-vs-destruction
+   accounting.
+5. `compute_predictors()` — classifies scalers by pre-period predictor
+   quartile and regresses scaling on those predictors.
+
+Stages 2-5 are independent of each other and only depend on stage 1's
+output. All five are **pure functions** — data frames in, data frames out —
+so they can be tested and used without touching the filesystem.
+
+`run_scaleup_pipeline()` is the only function that performs file I/O: it
+reads the raw `.dta` inputs, calls the five functions above in order, and
+writes every output as a CSV — mirroring `MASTER_OECD_p2.do`'s role in the
+original package.
+
+## Configuration
+
+Every stage takes a `scaleup_config`, built with `config_scaleup()`. This
+replaces the Stata global macros (`$country`, `$inputdir`, ...) set once in
+`MASTER_OECD_p2.do`:
+
+```{r, eval = FALSE}
+cfg <- config_scaleup(
+  country = "FR",
+  input_dir = "V:/SCALE_UP/DTA/",
+  output_dir = "V:/SCALE_UP/TMP/",
+  dominance = FALSE # set TRUE (with dom_vars/dom_num) if your country
+  # requires dominance-rule confidentiality statistics
+)
+```
+
+## Running the full pipeline from files
+
+If you have `base_financials_<CT>.dta` (and optionally `plants_RAW_<CT>.dta`)
+prepared per `variable_dictionary_v1.xlsx`, alongside this package's own
+`tl3_typology`/`exchange_rates` reference data saved as `.dta` files in the
+same input folder (exactly as the original PDF instructions describe):
+
+```{r, eval = FALSE}
+cfg <- config_scaleup(
+  country = "FR",
+  input_dir = "path/to/input",
+  output_dir = "path/to/output"
+)
+outputs <- run_scaleup_pipeline(cfg)
+```
+
+This writes `n13_characteristics_FR.csv`, `n13_transitions_FR.csv`, and so
+on to `output_dir`, plus the intermediate `accounts_indicators_FR.dta` back
+to `input_dir` (used for the manual confidentiality-check procedure
+described below). It also returns every output table as an R list, for
+programmatic use.
+
+## Running the pure functions directly
+
+If you already have data loaded in R — for instance because you're testing,
+or piping in data from elsewhere in an R workflow — call the five functions
+directly instead. Here's a small synthetic example:
+
+```{r}
+set.seed(1)
+years <- 2010:2018
+base_financials <- data.frame(
+  idf = rep(1:20, each = length(years)),
+  year = rep(years, times = 20),
+  sector_1d = "C",
+  sector_2d = 26,
+  sector_3d = 262,
+  region_2d = "FR10",
+  birth_year = 2000,
+  employment = as.vector(sapply(1:20, function(i) {
+    pmax(10, round(stats::rlnorm(1, log(30), 0.3) * (1 + stats::rnorm(1, 0.02, 0.1))^(seq_along(years) - 1)))
+  })),
+  stringsAsFactors = FALSE
+)
+base_financials$turnover <- base_financials$employment * 100
+
+cfg <- config_scaleup(
+  country = "FR",
+  input_dir = tempdir(), # unused by the pure functions themselves
+  output_dir = tempdir()
+)
+
+accounts_indicators <- build_accounts_indicators(cfg, base_financials)
+characteristics <- compute_characteristics(cfg, accounts_indicators)
+head(characteristics)
+```
+
+`compute_persistence()` returns a named list (`transitions`,
+`evolutions_p1`, `evolutions_p2`) since a country's panel may be too short to
+produce all three; `compute_predictors()` similarly returns `list()`
+entirely if `added_value`, `tangible_fixed_assets`, or `labour_costs` aren't
+present in the input data.
+
+```{r}
+persistence <- compute_persistence(cfg, accounts_indicators)
+names(persistence)
+```
+
+`persistence` has no elements here — this random 9-year panel doesn't happen
+to contain a firm that scales specifically within the 2014-2016 window
+(`transitions`) or a panel reaching 2020 (`evolutions`), and neither is an
+error. Real country panels spanning more years, with genuine scaling firms,
+will populate one or more of `transitions`, `evolutions_p1`, `evolutions_p2`.
+
+## Disclosure control
+
+Every output table can include `dom_<var>` dominance-concentration columns
+— the share of a group's total held by its largest `dom_num` firms — when
+`config$dominance` is `TRUE`. This package's own `dominance_share()`
+function implements that statistic and is directly usable to independently
+verify a value, the same way the original PDF's confidentiality-check
+worked example describes doing by hand in Stata:
+
+```{r}
+cfg_dom <- config_scaleup(
+  country = "FR", input_dir = tempdir(), output_dir = tempdir(),
+  dominance = TRUE, dom_vars = c("employment", "turnover"), dom_num = 2
+)
+characteristics_dom <- compute_characteristics(cfg_dom, accounts_indicators)
+characteristics_dom[1:3, c("category", "group", "sample", "dom_employment")]
+```
+
+**Cells are not automatically blanked.** As with the original Stata
+pipeline, the decision on which cells to suppress before sharing results
+externally rests with the analyst / national statistical institute — this
+package reports the statistics needed to make that decision, it does not
+make it for you.
+
+## Where to look next
+
+- `?config_scaleup`, `?build_accounts_indicators`, `?compute_characteristics`,
+  `?compute_persistence`, `?compute_contribution`, `?compute_predictors`,
+  `?run_scaleup_pipeline` for full argument/return documentation.
+- `?country_patches` for the 3 country-specific data patches carried over
+  from the original Stata source.
+- `?tl3_typology`, `?exchange_rates` for the bundled OECD reference data.
