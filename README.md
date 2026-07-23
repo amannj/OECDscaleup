@@ -10,8 +10,7 @@ microdata, and produces the disclosure-checked aggregate tabulations
 back with the OECD.
 
 It is a behaviour-preserving translation of the OECD's original Stata
-pipeline (`MASTER_OECD_p2.do` and 5 worker `.do` files, version 1.0,
-`scaleup@oecd.org`) — see [`NEWS.md`](NEWS.md) for what changed in the
+pipeline (`MASTER_OECD_p2.do` and 5 worker `.do` files, version 1.0) — see [`Changelog - OECDscaleup 0.1.0`](https://amannj.github.io/OECDscaleup/news/index.html#oecdscaleup-010) for what changed in the
 translation and why.
 
 Firm-level microdata is confidential and never leaves the country whose
