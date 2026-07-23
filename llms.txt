@@ -7,10 +7,10 @@ tabulations (characteristics, transitions/evolutions, contribution,
 predictors) shared back with the OECD.
 
 It is a behaviour-preserving translation of the OECD’s original Stata
-pipeline (`MASTER_OECD_p2.do` and 5 worker `.do` files, version 1.0,
-`scaleup@oecd.org`) — see
-[`NEWS.md`](https://amannj.github.io/OECDscaleup/NEWS.md) for what
-changed in the translation and why.
+pipeline (`MASTER_OECD_p2.do` and 5 worker `.do` files, version 1.0) —
+see
+[`Changelog - OECDscaleup 0.1.0`](https://amannj.github.io/OECDscaleup/news/index.html#oecdscaleup-010)
+for what changed in the translation and why.
 
 Firm-level microdata is confidential and never leaves the country whose
 national statistical institute holds it, so **no real data ships with
