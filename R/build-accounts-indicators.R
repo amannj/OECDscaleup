@@ -336,10 +336,13 @@ build_accounts_indicators <- function(config,
 
   # --- Step 16: OECD STAN a38 industry grouping (ind_a38) ---------------------
   # Kept as a plain string throughout (no numeric code needed - see labels.R).
+  # Fix S2: the Stata list also contained the aggregate "D68T82", assigned after
+  # D69T71/D72/D73T75, so divisions 69-75 all ended up in "D68T82". It is not an
+  # A38 group and is dropped; the remaining ranges do not overlap.
   stan_a38_codes <- c(
     "D26", "D72", "D21", "D27", "D13T15", "D85", "D28", "D05T09", "D20", "D36T39",
     "D19", "D29T30", "D84", "D62T63", "D61", "D69T71", "D16T18", "D58T60", "D22T23",
-    "D24T25", "D10T12", "D73T75", "D31T33", "D94T96", "D68T82", "D55T56", "D90T93",
+    "D24T25", "D10T12", "D73T75", "D31T33", "D94T96", "D55T56", "D90T93",
     "D35", "D41T43", "D45T47", "D77T82", "D86", "D49T53", "D87T88", "D01T03", "D68",
     "D64T66", "D97T98"
   )

@@ -1,5 +1,15 @@
 # OECDscaleup (development version)
 
+## Stata bugs fixed
+
+Each fix changes results relative to the Stata code (and to git tag
+`stata-parity-v1_3`); the change was checked to be limited to what the fix
+should touch.
+
+- S2 `ind_a38`: NACE divisions 69-75 are now grouped as D69T71, D72 and
+  D73T75 instead of the aggregate D68T82, which is not an A38 group (68 stays
+  D68, 77-82 stay D77T82).
+
 ## Verified against Stata
 
 Outputs were compared with the original Stata code (package version 1.3)
@@ -56,8 +66,8 @@ and are decided one by one before they are changed.
 
 - S1 Jump filter: in a 20-200-20 spike the year after the spike is blanked,
   not the spike.
-- S2 `ind_a38`: `D68T82` is assigned after `D69T71`, `D72`, `D73T75`, so
-  divisions 69-76 all end up in `D68T82`; `D77T82` overlaps likewise.
+- S2 *(fixed, see above)* `ind_a38`: `D68T82` is assigned after `D69T71`,
+  `D72`, `D73T75`, so divisions 69-75 all end up in `D68T82`.
 - S3 Region aggregation: a missing small-region share counts as above 0.5,
   so large TL1 regions are aggregated too.
 - S4 Predictor types 9 ("missing info") and 50 ("<50 N") are overwritten
