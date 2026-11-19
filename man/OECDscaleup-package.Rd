@@ -8,6 +8,15 @@
 \description{
 Builds the firm-level high-growth-firm (HGF) / scale-up indicators used in the OECD Scale Up project from confidential national firm microdata, and produces the disclosure-checked aggregate tabulations (characteristics, transitions/evolutions, contribution, predictors) shared back with the OECD. A behaviour- preserving translation of the OECD "Second Package" Stata pipeline (see 'data-raw/' for provenance).
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/amannj/OECDscaleup}
+  \item \url{https://amannj.github.io/OECDscaleup/}
+  \item Report bugs at \url{https://github.com/amannj/OECDscaleup/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: OECD Scale Up Team \email{scaleup@oecd.org} [copyright holder]
 

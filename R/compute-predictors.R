@@ -113,6 +113,9 @@ compute_predictors <- function(config, accounts_indicators) {
     has_column(data, "labour_costs"))) {
     return(list())
   }
+  # encode codes of region_2d (they appear in the regression term names, e.g. 3.L3region_2d)
+  region_codes <- attr(accounts_indicators, "stata_encode_levels")$region_2d
+  if (is.null(region_codes) && "region_2d" %in% names(data)) region_codes <- stata_encode_levels(data$region_2d)
 
   # --- 1. Preparation ----------------------------------------------------------
   nonmicro <- as.integer(!is.na(data$size_cat) & data$size_cat >= 10)
@@ -125,8 +128,8 @@ compute_predictors <- function(config, accounts_indicators) {
     data[[paste0("f_", hg)]] <- first_occurrence_flag(data$idf, data$year, data[[hg]])
   }
 
-  data$gross_profit <- data$added_value - data$labour_costs
-  data$gross_profit_gr <- data$gross_profit - panel_lag(data$gross_profit, 3, data$idf, data$year)
+  data$gross_profit <- stata_float(data$added_value - data$labour_costs)
+  data$gross_profit_gr <- stata_float(data$gross_profit - panel_lag(data$gross_profit, 3, data$idf, data$year))
 
   # --- 2. Predictor quartiles ---------------------------------------------------
   ymin <- min(data$year)
@@ -170,11 +173,13 @@ compute_predictors <- function(config, accounts_indicators) {
       if (nrow(subset_df) == 0) next
 
       grp <- subset_df %>% dplyr::group_by(dplyr::across(dplyr::all_of(c("type", cat, "year"))))
+      # medians before means: summarise() evaluates in order and the means
+      # overwrite the growth columns the medians need
       cell <- grp %>%
         dplyr::summarise(
           N_firms = dplyr::n(),
-          dplyr::across(dplyr::all_of(c("employment_growth3y", "turnover_growth3y")), ~ mean(.x, na.rm = TRUE)),
           dplyr::across(dplyr::all_of(median_vars), approx_median, .names = "median_{.col}"),
+          dplyr::across(dplyr::all_of(c("employment_growth3y", "turnover_growth3y")), ~ stata_double(mean(.x, na.rm = TRUE))),
           .groups = "drop"
         )
       if (isTRUE(config$dominance)) {
@@ -199,7 +204,8 @@ compute_predictors <- function(config, accounts_indicators) {
       cell$Perc <- ifelse(cell$type >= 1 & cell$type <= 6, cell$N_firms / cell$total * 100, NA_real_)
       cell$total <- NULL
 
-      cell$group <- decode_category(cell[[cat]], cat)
+      # here ALL is labelled "Total" (label define ALL 1 "Total")
+      cell$group <- if (identical(cat, "ALL")) "Total" else decode_category(cell[[cat]], cat)
       cell[[cat]] <- NULL
       cell$category <- cat
       cell$scalertype <- scaler
@@ -255,42 +261,35 @@ compute_predictors <- function(config, accounts_indicators) {
         for (keyvars in keyvar_groups) {
           for (controls_on in c(FALSE, TRUE)) {
             covariates_label <- if (controls_on) "yes" else "no"
-            controls_terms <- if (controls_on) paste0("factor(", cat_vars, ")") else character(0)
-            formula_str <- paste(scaler, "~", paste(c(keyvars, controls_terms), collapse = " + "))
+            used_cats <- if (controls_on) cat_vars else character(0)
 
+            # `reg <scaler> <keyvars> [i.(<cat_vars>)] if year == <year> & <sample> == 1, robust`
             row_filter <- !is.na(data$year) & data$year == year & stata_num(data[[sample]]) == 1
             fit_data <- data[row_filter, ]
-
-            model <- tryCatch(
-              fixest::feols(stats::as.formula(formula_str), data = fit_data, vcov = "hetero"),
-              error = function(e) NULL, warning = function(w) NULL
-            )
-            if (is.null(model)) {
-              next # k advances once per keyvar_group regardless of outcome - see below
-            }
-
-            formula_vars <- all.vars(stats::as.formula(formula_str))
-            complete <- stats::complete.cases(fit_data[formula_vars])
+            complete <- stats::complete.cases(fit_data[c(scaler, keyvars, used_cats)])
             est_sample <- fit_data[complete, ]
-            ymean <- round_half_up(mean(est_sample[[scaler]], na.rm = TRUE), 4)
+            factors <- lapply(stats::setNames(used_cats, used_cats), function(cv) {
+              x <- est_sample[[cv]]
+              if (identical(cv, "L3region_2d")) unname(region_codes[x]) else as.double(x)
+            })
+            fit <- stata_regress_robust(as.double(est_sample[[scaler]]), est_sample[keyvars], factors)
+            if (is.null(fit)) {
+              next # `cap reg` failed (no observations); k still advances per keyvar group
+            }
+            ymean <- stata_round(mean(est_sample[[scaler]]), 0.0001)
 
             dom_scalars <- list()
             if (isTRUE(config$dominance)) {
               for (domvar in config$dom_vars) {
                 if (domvar %in% names(est_sample)) {
-                  dom_scalars[[domvar]] <- dominance_share(est_sample[[domvar]], config$dom_num)
+                  dom_scalars[[domvar]] <- stata_round(dominance_share(est_sample[[domvar]], config$dom_num), 0.0001)
                 }
               }
             }
 
-            ct <- fixest::coeftable(model)
-            ci <- stats::confint(model)
-            indepvars <- rownames(ct)
             result <- data.frame(
-              model = k, controls = covariates_label, obs = stats::nobs(model), year = year,
-              sample = sample, depvar = scaler, mean_depvar = ymean, indepvar = indepvars,
-              b = ct[, "Estimate"], se = ct[, "Std. Error"], t = ct[, "t value"], pval = ct[, "Pr(>|t|)"],
-              lb95 = ci[indepvars, 1], ub95 = ci[indepvars, 2], df = stats::df.residual(model),
+              model = k, controls = covariates_label, obs = fit$N, year = year,
+              sample = sample, depvar = scaler, mean_depvar = ymean, fit$table, df = fit$df_r,
               stringsAsFactors = FALSE
             )
             for (domvar in names(dom_scalars)) {
@@ -316,6 +315,7 @@ finalize_desc_predictors <- function(accumulator, config) {
     return(NULL)
   }
   out <- dplyr::bind_rows(accumulator)
+  out$type <- export_label(out$type, output_labels$type)
   names(out)[names(out) == "employment_growth3y"] <- "mean_employment_growth3y"
   names(out)[names(out) == "turnover_growth3y"] <- "mean_turnover_growth3y"
   front <- c("category", "group", "scalertype")

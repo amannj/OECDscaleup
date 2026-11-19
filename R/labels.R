@@ -38,6 +38,41 @@ value_labels <- list(
   ALL = c(`1` = "full sample")
 )
 
+#' Value labels of the classification codes written to the output CSVs
+#'
+#' Stata's `export delimited` writes the value label instead of the code
+#' (unless `nolabel` is given), so these columns carry the label text in the
+#' original output files.
+#'
+#' @keywords internal
+output_labels <- list(
+  follow_transitions = c(`6` = "HG again", `5` = "Growing", `4` = "Stable", `3` = "Partial reversal",
+                         `2` = "Full reversal", `1` = "Missing info", `0` = "Acquisition"),
+  follow_oth_transitions = c(`6` = "HG again", `5` = "Growing", `4` = "Stable", `3` = "Shrinking",
+                             `1` = "Missing info", `0` = "Acquisition"),
+  lead_evolutions = c(`6` = "HG", `5` = "Growing", `4` = "Stable", `3` = "Shrinking", `2` = "Entry",
+                      `1` = "Missing info", `9` = "Aggregated"),
+  follow_evolutions = c(`6` = "HG again", `5` = "Growing", `4` = "Stable", `3` = "Partial reversal",
+                        `2` = "Full reversal", `1` = "Missing info", `0` = "Acquisition", `9` = "Aggregated"),
+  follow_oth_evolutions = c(`6` = "HG again", `5` = "Growing", `4` = "Stable", `3` = "Shrinking",
+                            `1` = "Missing info", `9` = "Aggregated"),
+  type = c(`0` = "Unclassified", `1` = "Strategic (mixed)", `2` = "Strategic (productivity)",
+           `3` = "Strategic (capital)", `4` = "Strategic (labour)", `5` = "Transformational",
+           `6` = "Expansionist", `9` = "Missing info", `50` = "<50 year-sector N")
+)
+
+#' Write a code as Stata's `export delimited` does: its label, else the number
+#' @param x Numeric codes.
+#' @param map Named character vector (code -> label).
+#' @return A character vector (`NA` stays `NA`).
+#' @noRd
+export_label <- function(x, map) {
+  out <- unname(map[as.character(x)])
+  unlabelled <- is.na(out) & !is.na(x)
+  out[unlabelled] <- as.character(x[unlabelled])
+  out
+}
+
 #' Decode a category column to its readable string label
 #'
 #' Generic dispatcher used everywhere the source calls `decode <cat>, gen

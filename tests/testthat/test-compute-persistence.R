@@ -42,7 +42,9 @@ test_that("evolutions_p1 small-cell-suppresses a lone scaler to 'Aggregated' (9)
   # so every cell must be suppressed to the "Aggregated" tier (9) on all four
   # classification dimensions -- see collapse_evolution_cell()'s suppress step.
   expect_true(all(p1$N_scalers <= 5))
-  expect_true(all(p1$LEAD == 9 & p1$LEAD_othvar == 9 & p1$FOLLOW == 9 & p1$FOLLOW_othvar == 9))
+  # written as Stata's export delimited writes them: the value label, not the code
+  expect_true(all(p1$LEAD == "Aggregated" & p1$LEAD_othvar == "Aggregated" &
+    p1$FOLLOW == "Aggregated" & p1$FOLLOW_othvar == "Aggregated"))
 })
 
 test_that("evolutions_p2 classifies the scaling firm as an incumbent (continuous panel presence)", {

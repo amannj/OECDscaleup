@@ -24,12 +24,10 @@ package additionally imposes a minimum group size of 50 before calling this
 at all — see \code{compute_predictors()}).
 }
 \details{
-Stata's own \code{xtile} is confirmed to use a percentile algorithm equivalent
-to R's \code{quantile(type = 2)} (see \code{percentile_stata()} and its source
-comment); \code{statar::xtile()} is a separate, independent R reimplementation,
-and its exact tie-breaking at quartile boundaries has not been verified
-here to match Stata's bit-for-bit. For this package's use (classifying
-scalers into descriptive predictor-quartile groups), this is a low-stakes
-residual risk — a handful of firms sitting exactly on a cutpoint could
-land in an adjacent bin — flagged rather than silently assumed away.
+Stata's own \code{xtile} uses a percentile algorithm equivalent to R's
+\code{quantile(type = 2)} (see \code{percentile_stata()}). \code{statar::xtile()} is an
+independent reimplementation; its quartile assignments matched Stata 19.5
+exactly in the reproduction runs (every predictor type and desc_predictors
+cell, nine synthetic scenarios), provided the input is stored as Stata
+stores it (\code{float}, see \code{stata_float()}).
 }

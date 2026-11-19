@@ -92,6 +92,11 @@ build_accounts_indicators <- function(config,
   # comparison against "L", not a missing-propagating one).
   data$sector_L <- as.integer(!is.na(data$sector_1d) & data$sector_1d == "L")
 
+  # `replace sector_1d = "" if sector_1d == "."` then `encode`: "." and "" become missing.
+  # The encode code table is fixed here, before the year trimming below drops rows.
+  data$sector_1d[data$sector_1d %in% c(".", "")] <- NA_character_
+  encode_levels <- list(sector_1d = stata_encode_levels(data$sector_1d))
+
   # --- Step 5: clean implausible negative financial values --------------------
   negative_clean_vars <- c(
     "employment", "turnover", "added_value", "exp_revenues_goods",
@@ -140,7 +145,7 @@ build_accounts_indicators <- function(config,
       dplyr::filter(.data$country == config$country) %>%
       dplyr::select("year", "rate")
     data <- dplyr::left_join(data, rates, by = "year")
-    data$turnover_nat <- data$turnover * data$rate
+    data$turnover_nat <- stata_float(data$turnover * data$rate)
     data$rate <- NULL
   }
 
@@ -155,8 +160,8 @@ build_accounts_indicators <- function(config,
   # --- Step 10: drop implausible growth "jumps" -------------------------------
   turnover_type <- if (config$country %in% country_patches$non_euro) "turnover_nat" else "turnover"
   for (v in c("employment", turnover_type)) {
-    gr <- panel_diff1(data[[v]], data$idf, data$year) /
-      (0.5 * (data[[v]] + panel_lag(data[[v]], 1, data$idf, data$year)))
+    gr <- stata_float(panel_diff1(data[[v]], data$idf, data$year) /
+      (0.5 * (data[[v]] + panel_lag(data[[v]], 1, data$idf, data$year))))
     l1_gr <- panel_lag(gr, 1, data$idf, data$year)
     avg3 <- (panel_lag(data$employment, 1, data$idf, data$year) + data$employment +
       panel_lead(data$employment, 1, data$idf, data$year)) / 3
@@ -174,7 +179,8 @@ build_accounts_indicators <- function(config,
     dplyr::mutate(.max_y = max(.data$year), .min_y = min(.data$year)) %>%
     dplyr::ungroup()
 
-  if (has_column(data, "age_cat")) {
+  age_cat_supplied <- has_column(data, "age_cat")
+  if (age_cat_supplied) {
     # Branch A: age_cat supplied directly in the raw data.
     # stata_num(): a missing age_cat must compare FALSE to 0, not propagate NA (see stata_num()).
     data$entry <- as.integer(data$year == data$.min_y & data$year > ymin & stata_num(data$age_cat) == 0)
@@ -196,6 +202,7 @@ build_accounts_indicators <- function(config,
       data$age <- data$year - data$birth_year
     }
     data$age <- dplyr::if_else(data$age < 0, NA_real_, data$age)
+    data$L3age <- panel_lag(data$age, 3, data$idf, data$year)
 
     data$entry <- as.integer(
       stata_num(data$year) == stata_num(data$birth_year) |
@@ -242,20 +249,24 @@ build_accounts_indicators <- function(config,
     f1v <- panel_lead(data[[v]], 1, data$idf, data$year)
     l3emp <- panel_lag(data$employment, 3, data$idf, data$year)
 
-    growth3y <- winsorize_upper(data[[v]] / l3v - 1)
-    growth1y <- winsorize_upper(data[[v]] / l1v - 1)
-    futgrowth <- winsorize_upper(f1v / data[[v]] - 1)
+    # gen (float), then blank values above the p99 of the stored float values
+    growth3y <- winsorize_upper(stata_float(data[[v]] / l3v - 1))
+    growth1y <- winsorize_upper(stata_float(data[[v]] / l1v - 1))
+    futgrowth <- winsorize_upper(stata_float(f1v / data[[v]] - 1))
     data[[paste0(lab, "_growth3y")]] <- growth3y
     data[[paste0(lab, "_growth1y")]] <- growth1y
     data[[paste0(lab, "_futgrowth")]] <- futgrowth
 
-    ratio3y <- data[[v]] / l3v
+    # in-expression ratio (double); x/0 is missing, so l3.var == 0 never qualifies
+    ratio3y <- stata_double(data[[v]] / l3v)
     eligible <- !is.na(ratio3y) & !is.na(l3emp) & l3emp >= 10
     eligible_micro <- !is.na(ratio3y) & !is.na(l3emp) & l3emp >= 1 & l3emp < 10
-    hg20 <- as.integer(eligible & (ratio3y^(1 / 3) - 1) > 0.2)
-    hg10 <- as.integer(eligible & (ratio3y^(1 / 3) - 1) > 0.1)
-    mhg20 <- as.integer(eligible_micro & (ratio3y^(1 / 3) - 1) > 0.2)
-    pool <- as.integer(eligible)
+    cagr <- stata_pow(ratio3y, 1 / 3) - 1 # Stata's ^ (see stata_pow())
+    hg20 <- as.integer(eligible & cagr > 0.2)
+    hg10 <- as.integer(eligible & cagr > 0.1)
+    mhg20 <- as.integer(eligible_micro & cagr > 0.2)
+    # the pool does not involve the ratio: var and l3.var non-missing, l3.employment >= 10
+    pool <- as.integer(!is.na(data[[v]]) & !is.na(l3v) & !is.na(l3emp) & l3emp >= 10)
     missing_mask <- is.na(data[[v]]) | is.na(l3v)
     hg20[missing_mask] <- NA
     hg10[missing_mask] <- NA
@@ -364,10 +375,13 @@ build_accounts_indicators <- function(config,
         .groups = "drop"
       ) %>%
       dplyr::mutate(share_small = .data$n_small / .data$n_total)
+    # Stata: `replace region_adj = region_1d if share_small > 0.5`, and a missing
+    # share_small (a TL1 with no small TL2 at all) compares as +infinity, so it is
+    # aggregated too. Reproduced as-is for parity (stata_num()).
     region_adj_map <- region_avg %>%
       dplyr::left_join(region_1d_totals, by = "region_1d") %>%
       dplyr::mutate(
-        region_adj = dplyr::if_else(!is.na(.data$share_small) & .data$share_small > 0.5,
+        region_adj = dplyr::if_else(stata_num(.data$share_small) > 0.5,
           .data$region_1d, .data$region_2d
         )
       ) %>%
@@ -377,11 +391,15 @@ build_accounts_indicators <- function(config,
     data$region_adj <- data$region_2d
   }
   tech_grad_str <- decode_category(data$tech_grad, "tech_grad")
+  # Stata: `if region_adj != "." & tech_grad_str != ""` - only the literal "." is
+  # excluded; an empty region_adj still yields "_<sector group>".
   data$reg_techgrad <- dplyr::if_else(
-    !is.na(data$region_adj) & !is.na(tech_grad_str),
-    paste0(data$region_adj, "_", tech_grad_str), NA_character_
+    dplyr::coalesce(data$region_adj, "") != "." & !is.na(tech_grad_str),
+    paste0(dplyr::coalesce(data$region_adj, ""), "_", tech_grad_str), NA_character_
   )
   data$region_adj <- NULL
+  # `replace region_2d = "" if region_2d == "."` then `encode`
+  data$region_2d[data$region_2d %in% c(".", "")] <- NA_character_
 
   # --- Step 18: TL3 urbanisation typology --------------------------------------
   if (has_column(data, "region_3d")) {
@@ -393,13 +411,16 @@ build_accounts_indicators <- function(config,
     }
     typ <- tl3_typology %>% dplyr::select("region_3d", "typology_access_cities")
     data <- dplyr::left_join(data, typ, by = "region_3d")
+    # Only the five known codes are renamed; any other value (the ".." of
+    # regions without a typology) is kept as its own category, as in Stata.
     data$typology_UR <- dplyr::case_when(
       data$typology_access_cities == "MR-L" ~ "Large metropolitan region",
       data$typology_access_cities == "MR-M" ~ "Metropolitan region",
       data$typology_access_cities == "NMR-M" ~ "Region near a metropolitan area",
       data$typology_access_cities == "NMR-S" ~ "Region with/near a small-medium city",
       data$typology_access_cities == "NMR-R" ~ "Remote region",
-      TRUE ~ NA_character_
+      is.na(data$typology_access_cities) | data$typology_access_cities == "" ~ NA_character_,
+      TRUE ~ data$typology_access_cities
     )
     data$typology_access_cities <- NULL
     if (!has_column(data, "typology_UR")) {
@@ -417,57 +438,59 @@ build_accounts_indicators <- function(config,
 
   # --- Step 20: labour productivity ---------------------------------------------
   for (v in intersect(c("added_value", "turnover"), names(data))) {
-    log_var <- log(data[[v]] / data$employment)
+    log_var <- stata_float(log(data[[v]] / data$employment)) # ln(0) and x/0 are missing
     bounds <- stats::quantile(log_var, probs = c(0.01, 0.99), na.rm = TRUE, type = 2)
     log_var <- dplyr::if_else(!is.na(log_var) & (log_var < bounds[[1]] | log_var > bounds[[2]]),
       NA_real_, log_var
     )
     data[[paste0("log_", v, "_emp")]] <- log_var
     data[[paste0("L3log_", v, "_emp")]] <- panel_lag(log_var, 3, data$idf, data$year)
-    data[[paste0("S3log_", v, "_emp")]] <- panel_sdiff(log_var, 3, data$idf, data$year)
+    data[[paste0("S3log_", v, "_emp")]] <- stata_float(panel_sdiff(log_var, 3, data$idf, data$year))
   }
-  if (has_column(data, "log_added_value_emp")) {
-    data$labour_prod <- data$log_added_value_emp
-    data$L3labour_prod <- data$L3log_added_value_emp
-  }
+  # `cap rename log_added_value_emp labour_prod` (and its L3); S3log_added_value_emp keeps its name
+  names(data)[names(data) == "log_added_value_emp"] <- "labour_prod"
+  names(data)[names(data) == "L3log_added_value_emp"] <- "L3labour_prod"
   for (v in c("employment", "turnover")) {
-    data[[paste0("L3", v)]] <- panel_lag(data[[v]], 3, data$idf, data$year)
-    data[[paste0("S3", v)]] <- panel_sdiff(data[[v]], 3, data$idf, data$year)
+    data[[paste0("L3", v)]] <- stata_float(panel_lag(data[[v]], 3, data$idf, data$year))
+    data[[paste0("S3", v)]] <- stata_float(panel_sdiff(data[[v]], 3, data$idf, data$year))
   }
 
   # --- Step 21: labour share, average wage, capital intensity --------------------
   if (has_column(data, "labour_costs")) {
-    data$labour_share <- data$labour_costs / data$turnover
-    data$avg_wage <- data$labour_costs / data$employment
+    data$labour_share <- stata_float(data$labour_costs / data$turnover)
+    data$avg_wage <- stata_float(data$labour_costs / data$employment)
     data$L3labour_share <- panel_lag(data$labour_share, 3, data$idf, data$year)
     data$L3avg_wage <- panel_lag(data$avg_wage, 3, data$idf, data$year)
   }
   if (has_column(data, "tangible_fixed_assets")) {
-    data$phys_assets <- data$tangible_fixed_assets / data$turnover
+    data$phys_assets <- stata_float(data$tangible_fixed_assets / data$turnover)
     data$L3phys_assets <- panel_lag(data$phys_assets, 3, data$idf, data$year)
   }
 
   # --- Step 22: multi-factor productivity (Solow residual) ------------------------
+  # Each intermediate is a separate float `gen` in Stata and stays in the dataset.
   if (has_column(data, "added_value") && has_column(data, "tangible_fixed_assets") &&
     has_column(data, "labour_share")) {
-    va <- log(data$added_value)
-    sl <- 1 - data$labour_share
-    k <- log(data$tangible_fixed_assets)
-    l <- log(data$employment)
-    sll <- data$labour_share * l
-    mfp <- exp(va - sl * k - sll)
-    floor_val <- min(mfp[!is.na(mfp) & mfp >= 0])
-    mfp <- dplyr::if_else(!is.na(mfp) & mfp < 0, floor_val, mfp)
+    data$va <- stata_float(log(data$added_value))
+    data$sl <- stata_float(1 - data$labour_share)
+    data$k <- stata_float(log(data$tangible_fixed_assets))
+    data$slk <- stata_float(data$sl * data$k)
+    data$l <- stata_float(log(data$employment))
+    data$sll <- stata_float(data$labour_share * data$l)
+    mfp <- stata_float(exp(data$va - data$slk - data$sll))
+    # `summ MFP if MFP >= 0; replace MFP = r(min) if MFP < 0` (exp() is never negative)
+    non_neg <- mfp[!is.na(mfp) & mfp >= 0]
+    if (length(non_neg)) mfp <- dplyr::if_else(!is.na(mfp) & mfp < 0, min(non_neg), mfp)
     data$MFP <- mfp
     data$L3MFP <- panel_lag(mfp, 3, data$idf, data$year)
-    data$MFP_gr <- (mfp - data$L3MFP) / data$L3MFP
+    data$MFP_gr <- stata_float((mfp - data$L3MFP) / data$L3MFP)
   }
 
   # --- Step 23: acquisition indicator -----------------------------------------------
-  d1emp <- panel_diff1(data$employment, data$idf, data$year)
-  sharegr1 <- d1emp / data$S3employment
-  sharegr2 <- panel_lag(d1emp, 1, data$idf, data$year) / data$S3employment
-  sharegr3 <- panel_lag(d1emp, 2, data$idf, data$year) / data$S3employment
+  d1emp <- stata_float(panel_diff1(data$employment, data$idf, data$year))
+  sharegr1 <- stata_float(d1emp / data$S3employment)
+  sharegr2 <- stata_float(panel_lag(d1emp, 1, data$idf, data$year) / data$S3employment)
+  sharegr3 <- stata_float(panel_lag(d1emp, 2, data$idf, data$year) / data$S3employment)
   acquisition <- as.integer(
     (!is.na(sharegr1) & sharegr1 > 0.8) | (!is.na(sharegr2) & sharegr2 > 0.8) |
       (!is.na(sharegr3) & sharegr3 > 0.8)
@@ -495,5 +518,52 @@ build_accounts_indicators <- function(config,
     }
   }
 
-  dplyr::as_tibble(data)
+  # Code tables Stata's `encode` assigned (sector_1d was fixed before the year
+  # trimming; no rows are dropped after the other encodes). Used to write the
+  # .dta exactly as Stata does and for Stata-style regression term names.
+  for (v in c("size_age", "ind_a38", "reg_techgrad", "region_2d")) {
+    if (v %in% names(data)) encode_levels[[v]] <- stata_encode_levels(data[[v]])
+  }
+  if ("typology_UR" %in% names(data)) {
+    # the merge brings tl3_typology.dta's own `typology_UR` value label, which encode extends
+    existing <- if (!is.null(tl3_typology)) attr(tl3_typology$typology_UR, "labels") else NULL
+    if (!is.null(existing)) existing <- stats::setNames(as.double(existing), names(existing))
+    encode_levels$typology_UR <- stata_encode_levels(data$typology_UR, existing)
+  }
+  out <- dplyr::as_tibble(data)
+  attr(out, "stata_encode_levels") <- encode_levels
+  # A user-supplied age_cat keeps the value label it arrived with (none if it
+  # had none): Stata only defines `agelab` when it builds age_cat itself.
+  if (age_cat_supplied) attr(out, "age_cat_labels") <- list(attr(base_financials$age_cat, "labels"))
+  out
+}
+
+#' Convert accounts_indicators to Stata's storage (labelled numeric categories)
+#'
+#' Categories that Stata `encode`s become numeric codes in byte sort order;
+#' categories with a `label define` keep their codes and gain the labels; the
+#' `L3` copies share their base variable's codes and labels.
+#'
+#' @param data Output of [build_accounts_indicators()].
+#' @return `data` with category columns as `haven_labelled` doubles.
+#' @noRd
+as_stata_accounts <- function(data) {
+  levels <- attr(data, "stata_encode_levels")
+  for (v in c("sector_1d", "size_age", "ind_a38", "reg_techgrad", "region_2d", "typology_UR")) {
+    if (!v %in% names(data)) next
+    lv <- levels[[v]]
+    if (is.null(lv)) lv <- stata_encode_levels(data[[v]])
+    for (col in intersect(c(v, paste0("L3", v)), names(data))) data[[col]] <- stata_encode(data[[col]], lv)
+  }
+  user_age <- attr(data, "age_cat_labels")
+  for (v in c("age_cat", "size_cat", "tech_grad", "multiplant", "independent", "foreign_owned")) {
+    map <- value_labels[[v]]
+    labs <- stats::setNames(as.double(names(map)), unname(map))
+    if (v == "age_cat" && !is.null(user_age)) labs <- user_age[[1]]
+    for (col in intersect(c(v, paste0("L3", v)), names(data))) {
+      x <- as.double(haven::zap_labels(data[[col]]))
+      data[[col]] <- if (is.null(labs)) x else haven::labelled(x, labels = labs)
+    }
+  }
+  data
 }

@@ -22,11 +22,14 @@ test_that("desc_predictors' Perc column is a percentage only for classified type
   ai <- build_accounts_indicators(cfg, make_base_financials_wide())
   desc <- compute_predictors(cfg, ai)$desc_predictors
 
-  classified <- desc[desc$type %in% 1:6, ]
+  # `type` carries Stata's value labels (export delimited writes labels)
+  classified_labels <- unname(output_labels$type[as.character(1:6)])
+  expect_true(all(desc$type %in% unname(output_labels$type)))
+  classified <- desc[desc$type %in% classified_labels, ]
   if (nrow(classified) > 0) {
     expect_true(all(classified$Perc >= 0 & classified$Perc <= 100, na.rm = TRUE))
   }
-  unclassified <- desc[!(desc$type %in% 1:6), ]
+  unclassified <- desc[!(desc$type %in% classified_labels), ]
   if (nrow(unclassified) > 0) {
     expect_true(all(is.na(unclassified$Perc)))
   }

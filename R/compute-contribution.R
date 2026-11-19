@@ -80,11 +80,12 @@ compute_contribution <- function(config, accounts_indicators) {
   }
 
   # --- Step 5: recompute L3/S3 for employment/turnover on the balanced panel --
+  # `replace` keeps the variables' float storage type
   for (v in c("employment", "turnover")) {
-    l3v <- panel_lag(data[[v]], 3, data$idf, data$year)
+    l3v <- stata_float(panel_lag(data[[v]], 3, data$idf, data$year))
     data[[paste0("L3", v)]] <- l3v
     s3v <- data[[paste0("S3", v)]]
-    s3v <- ifelse(!is.na(data[[v]]) & is.na(l3v), data[[v]], s3v)
+    s3v <- ifelse(!is.na(data[[v]]) & is.na(l3v), stata_float(data[[v]]), s3v)
     s3v <- ifelse(is.na(data[[v]]) & !is.na(l3v), -l3v, s3v)
     data[[paste0("S3", v)]] <- s3v
   }
@@ -148,8 +149,12 @@ compute_contribution <- function(config, accounts_indicators) {
           if (identical(sample, "entrants") && identical(group, "L3age_cat")) next
 
           # --- detail block -> contribution_p1 ---
+          # Stata: `if _N == 0 { restore; continue }` - an empty detail block also
+          # skips the aggregate block below (so `exiting` gets its p2 rows only
+          # from the D pass, since exiting firms never create).
           detail <- data[n_xy == 1, ]
-          if (nrow(detail) > 0) {
+          if (nrow(detail) == 0) next
+          {
             detail$.xy <- xy[n_xy == 1]
             detail$.l3xxx <- l3xxx_sample[n_xy == 1]
             dom <- contribution_dominance(detail, sample, group, config)

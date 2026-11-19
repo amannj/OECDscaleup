@@ -26,24 +26,24 @@ compute_characteristics <- function(config, accounts_indicators) {
   # --- financial dependency ratios (each conditional on its inputs) ----------
   findep_vars <- character(0)
   if (has_column(data, "current_assets") && has_column(data, "total_assets")) {
-    data$findep_rat1 <- data$current_assets / data$total_assets
+    data$findep_rat1 <- stata_float(data$current_assets / data$total_assets)
     data$L3findep_rat1 <- panel_lag(data$findep_rat1, 3, data$idf, data$year)
     findep_vars <- c(findep_vars, "findep_rat1")
   }
   if (has_column(data, "total_liabilities") && has_column(data, "total_assets")) {
-    data$findep_rat2 <- data$total_liabilities / data$total_assets
+    data$findep_rat2 <- stata_float(data$total_liabilities / data$total_assets)
     data$L3findep_rat2 <- panel_lag(data$findep_rat2, 3, data$idf, data$year)
     findep_vars <- c(findep_vars, "findep_rat2")
   }
   if (has_column(data, "total_liabilities") && has_column(data, "interest_costs")) {
-    data$findep_rat3 <- data$interest_costs / data$total_liabilities
+    data$findep_rat3 <- stata_float(data$interest_costs / data$total_liabilities)
     data$L3findep_rat3 <- panel_lag(data$findep_rat3, 3, data$idf, data$year)
     findep_vars <- c(findep_vars, "findep_rat3")
   }
   if (has_column(data, "tangible_fixed_assets") && has_column(data, "depr_amort") && has_column(data, "cash_flow")) {
-    capex <- data$tangible_fixed_assets -
-      panel_lag(data$tangible_fixed_assets, 1, data$idf, data$year) + data$depr_amort
-    data$findep_rat4 <- (capex - data$cash_flow) / capex
+    capex <- stata_float(data$tangible_fixed_assets -
+      panel_lag(data$tangible_fixed_assets, 1, data$idf, data$year) + data$depr_amort)
+    data$findep_rat4 <- stata_float((capex - data$cash_flow) / capex)
     data$L3findep_rat4 <- panel_lag(data$findep_rat4, 3, data$idf, data$year)
     findep_vars <- c(findep_vars, "findep_rat4")
   }
@@ -143,11 +143,13 @@ compute_characteristics <- function(config, accounts_indicators) {
       grp <- subset_df %>%
         dplyr::group_by(dplyr::across(dplyr::all_of(c(cat, "year"))))
 
+      # Medians before means: summarise() evaluates in order, and the means
+      # overwrite the growth columns that the medians also need.
       cell <- grp %>%
         dplyr::summarise(
           firms = sum(.data$firms),
-          dplyr::across(dplyr::all_of(mean_vars), ~ mean(.x, na.rm = TRUE)),
           dplyr::across(dplyr::all_of(median_vars), approx_median, .names = "median_{.col}"),
+          dplyr::across(dplyr::all_of(mean_vars), ~ stata_double(mean(.x, na.rm = TRUE))),
           .groups = "drop"
         )
 

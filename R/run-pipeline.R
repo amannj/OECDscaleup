@@ -40,7 +40,7 @@ run_scaleup_pipeline <- function(config) {
     plants_raw = plants_raw, exchange_rates = exchange_rates, tl3_typology = tl3_typology
   )
   haven::write_dta(
-    accounts_indicators,
+    as_stata_accounts(accounts_indicators),
     file.path(config$input_dir, paste0("accounts_indicators_", config$country, ".dta"))
   )
 

@@ -160,7 +160,7 @@ compute_transitions <- function(config, accounts_indicators) {
     if (!(finyear - inityear >= 6 && inityear <= 2013 && finyear >= 2017)) next
 
     for (v in c("employment", "turnover", "idf", spec$hg, spec$othhg)) {
-      data[[paste0("F3", v)]] <- panel_lead(data[[v]], 3, data$idf, data$year)
+      data[[paste0("F3", v)]] <- stata_float(panel_lead(data[[v]], 3, data$idf, data$year)) # gen (float)
     }
     f3grvar3y <- panel_lead(data[[spec$grvar3y]], 3, data$idf, data$year)
     f3othgrvar3y <- panel_lead(data[[spec$othgrvar3y]], 3, data$idf, data$year)
@@ -211,6 +211,8 @@ compute_transitions <- function(config, accounts_indicators) {
   }
   out <- dplyr::bind_rows(accumulator)
   names(out)[names(out) == "group_label"] <- "group"
+  out$FOLLOW <- export_label(out$FOLLOW, output_labels$follow_transitions)
+  out$FOLLOW_othvar <- export_label(out$FOLLOW_othvar, output_labels$follow_oth_transitions)
   front <- c("category", "group", "hg", "var")
   follow_cols <- intersect(c("FOLLOW", "FOLLOW_othvar"), names(out))
   rest <- setdiff(names(out), c(front, follow_cols, "year"))
@@ -282,19 +284,22 @@ compute_evolutions <- function(config, accounts_indicators) {
     data <- data[keep == 1, ]
     if (nrow(data) == 0) next
 
+    # every copy is a float `gen` in Stata
     for (v in c("employment", "turnover", "idf", spec$hg, spec$othhg, spec$grvar3y, spec$othgrvar3y)) {
-      data[[paste0("F3", v)]] <- panel_lead(data[[v]], 3, data$idf, data$year)
+      data[[paste0("F3", v)]] <- stata_float(panel_lead(data[[v]], 3, data$idf, data$year))
     }
     for (v in c(spec$grvar3y, spec$othgrvar3y, spec$hg, spec$othhg)) {
-      data[[paste0("L3", v)]] <- panel_lag(data[[v]], 3, data$idf, data$year)
+      data[[paste0("L3", v)]] <- stata_float(panel_lag(data[[v]], 3, data$idf, data$year))
     }
-    data[[paste0("L6", spec$lab)]] <- panel_lag(data[[spec$lab]], 6, data$idf, data$year)
-    data[[paste0("L6", spec$othlab)]] <- panel_lag(data[[spec$othlab]], 6, data$idf, data$year)
+    data[[paste0("L6", spec$lab)]] <- stata_float(panel_lag(data[[spec$lab]], 6, data$idf, data$year))
+    data[[paste0("L6", spec$othlab)]] <- stata_float(panel_lag(data[[spec$othlab]], 6, data$idf, data$year))
 
     for (v in c("entry", "exit")) {
-      v_year <- ifelse(data[[v]] == 1, data$year, NA_real_)
+      v_year <- ifelse(stata_num(data[[v]]) == 1, data$year, NA_real_)
       data[[paste0(v, "_year")]] <- stats::ave(v_year, data$idf, FUN = function(x) mean(x, na.rm = TRUE))
       data[[paste0(v, "_year")]][is.nan(data[[paste0(v, "_year")]])] <- NA_real_
+      # `replace <var>_year = . if <var> == .`
+      data[[paste0(v, "_year")]][is.na(data[[v]])] <- NA_real_
     }
 
     l6idf <- panel_lag(data$idf, 6, data$idf, data$year)
@@ -355,6 +360,12 @@ compute_evolutions <- function(config, accounts_indicators) {
     out <- dplyr::bind_rows(accumulator)
     names(out)[names(out) == "group_label"] <- "group"
     names(out)[names(out) == "nb_years_grow"] <- "avgN_years_gr"
+    if ("LEAD" %in% names(out)) {
+      out$LEAD <- export_label(out$LEAD, output_labels$lead_evolutions)
+      out$LEAD_othvar <- export_label(out$LEAD_othvar, output_labels$lead_evolutions)
+      out$FOLLOW <- export_label(out$FOLLOW, output_labels$follow_evolutions)
+      out$FOLLOW_othvar <- export_label(out$FOLLOW_othvar, output_labels$follow_oth_evolutions)
+    }
     front <- c("category", "group", "hg", "N_scalers", "avgN_years_gr")
     rest <- setdiff(names(out), c(front, id_cols))
     out[c(id_cols, front, rest)]
