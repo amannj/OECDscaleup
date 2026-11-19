@@ -9,6 +9,8 @@ should touch.
 - S2 `ind_a38`: NACE divisions 69-75 are now grouped as D69T71, D72 and
   D73T75 instead of the aggregate D68T82, which is not an A38 group (68 stays
   D68, 77-82 stay D77T82).
+- S16 Rescaling to thousands (PT, ES, RO, SI, HU) now includes `cash_flow`
+  and `gross_profit`, so financial-dependency ratio 4 no longer mixes units.
 
 ## Verified against Stata
 
@@ -92,8 +94,9 @@ and are decided one by one before they are changed.
   (R does not).
 - S15 `tech_grad`: divisions 58-60 (except 582), 63, 77, 90-94 and 96 get no
   group.
-- S16 Rescaling to thousands (PT, ES, RO, SI, HU) leaves out `cash_flow`, so
-  financial-dependency ratio 4 mixes thousands with units.
+- S16 *(fixed, see above)* Rescaling to thousands (PT, ES, RO, SI, HU)
+  leaves out `cash_flow`, so financial-dependency ratio 4 mixes thousands
+  with units.
 
 # OECDscaleup 0.1.0
 

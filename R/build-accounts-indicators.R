@@ -110,13 +110,15 @@ build_accounts_indicators <- function(config,
   }
 
   # --- Step 6: unit rescaling for specific countries (data-source patch) -----
+  # Fix S16: the Stata list left out cash_flow (and gross_profit), so
+  # findep_rat4 = (capex - cash_flow) / capex mixed thousands with units.
   if (config$country %in% country_patches$rescale_to_thousands) {
     rescale_vars <- c(
       "turnover", "added_value", "labour_costs", "operating_costs",
       "services_costs", "exp_revenues_goods", "exp_revenues_services",
       "depr_amort", "interest_costs", "intangible_fixed_assets",
       "tangible_fixed_assets", "fixed_assets", "current_assets",
-      "total_assets", "loans", "total_liabilities"
+      "total_assets", "loans", "total_liabilities", "cash_flow", "gross_profit"
     )
     for (v in intersect(rescale_vars, names(data))) {
       data[[v]] <- data[[v]] / 1000

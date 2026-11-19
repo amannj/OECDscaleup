@@ -22,3 +22,14 @@ test_that("S2: NACE 68-82 get their own A38 groups, no D68T82 aggregate", {
                c("D68", rep("D69T71", 3), "D72", rep("D73T75", 3), rep("D77T82", 6)))
   expect_false("D68T82" %in% ai$ind_a38)
 })
+
+test_that("S16: cash_flow and gross_profit are rescaled to thousands with the other financials", {
+  bf <- make_base_financials()
+  bf$birth_year <- 2000
+  bf$cash_flow <- 2000; bf$gross_profit <- 3000; bf$total_assets <- 10000
+  cfg <- config_scaleup(country = "PT", input_dir = tempdir(), output_dir = tempdir())
+  ai <- build_accounts_indicators(cfg, bf)
+  expect_true(all(ai$cash_flow == 2, na.rm = TRUE))
+  expect_true(all(ai$gross_profit == 3, na.rm = TRUE))
+  expect_true(all(ai$total_assets == 10, na.rm = TRUE))
+})
