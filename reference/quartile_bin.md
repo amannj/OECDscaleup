@@ -32,14 +32,11 @@ An integer vector of bin numbers `1..n` (or `NA`).
 
 ## Details
 
-Stata's own `xtile` is confirmed to use a percentile algorithm
-equivalent to R's `quantile(type = 2)` (see
-[`percentile_stata()`](https://amannj.github.io/OECDscaleup/reference/percentile_stata.md)
-and its source comment);
-[`statar::xtile()`](https://rdrr.io/pkg/statar/man/xtile.html) is a
-separate, independent R reimplementation, and its exact tie-breaking at
-quartile boundaries has not been verified here to match Stata's
-bit-for-bit. For this package's use (classifying scalers into
-descriptive predictor-quartile groups), this is a low-stakes residual
-risk — a handful of firms sitting exactly on a cutpoint could land in an
-adjacent bin — flagged rather than silently assumed away.
+Stata's own `xtile` uses a percentile algorithm equivalent to R's
+`quantile(type = 2)` (see
+[`percentile_stata()`](https://amannj.github.io/OECDscaleup/reference/percentile_stata.md)).
+[`statar::xtile()`](https://rdrr.io/pkg/statar/man/xtile.html) is an
+independent reimplementation; its quartile assignments matched Stata
+19.5 exactly in the reproduction runs (every predictor type and
+desc_predictors cell, nine synthetic scenarios), provided the input is
+stored as Stata stores it (`float`, see `stata_float()`).

@@ -3,7 +3,7 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   OECDscaleup: OECDscaleup.html
-last_built: 2026-07-23T10:32Z
+last_built: 2026-11-19T21:41Z
 urls:
   reference: https://amannj.github.io/OECDscaleup/reference
   article: https://amannj.github.io/OECDscaleup/articles

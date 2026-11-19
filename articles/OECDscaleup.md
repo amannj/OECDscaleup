@@ -125,21 +125,21 @@ cfg <- config_scaleup(
 accounts_indicators <- build_accounts_indicators(cfg, base_financials)
 characteristics <- compute_characteristics(cfg, accounts_indicators)
 head(characteristics)
-#> # A tibble: 6 × 19
-#>    year sample category group       firm_count mean_employment_growth3y
-#>   <dbl> <chr>  <chr>    <chr>            <int>                    <dbl>
-#> 1  2013 HGE10  ALL      full sample          2                    0.509
-#> 2  2014 HGE10  ALL      full sample          2                    0.501
-#> 3  2015 HGE10  ALL      full sample          2                    0.517
-#> 4  2016 HGE10  ALL      full sample          2                    0.390
-#> 5  2017 HGE10  ALL      full sample          3                    0.456
-#> 6  2018 HGE10  ALL      full sample          3                    0.456
-#> # ℹ 13 more variables: mean_turnover_growth3y <dbl>,
-#> #   mean_employment_futgrowth <dbl>, mean_turnover_futgrowth <dbl>,
-#> #   share_acquisition <dbl>, L3share_young <dbl>, median_L3employment <dbl>,
-#> #   median_L3turnover <dbl>, median_employment <dbl>, median_turnover <dbl>,
-#> #   median_employment_growth3y <dbl>, median_turnover_growth3y <dbl>,
-#> #   median_employment_futgrowth <dbl>, median_turnover_futgrowth <dbl>
+#> # A tibble: 6 × 20
+#>    year sample category group       firm_count median_L3age median_L3employment
+#>   <dbl> <chr>  <chr>    <chr>            <int>        <dbl>               <dbl>
+#> 1  2013 HGE10  ALL      full sample          2           10                26.5
+#> 2  2014 HGE10  ALL      full sample          2           11                30.5
+#> 3  2015 HGE10  ALL      full sample          2           12                34.5
+#> 4  2016 HGE10  ALL      full sample          2           13                39.5
+#> 5  2017 HGE10  ALL      full sample          3           14                49.3
+#> 6  2018 HGE10  ALL      full sample          3           15                55.7
+#> # ℹ 13 more variables: median_L3turnover <dbl>, median_employment <dbl>,
+#> #   median_turnover <dbl>, median_employment_growth3y <dbl>,
+#> #   median_turnover_growth3y <dbl>, median_employment_futgrowth <dbl>,
+#> #   median_turnover_futgrowth <dbl>, mean_employment_growth3y <dbl>,
+#> #   mean_turnover_growth3y <dbl>, mean_employment_futgrowth <dbl>,
+#> #   mean_turnover_futgrowth <dbl>, share_acquisition <dbl>, L3share_young <dbl>
 ```
 
 [`compute_persistence()`](https://amannj.github.io/OECDscaleup/reference/compute_persistence.md)

@@ -7,6 +7,16 @@ and produces the disclosure-checked aggregate tabulations
 shared back with the OECD. A behaviour- preserving translation of the
 OECD "Second Package" Stata pipeline (see 'data-raw/' for provenance).
 
+## See also
+
+Useful links:
+
+- <https://github.com/amannj/OECDscaleup>
+
+- <https://amannj.github.io/OECDscaleup/>
+
+- Report bugs at <https://github.com/amannj/OECDscaleup/issues>
+
 ## Author
 
 **Maintainer**: OECD Scale Up Team <scaleup@oecd.org> \[copyright
