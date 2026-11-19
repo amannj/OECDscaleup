@@ -362,36 +362,7 @@ build_accounts_indicators <- function(config,
 
   # --- Step 17: region aggregation for small TL2 regions, then region x tech --
   if (config$country %in% country_patches$aggregate_small_regions) {
-    region_year <- data %>%
-      dplyr::group_by(.data$region_2d, .data$year) %>%
-      dplyr::summarise(HGET10 = sum(.data$HGET10, na.rm = TRUE), .groups = "drop")
-    region_avg <- region_year %>%
-      dplyr::group_by(.data$region_2d) %>%
-      dplyr::summarise(HGET10 = mean(.data$HGET10, na.rm = TRUE), .groups = "drop") %>%
-      dplyr::mutate(
-        region_1d = substr(.data$region_2d, 1, 3),
-        small_reg2d = as.integer(.data$HGET10 < 100)
-      )
-    region_1d_totals <- region_avg %>%
-      dplyr::group_by(.data$region_1d) %>%
-      dplyr::summarise(
-        n_total = sum(.data$HGET10, na.rm = TRUE),
-        n_small = if (any(.data$small_reg2d == 1)) sum(.data$HGET10[.data$small_reg2d == 1], na.rm = TRUE) else NA_real_,
-        .groups = "drop"
-      ) %>%
-      dplyr::mutate(share_small = .data$n_small / .data$n_total)
-    # Stata: `replace region_adj = region_1d if share_small > 0.5`, and a missing
-    # share_small (a TL1 with no small TL2 at all) compares as +infinity, so it is
-    # aggregated too. Reproduced as-is for parity (stata_num()).
-    region_adj_map <- region_avg %>%
-      dplyr::left_join(region_1d_totals, by = "region_1d") %>%
-      dplyr::mutate(
-        region_adj = dplyr::if_else(stata_num(.data$share_small) > 0.5,
-          .data$region_1d, .data$region_2d
-        )
-      ) %>%
-      dplyr::select("region_2d", "region_adj")
-    data <- dplyr::left_join(data, region_adj_map, by = "region_2d")
+    data <- dplyr::left_join(data, small_region_map(data), by = "region_2d")
   } else {
     data$region_adj <- data$region_2d
   }
@@ -541,6 +512,46 @@ build_accounts_indicators <- function(config,
   # had none): Stata only defines `agelab` when it builds age_cat itself.
   if (age_cat_supplied) attr(out, "age_cat_labels") <- list(attr(base_financials$age_cat, "labels"))
   out
+}
+
+#' Which TL2 regions are merged into their TL1 region (small-region aggregation)
+#'
+#' A TL2 region is "small" when it averages fewer than 100 HGET10 firms a year.
+#' All TL2 regions of a TL1 are merged into the TL1 when the small ones hold
+#' more than half of the TL1's HGET10 firms.
+#'
+#' Fix S3: in Stata a TL1 without any small TL2 had a missing share, which
+#' compares as +infinity, so large regions were merged too. Now such a TL1 has
+#' share 0 (not merged); a TL1 whose regions are all small but have no HGET10
+#' firm at all (0/0) has share 1 (merged), as in Stata.
+#'
+#' @param data Panel with `region_2d`, `year` and `HGET10`.
+#' @return Data frame with `region_2d` and `region_adj` (TL1 code or `region_2d`).
+#' @noRd
+small_region_map <- function(data) {
+  region_avg <- data %>%
+    dplyr::group_by(.data$region_2d, .data$year) %>%
+    dplyr::summarise(HGET10 = sum(.data$HGET10, na.rm = TRUE), .groups = "drop") %>%
+    dplyr::group_by(.data$region_2d) %>%
+    dplyr::summarise(HGET10 = mean(.data$HGET10, na.rm = TRUE), .groups = "drop") %>%
+    dplyr::mutate(region_1d = substr(.data$region_2d, 1, 3), small = .data$HGET10 < 100)
+  shares <- region_avg %>%
+    dplyr::group_by(.data$region_1d) %>%
+    dplyr::summarise(
+      n_total = sum(.data$HGET10, na.rm = TRUE),
+      n_small = sum(.data$HGET10[.data$small], na.rm = TRUE),
+      any_small = any(.data$small),
+      .groups = "drop"
+    ) %>%
+    dplyr::mutate(share_small = dplyr::case_when(
+      !.data$any_small ~ 0,
+      .data$n_total == 0 ~ 1,
+      TRUE ~ .data$n_small / .data$n_total
+    ))
+  region_avg %>%
+    dplyr::left_join(shares, by = "region_1d") %>%
+    dplyr::mutate(region_adj = dplyr::if_else(.data$share_small > 0.5, .data$region_1d, .data$region_2d)) %>%
+    dplyr::select("region_2d", "region_adj")
 }
 
 #' Convert accounts_indicators to Stata's storage (labelled numeric categories)

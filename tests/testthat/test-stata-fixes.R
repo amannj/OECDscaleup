@@ -23,6 +23,23 @@ test_that("S2: NACE 68-82 get their own A38 groups, no D68T82 aggregate", {
   expect_false("D68T82" %in% ai$ind_a38)
 })
 
+test_that("S3: a TL1 without small TL2 regions is not merged; small-dominated ones are", {
+  # one row per region-year with HGET10 = the region's count of HG firms that year
+  d <- data.frame(
+    region_2d = rep(c("ITC1", "ITC2", "ITH1", "ITH2", "ITF1", "ITF2"), each = 2),
+    year = rep(2015:2016, 6),
+    HGET10 = c(200, 200, 300, 300,   # ITC: both large -> share 0 (Stata: missing -> merged)
+               20, 20, 150, 150,     # ITH: small 20 of 170 -> share 0.12, not merged
+               0, 0, 0, 0)           # ITF: all small, no HG firm -> 0/0 -> merged, as in Stata
+  )
+  m <- small_region_map(d)
+  adj <- stats::setNames(m$region_adj, m$region_2d)
+  expect_equal(unname(adj[c("ITC1", "ITC2", "ITH1", "ITH2", "ITF1", "ITF2")]),
+               c("ITC1", "ITC2", "ITH1", "ITH2", "ITF", "ITF"))
+  d2 <- data.frame(region_2d = c("ITI1", "ITI2"), year = 2015, HGET10 = c(90, 60)) # small 150 of 150
+  expect_equal(small_region_map(d2)$region_adj, c("ITI", "ITI"))
+})
+
 test_that("S16: cash_flow and gross_profit are rescaled to thousands with the other financials", {
   bf <- make_base_financials()
   bf$birth_year <- 2000

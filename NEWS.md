@@ -9,6 +9,10 @@ should touch.
 - S2 `ind_a38`: NACE divisions 69-75 are now grouped as D69T71, D72 and
   D73T75 instead of the aggregate D68T82, which is not an A38 group (68 stays
   D68, 77-82 stay D77T82).
+- S3 Small-region aggregation (AT, CA, HU, IT, NL, ES, RO): a TL1 region
+  with no small TL2 region is no longer merged (Stata treated its missing
+  share as +infinity). A TL1 whose TL2 regions are all small but have no
+  HGET10 firm is still merged.
 - S16 Rescaling to thousands (PT, ES, RO, SI, HU) now includes `cash_flow`
   and `gross_profit`, so financial-dependency ratio 4 no longer mixes units.
 
@@ -70,8 +74,8 @@ and are decided one by one before they are changed.
   not the spike.
 - S2 *(fixed, see above)* `ind_a38`: `D68T82` is assigned after `D69T71`,
   `D72`, `D73T75`, so divisions 69-75 all end up in `D68T82`.
-- S3 Region aggregation: a missing small-region share counts as above 0.5,
-  so large TL1 regions are aggregated too.
+- S3 *(fixed, see above)* Region aggregation: a missing small-region share
+  counts as above 0.5, so large TL1 regions are aggregated too.
 - S4 Predictor types 9 ("missing info") and 50 ("<50 N") are overwritten
   by types 5/6.
 - S5 Contribution: years are hard-coded (2014, 2017, 2019-2021); the
