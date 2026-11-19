@@ -2,11 +2,15 @@
 
 ## Verified against Stata
 
-Outputs were compared with the original Stata code run in Stata 19.5 on
-synthetic data built to hit every branch (rows, keys, labels and counts
-exact; other values within a relative 1e-4). The R code now reproduces the
-Stata code *including its known bugs*; fixing those is a separate, later
-step. Translation errors found and corrected:
+Outputs were compared with the original Stata code (package version 1.3)
+run in Stata 19.5, on 9 synthetic scenarios built to hit every branch and on
+one full national firm-level dataset (confidential). All 9 output tables
+match in every scenario (rows, keys, labels and counts exact; other values
+within a relative 1e-4). The R code now reproduces the Stata code
+*including its known bugs* (git tag `stata-parity-v1_3`); fixing those is a
+separate step, see "Known issues inherited from the Stata code" below.
+Two Stata crashes are not reproduced: R completes where Stata stops (S13,
+S14). Translation errors found and corrected:
 
 - Stata arithmetic: `x/0`, `ln(0)` and `0/0` are missing in Stata, not
   `Inf`/`NaN`. This changed HG flags (turnover 0 at t-3), the p1/p99
@@ -43,6 +47,43 @@ step. Translation errors found and corrected:
   categories and `encode` codes (byte order; `typology_UR` extends the label
   that comes with `tl3_typology.dta`).
 - `fixest` is no longer a dependency.
+
+## Known issues inherited from the Stata code
+
+Reproduced on purpose at `stata-parity-v1_3`, to be fixed on the
+`FixStataBugs` branch. Items marked *(method)* change what a result means
+and are decided one by one before they are changed.
+
+- S1 Jump filter: in a 20-200-20 spike the year after the spike is blanked,
+  not the spike.
+- S2 `ind_a38`: `D68T82` is assigned after `D69T71`, `D72`, `D73T75`, so
+  divisions 69-76 all end up in `D68T82`; `D77T82` overlaps likewise.
+- S3 Region aggregation: a missing small-region share counts as above 0.5,
+  so large TL1 regions are aggregated too.
+- S4 Predictor types 9 ("missing info") and 50 ("<50 N") are overwritten
+  by types 5/6.
+- S5 Contribution: years are hard-coded (2014, 2017, 2019-2021); the
+  computed first/last years are unused.
+- S6 *(method)* Regression samples include firms that are not eligible to
+  scale (fewer than 10 employees at t-3, or 250+).
+- S7 *(method)* Regions with TL3 typology ".." form their own category.
+- S8 A user-supplied `age_cat` together with `birth_year` fails in Stata
+  (`gen birth_year` on an existing variable).
+- S9 *(method)* Fractional FTE between 9 and 10 at t-3: such a firm can be a
+  micro scaler but is never in the micro comparison pool.
+- S10 *(documentation)* Output file names differ from the documentation.
+- S11 *(documentation)* The documentation calls MFP "productivity growth";
+  the code reports the MFP level.
+- S12 *(method)* Labour share is labour costs over turnover, not value
+  added; the MFP < 0 floor can never apply.
+- S13 Stata crashes when `age_cat` is supplied without value labels
+  (R does not).
+- S14 Stata crashes when no regression can run, losing desc_predictors too
+  (R does not).
+- S15 `tech_grad`: divisions 58-60 (except 582), 63, 77, 90-94 and 96 get no
+  group.
+- S16 Rescaling to thousands (PT, ES, RO, SI, HU) leaves out `cash_flow`, so
+  financial-dependency ratio 4 mixes thousands with units.
 
 # OECDscaleup 0.1.0
 
