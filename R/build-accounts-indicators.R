@@ -445,6 +445,8 @@ build_accounts_indicators <- function(config,
   }
 
   # --- Step 21: labour share, average wage, capital intensity --------------------
+  # Labour share is labour costs over turnover, not value added: a documented
+  # choice of the original package (S12), also used for the MFP weights below.
   if (has_column(data, "labour_costs")) {
     data$labour_share <- stata_float(data$labour_costs / data$turnover)
     data$avg_wage <- stata_float(data$labour_costs / data$employment)
@@ -466,13 +468,11 @@ build_accounts_indicators <- function(config,
     data$slk <- stata_float(data$sl * data$k)
     data$l <- stata_float(log(data$employment))
     data$sll <- stata_float(data$labour_share * data$l)
-    mfp <- stata_float(exp(data$va - data$slk - data$sll))
-    # `summ MFP if MFP >= 0; replace MFP = r(min) if MFP < 0` (exp() is never negative)
-    non_neg <- mfp[!is.na(mfp) & mfp >= 0]
-    if (length(non_neg)) mfp <- dplyr::if_else(!is.na(mfp) & mfp < 0, min(non_neg), mfp)
-    data$MFP <- mfp
-    data$L3MFP <- panel_lag(mfp, 3, data$idf, data$year)
-    data$MFP_gr <- stata_float((mfp - data$L3MFP) / data$L3MFP)
+    # S12: Stata then floored negative MFP at the smallest non-negative value;
+    # exp() is never negative, so that step never applied and is dropped.
+    data$MFP <- stata_float(exp(data$va - data$slk - data$sll))
+    data$L3MFP <- panel_lag(data$MFP, 3, data$idf, data$year)
+    data$MFP_gr <- stata_float((data$MFP - data$L3MFP) / data$L3MFP)
   }
 
   # --- Step 23: acquisition indicator -----------------------------------------------

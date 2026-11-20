@@ -24,7 +24,8 @@ should touch.
 - S5 Contribution: of Stata's analysis years (2014, 2017, 2019, 2020,
   2021), only those whose t-3 lies inside the panel are used. A panel
   starting after 2011 no longer gets a 2014 window without t-3 data, where
-  every firm counted as an entrant. Which years to analyse is still open.
+  every firm counted as an entrant. The years themselves are those the
+  documentation specifies.
 - S6 Predictor regressions are estimated only on firms that can be scalers
   under the dependent variable (its high-growth pool: 10+ employees at t-3,
   growth known) and have fewer than 250 employees at t-3. Stata used every
@@ -43,6 +44,13 @@ should touch.
   (Stata 1 to < 10) and their comparison pool (Stata 1-9). Firms with
   fractional FTE such as 0.5, 9.5 or 249.5 are no longer left out, and a
   micro scaler always has its comparison pool.
+- S11 The predictors documentation now says that the "Strategic
+  (productivity)" type uses the MFP *level* at t-3 (as the code always did,
+  like the capital and wage types); the Stata documentation said
+  "productivity growth".
+- S12 The never-applying floor for negative MFP is removed (MFP is an
+  exponential, so never negative). Labour share stays labour costs over
+  turnover, as documented. No result changes.
 - S13, S14 The two Stata crashes (an unlabelled `age_cat`; no regression
   year in the panel, which also lost desc_predictors) never occurred in R;
   tests now pin that.
@@ -103,9 +111,9 @@ S14). Translation errors found and corrected:
 
 ## Known issues inherited from the Stata code
 
-Reproduced on purpose at `stata-parity-v1_3`, to be fixed on the
-`FixStataBugs` branch. Items marked *(method)* change what a result means
-and are decided one by one before they are changed.
+Reproduced on purpose at `stata-parity-v1_3`, and all addressed on the
+`FixStataBugs` branch (see "Stata bugs fixed" above). Method items were
+decided one by one against the package documentation.
 
 - S1 *(fixed, see above)* Jump filter: in a 20-200-20 spike the year after
   the spike is blanked, not the spike.
@@ -115,9 +123,8 @@ and are decided one by one before they are changed.
   counts as above 0.5, so large TL1 regions are aggregated too.
 - S4 *(fixed, see above)* Predictor types 9 ("missing info") and 50
   ("<50 N") are overwritten by types 5/6.
-- S5 *(partly fixed, see above)* Contribution: years are hard-coded (2014,
-  2017, 2019-2021); the computed first/last years are unused. *(method)*
-  Whether other years should be analysed is still to be decided.
+- S5 *(fixed, see above)* Contribution: years are hard-coded (2014, 2017,
+  2019-2021, as documented); the computed first/last years are unused.
 - S6 *(fixed, see above)* Regression samples include firms that are not
   eligible to scale (fewer than 10 employees at t-3, or 250+).
 - S7 *(fixed, see above)* Regions with TL3 typology ".." form their own
@@ -126,11 +133,12 @@ and are decided one by one before they are changed.
   `birth_year` fails in Stata (`gen birth_year` on an existing variable).
 - S9 *(fixed, see above)* Fractional FTE between 9 and 10 at t-3: such a
   firm can be a micro scaler but is never in the micro comparison pool.
-- S10 *(documentation)* Output file names differ from the documentation.
-- S11 *(documentation)* The documentation calls MFP "productivity growth";
-  the code reports the MFP level.
-- S12 *(method)* Labour share is labour costs over turnover, not value
-  added; the MFP < 0 floor can never apply.
+- S10 *(closed)* Output file names differ from the documentation. R
+  writes the documented `n13_*` names.
+- S11 *(closed, see above)* The documentation calls the productivity type
+  "productivity growth"; the code uses the MFP level.
+- S12 *(closed, see above)* Labour share is labour costs over turnover, not
+  value added (documented choice, kept); the MFP < 0 floor can never apply.
 - S13 *(not in R, tested)* Stata crashes when `age_cat` is supplied
   without value labels.
 - S14 *(not in R, tested)* Stata crashes when no regression can run,

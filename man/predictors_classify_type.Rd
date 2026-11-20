@@ -7,16 +7,15 @@
 predictors_classify_type(data)
 }
 \description{
-A consequence of the rule structure worth noting explicitly (found while
-writing this function's tests, not stated outright in the source): types
-\code{9} ("Missing info") and \code{50} ("<50 year-sector N") are overridden by rules
-5/6 ("Transformational"/"Expansionist"), not only by the strategic-driver
-rules 1-4. Rules 5 and 6 only test \code{MFP_gr}/\code{gross_profit_gr} against \code{0}
-(via \code{stata_num()}, so a \emph{missing} \code{L3q4_MFP}/\code{L3q4_phys_assets}/
-\code{L3q4_avg_wage} still satisfies their "not top quartile" precondition) - so
-whenever \code{gross_profit_gr} or \code{MFP_gr} is itself a known real number, one
-of 5/6 fires regardless of whether the quartile predictors are missing or
-small-cell-flagged. Types 9/50 only survive in the final output when
-\emph{both} growth measures are themselves unavailable too.
+Rules are applied in order, a later rule overwriting an earlier one. Types
+9 ("Missing info") and 50 ("<50 year-sector N") come first so that the
+strategic types 1-4 can still be assigned from the quartiles that are known
+(as the Stata code intends).
+}
+\details{
+Fix S4: types 5/6 ("Transformational"/"Expansionist") say that \emph{none} of the
+three quartiles is the top one, which is only known when all three are known.
+In Stata a missing quartile compared as "not 4", so 5/6 overwrote 9/50
+whenever \code{MFP_gr} or \code{gross_profit_gr} was known.
 }
 \keyword{internal}

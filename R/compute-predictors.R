@@ -100,6 +100,13 @@ predictors_type_labels <- c(
 #' the top sector-year quartile, then fits a battery of linear-probability
 #' regressions of scaling on those same predictors.
 #'
+#' The strategic types use *levels* at t-3: MFP (the "productivity" type),
+#' tangible fixed assets over turnover and the average wage. The Stata
+#' documentation calls the productivity type "productivity growth in 4th
+#' quartile at t-3", but the code uses the MFP level, like the other two types
+#' (S11). MFP growth enters the regressions (model 2) and the Transformational
+#' / Expansionist types.
+#'
 #' @param config A `scaleup_config` from [config_scaleup()].
 #' @param accounts_indicators The output of [build_accounts_indicators()].
 #' @return A named list with `desc_predictors` and `regs_predictors` data
