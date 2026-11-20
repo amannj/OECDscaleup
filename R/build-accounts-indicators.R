@@ -182,7 +182,11 @@ build_accounts_indicators <- function(config,
     dplyr::ungroup()
 
   age_cat_supplied <- has_column(data, "age_cat")
-  if (age_cat_supplied) {
+  # Fix S8: with both age_cat and birth_year supplied, Stata took branch A and
+  # crashed (`gen birth_year` on an existing variable). Now birth_year wins
+  # (exact age, entry and L3age); the supplied age_cat is kept as the age category.
+  birth_year_supplied <- has_column(data, "birth_year") && any(!is.na(data$birth_year))
+  if (age_cat_supplied && !birth_year_supplied) {
     # Branch A: age_cat supplied directly in the raw data.
     # stata_num(): a missing age_cat must compare FALSE to 0, not propagate NA (see stata_num()).
     data$entry <- as.integer(data$year == data$.min_y & data$year > ymin & stata_num(data$age_cat) == 0)

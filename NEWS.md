@@ -17,6 +17,10 @@ should touch.
   MFP, physical assets or average wage stays "Missing info" (9) or "<50
   year-sector N" (50). Stata let Transformational/Expansionist (5/6), which
   require that none of the three is in the top quartile, overwrite them.
+- S8 Raw data with both `age_cat` and `birth_year` (Stata stopped with an
+  error): `birth_year` now drives age, entry and `L3age`; the supplied
+  `age_cat` is kept as the age category. An all-missing `birth_year` column
+  counts as absent.
 - S16 Rescaling to thousands (PT, ES, RO, SI, HU) now includes `cash_flow`
   and `gross_profit`, so financial-dependency ratio 4 no longer mixes units.
 
@@ -87,8 +91,8 @@ and are decided one by one before they are changed.
 - S6 *(method)* Regression samples include firms that are not eligible to
   scale (fewer than 10 employees at t-3, or 250+).
 - S7 *(method)* Regions with TL3 typology ".." form their own category.
-- S8 A user-supplied `age_cat` together with `birth_year` fails in Stata
-  (`gen birth_year` on an existing variable).
+- S8 *(fixed, see above)* A user-supplied `age_cat` together with
+  `birth_year` fails in Stata (`gen birth_year` on an existing variable).
 - S9 *(method)* Fractional FTE between 9 and 10 at t-3: such a firm can be a
   micro scaler but is never in the micro comparison pool.
 - S10 *(documentation)* Output file names differ from the documentation.

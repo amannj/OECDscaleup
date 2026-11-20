@@ -40,6 +40,20 @@ test_that("S3: a TL1 without small TL2 regions is not merged; small-dominated on
   expect_equal(small_region_map(d2)$region_adj, c("ITI", "ITI"))
 })
 
+test_that("S8: with both age_cat and birth_year, birth_year drives age and entry; age_cat is kept", {
+  bf <- make_base_financials()
+  bf$birth_year <- ifelse(bf$idf == 4, 2014, 2000)
+  bf$age_cat <- 11 # deliberately inconsistent with birth_year: must be kept as supplied
+  ai <- build_accounts_indicators(cfg_fr(), bf)
+  expect_true(all(ai$age_cat == 11))
+  expect_equal(ai$age[ai$idf == 1 & ai$year == 2015], 15)
+  expect_equal(ai$entry[ai$idf == 4 & ai$year == 2014], 1)
+  expect_true("L3age" %in% names(ai))
+  # an empty birth_year column falls back to the age_cat branch
+  bf2 <- make_base_financials(); bf2$birth_year <- NA_real_; bf2$age_cat <- 11
+  expect_no_error(build_accounts_indicators(cfg_fr(), bf2))
+})
+
 test_that("S16: cash_flow and gross_profit are rescaled to thousands with the other financials", {
   bf <- make_base_financials()
   bf$birth_year <- 2000
