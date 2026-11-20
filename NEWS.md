@@ -25,6 +25,9 @@ should touch.
   2021), only those whose t-3 lies inside the panel are used. A panel
   starting after 2011 no longer gets a 2014 window without t-3 data, where
   every firm counted as an entrant. Which years to analyse is still open.
+- S7 TL3 regions with typology ".." (no typology) now have a missing
+  `typology_UR`; Stata reported them as a sixth group "..". They still count
+  in all other breakdowns and totals.
 - S8 Raw data with both `age_cat` and `birth_year` (Stata stopped with an
   error): `birth_year` now drives age, entry and `L3age`; the supplied
   `age_cat` is kept as the age category. An all-missing `birth_year` column
@@ -106,7 +109,8 @@ and are decided one by one before they are changed.
   Whether other years should be analysed is still to be decided.
 - S6 *(method)* Regression samples include firms that are not eligible to
   scale (fewer than 10 employees at t-3, or 250+).
-- S7 *(method)* Regions with TL3 typology ".." form their own category.
+- S7 *(fixed, see above)* Regions with TL3 typology ".." form their own
+  category.
 - S8 *(fixed, see above)* A user-supplied `age_cat` together with
   `birth_year` fails in Stata (`gen birth_year` on an existing variable).
 - S9 *(method)* Fractional FTE between 9 and 10 at t-3: such a firm can be a

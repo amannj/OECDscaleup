@@ -59,6 +59,17 @@ test_that("S3: a TL1 without small TL2 regions is not merged; small-dominated on
   expect_equal(small_region_map(d2)$region_adj, c("ITI", "ITI"))
 })
 
+test_that("S7: a region with typology '..' has a missing typology, not a '..' category", {
+  bf <- make_base_financials()
+  dotdot <- tl3_typology$region_3d[tl3_typology$typology_access_cities == ".."][1]
+  bf$region_3d <- "FR101"
+  bf$region_3d[bf$idf == 2] <- dotdot
+  ai <- build_accounts_indicators(cfg_fr(), bf, tl3_typology = tl3_typology)
+  expect_true(all(is.na(ai$typology_UR[ai$idf == 2])))
+  expect_false(".." %in% ai$typology_UR)
+  expect_true(all(!is.na(ai$typology_UR[ai$idf == 1])))
+})
+
 test_that("S8: with both age_cat and birth_year, birth_year drives age and entry; age_cat is kept", {
   bf <- make_base_financials()
   bf$birth_year <- ifelse(bf$idf == 4, 2014, 2000)

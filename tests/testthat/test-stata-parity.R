@@ -45,15 +45,6 @@ test_that("region_2d '.' becomes missing and never forms a '._<sector>' pair", {
   expect_false(any(startsWith(stats::na.omit(ai$reg_techgrad), "._")))
 })
 
-test_that("the '..' typology is kept as its own category (Stata keeps it)", {
-  bf <- make_base_financials()
-  dotdot <- tl3_typology$region_3d[tl3_typology$typology_access_cities == ".."][1]
-  bf$region_3d <- "FR101"
-  bf$region_3d[bf$idf == 2] <- dotdot
-  ai <- build_accounts_indicators(cfg_fr(), bf, tl3_typology = tl3_typology)
-  expect_true(all(ai$typology_UR[ai$idf == 2] == ".."))
-})
-
 test_that("an exactly 10% a year 3-year growth is not a 10% high-growth event (Stata's ^)", {
   bf <- make_base_financials()
   bf$employment[bf$idf == 1 & bf$year == 2010] <- 100

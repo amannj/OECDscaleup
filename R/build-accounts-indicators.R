@@ -400,16 +400,15 @@ build_accounts_indicators <- function(config,
     }
     typ <- tl3_typology %>% dplyr::select("region_3d", "typology_access_cities")
     data <- dplyr::left_join(data, typ, by = "region_3d")
-    # Only the five known codes are renamed; any other value (the ".." of
-    # regions without a typology) is kept as its own category, as in Stata.
+    # Fix S7: only the five documented groups exist; any other value (the ".."
+    # of regions without a typology) is missing. Stata kept ".." as a category.
     data$typology_UR <- dplyr::case_when(
       data$typology_access_cities == "MR-L" ~ "Large metropolitan region",
       data$typology_access_cities == "MR-M" ~ "Metropolitan region",
       data$typology_access_cities == "NMR-M" ~ "Region near a metropolitan area",
       data$typology_access_cities == "NMR-S" ~ "Region with/near a small-medium city",
       data$typology_access_cities == "NMR-R" ~ "Remote region",
-      is.na(data$typology_access_cities) | data$typology_access_cities == "" ~ NA_character_,
-      TRUE ~ data$typology_access_cities
+      TRUE ~ NA_character_
     )
     data$typology_access_cities <- NULL
     if (!has_column(data, "typology_UR")) {
