@@ -160,15 +160,20 @@ build_accounts_indicators <- function(config,
   }
 
   # --- Step 10: drop implausible growth "jumps" -------------------------------
+  # A spike (e.g. 20-200-20) or dip is a year whose growth in and growth out are
+  # both above 150% (mid-point growth rate) with opposite signs, for firms
+  # averaging 20+ employees over the year before, the spike and the year after.
+  # Fix S1: Stata tested growth in and out at t+1 (the year after the spike) and
+  # blanked that year; the spike itself is now blanked.
   turnover_type <- if (config$country %in% country_patches$non_euro) "turnover_nat" else "turnover"
   for (v in c("employment", turnover_type)) {
     gr <- stata_float(panel_diff1(data[[v]], data$idf, data$year) /
       (0.5 * (data[[v]] + panel_lag(data[[v]], 1, data$idf, data$year))))
-    l1_gr <- panel_lag(gr, 1, data$idf, data$year)
+    f1_gr <- panel_lead(gr, 1, data$idf, data$year)
     avg3 <- (panel_lag(data$employment, 1, data$idf, data$year) + data$employment +
       panel_lead(data$employment, 1, data$idf, data$year)) / 3
-    jump <- !is.na(gr) & !is.na(l1_gr) & abs(gr) > 1.5 & abs(l1_gr) > 1.5 &
-      (gr * l1_gr) < 0 & !is.na(avg3) & avg3 >= 20
+    jump <- !is.na(gr) & !is.na(f1_gr) & abs(gr) > 1.5 & abs(f1_gr) > 1.5 &
+      (gr * f1_gr) < 0 & !is.na(avg3) & avg3 >= 20
     data[[v]] <- dplyr::if_else(jump, NA_real_, data[[v]])
     if (v == "turnover_nat") {
       data$turnover <- dplyr::if_else(jump, NA_real_, data$turnover)

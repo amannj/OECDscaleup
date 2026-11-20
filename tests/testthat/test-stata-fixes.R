@@ -13,6 +13,25 @@ bf_sectors <- function(s2) {
   }))
 }
 
+test_that("S1: the jump filter blanks the spike year, not the year after", {
+  bf <- make_base_financials()
+  bf$birth_year <- 2000
+  bf$employment[bf$idf == 1 & bf$year == 2013] <- 500 # 50-500-50
+  bf$turnover[bf$idf == 3 & bf$year == 2015] <- 80000 # 6000-80000-4000 turnover spike, employment ~50
+  ai <- build_accounts_indicators(cfg_fr(), bf)
+  e <- ai[ai$idf == 1, ]
+  expect_true(is.na(e$employment[e$year == 2013]))
+  expect_equal(e$employment[e$year %in% c(2012, 2014)], c(50, 50))
+  t3 <- ai[ai$idf == 3, ]
+  expect_true(is.na(t3$turnover[t3$year == 2015]))
+  expect_false(anyNA(t3$turnover[t3$year %in% c(2014, 2016)]))
+  # a lasting level change is not a spike
+  bf2 <- make_base_financials(); bf2$birth_year <- 2000
+  bf2$employment[bf2$idf == 1 & bf2$year >= 2013] <- 500
+  ai2 <- build_accounts_indicators(cfg_fr(), bf2)
+  expect_false(anyNA(ai2$employment[ai2$idf == 1]))
+})
+
 test_that("S2: NACE 68-82 get their own A38 groups, no D68T82 aggregate", {
   s2 <- c(68, 69, 70, 71, 72, 73, 74, 75, 77, 78, 79, 80, 81, 82)
   ai <- build_accounts_indicators(cfg_fr(), bf_sectors(s2))
