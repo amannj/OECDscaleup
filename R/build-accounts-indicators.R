@@ -333,16 +333,20 @@ build_accounts_indicators <- function(config,
     data$tech_grad,
     (s2 > 4 & s2 < 10) | (s2 > 9 & s2 < 20) | (s2 > 21 & s2 < 26) | (s2 > 30 & s2 < 34), 2
   )
-  data$tech_grad <- stata_replace(data$tech_grad, s3 == 582 | (s2 >= 61 & s2 < 63) | (s2 >= 69 & s2 <= 74), 3)
+  # Fix S15 (decided 2026-11-20): Stata left 58-60 (except 582), 63, 77, 90-94
+  # and 96 without a group. Now 58-63 are Advanced services, 77 Other services
+  # tradable, 90-94 and 96 Other services non-tradable. 01-03, 64-66 and 84 stay
+  # unclassified, as in Stata (likely deliberate).
+  data$tech_grad <- stata_replace(data$tech_grad, s3 == 582 | (s2 >= 58 & s2 <= 63) | (s2 >= 69 & s2 <= 74), 3)
   data$tech_grad <- stata_replace(
     data$tech_grad,
-    (s2 >= 49 & s2 < 54) | (s2 > 54 & s2 < 57) | s2 == 75 | (s2 >= 78 & s2 <= 82), 4
+    (s2 >= 49 & s2 < 54) | (s2 > 54 & s2 < 57) | s2 == 75 | s2 == 77 | (s2 >= 78 & s2 <= 82), 4
   )
   data$tech_grad <- stata_replace(data$tech_grad, s2 >= 85 & s2 <= 88, 5)
   data$tech_grad <- stata_replace(data$tech_grad, s2 >= 41 & s2 <= 43, 6)
   data$tech_grad <- stata_replace(
     data$tech_grad,
-    (s2 > 44 & s2 < 48) | s2 == 68 | s2 == 95 | (s2 >= 35 & s2 <= 39), 7
+    (s2 > 44 & s2 < 48) | s2 == 68 | s2 == 95 | (s2 >= 35 & s2 <= 39) | (s2 >= 90 & s2 <= 94) | s2 == 96, 7
   )
 
   # --- Step 16: OECD STAN a38 industry grouping (ind_a38) ---------------------

@@ -102,6 +102,14 @@ test_that("S14: with no regression year in the panel, desc_predictors is still p
   expect_true(is.null(pr$regs_predictors) || nrow(pr$regs_predictors) == 0)
 })
 
+test_that("S15: the divisions Stata left without a tech_grad group are assigned", {
+  s2 <- c(58, 59, 60, 63, 77, 90, 91, 92, 93, 94, 96, 1, 64, 84)
+  ai <- build_accounts_indicators(cfg_fr(), bf_sectors(s2))
+  got <- unique(ai[c("sector_2d", "tech_grad")])
+  got <- stats::setNames(got$tech_grad, got$sector_2d)
+  expect_equal(unname(got[as.character(s2)]), c(3, 3, 3, 3, 4, 7, 7, 7, 7, 7, 7, NA, NA, NA))
+})
+
 test_that("S16: cash_flow and gross_profit are rescaled to thousands with the other financials", {
   bf <- make_base_financials()
   bf$birth_year <- 2000

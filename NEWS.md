@@ -32,6 +32,10 @@ should touch.
 - S13, S14 The two Stata crashes (an unlabelled `age_cat`; no regression
   year in the panel, which also lost desc_predictors) never occurred in R;
   tests now pin that.
+- S15 `tech_grad`: divisions that Stata left without a group are assigned:
+  58-60 and 63 to Advanced services, 77 to Other services tradable, 90-94
+  and 96 to Other services non-tradable. 01-03, 64-66 and 84 stay
+  unclassified, as in Stata.
 - S16 Rescaling to thousands (PT, ES, RO, SI, HU) now includes `cash_flow`
   and `gross_profit`, so financial-dependency ratio 4 no longer mixes units.
 
@@ -116,8 +120,8 @@ and are decided one by one before they are changed.
   without value labels.
 - S14 *(not in R, tested)* Stata crashes when no regression can run,
   losing desc_predictors too.
-- S15 *(method)* `tech_grad`: divisions 58-60 (except 582), 63, 77, 90-94
-  and 96 get no group (nor do 01-03, 64-66 and 84, possibly on purpose).
+- S15 *(fixed, see above)* `tech_grad`: divisions 58-60 (except 582), 63,
+  77, 90-94 and 96 get no group (nor do 01-03, 64-66 and 84).
 - S16 *(fixed, see above)* Rescaling to thousands (PT, ES, RO, SI, HU)
   leaves out `cash_flow`, so financial-dependency ratio 4 mixes thousands
   with units.
