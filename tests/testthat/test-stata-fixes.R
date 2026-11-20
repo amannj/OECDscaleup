@@ -59,6 +59,21 @@ test_that("S3: a TL1 without small TL2 regions is not merged; small-dominated on
   expect_equal(small_region_map(d2)$region_adj, c("ITI", "ITI"))
 })
 
+test_that("S6: a firm that is micro at t-3 does not enter the regressions", {
+  bf <- make_base_financials_wide()
+  extra <- bf[bf$idf == 1, ]
+  extra$idf <- 999
+  extra$employment <- ifelse(extra$year <= 2013, 5, 12) # micro at t-3 = 2011, not in the HG pool in 2014
+  ai0 <- build_accounts_indicators(cfg_fr(), bf)
+  ai1 <- build_accounts_indicators(cfg_fr(), rbind(bf, extra))
+  r0 <- compute_predictors(cfg_fr(), ai0)$regs_predictors
+  r1 <- compute_predictors(cfg_fr(), ai1)$regs_predictors
+  key <- c("model", "controls", "year", "sample", "depvar", "indepvar")
+  m <- merge(r0[r0$year == 2014, c(key, "obs")], r1[r1$year == 2014, c(key, "obs")], by = key)
+  expect_gt(nrow(m), 0)
+  expect_equal(m$obs.x, m$obs.y)
+})
+
 test_that("S7: a region with typology '..' has a missing typology, not a '..' category", {
   bf <- make_base_financials()
   dotdot <- tl3_typology$region_3d[tl3_typology$typology_access_cities == ".."][1]

@@ -25,6 +25,10 @@ should touch.
   2021), only those whose t-3 lies inside the panel are used. A panel
   starting after 2011 no longer gets a 2014 window without t-3 data, where
   every firm counted as an entrant. Which years to analyse is still open.
+- S6 Predictor regressions are estimated only on firms that can be scalers
+  under the dependent variable (its high-growth pool: 10+ employees at t-3,
+  growth known) and have fewer than 250 employees at t-3. Stata used every
+  firm present at t-3, so micro and 250+ firms counted as non-scalers.
 - S7 TL3 regions with typology ".." (no typology) now have a missing
   `typology_UR`; Stata reported them as a sixth group "..". They still count
   in all other breakdowns and totals.
@@ -114,8 +118,8 @@ and are decided one by one before they are changed.
 - S5 *(partly fixed, see above)* Contribution: years are hard-coded (2014,
   2017, 2019-2021); the computed first/last years are unused. *(method)*
   Whether other years should be analysed is still to be decided.
-- S6 *(method)* Regression samples include firms that are not eligible to
-  scale (fewer than 10 employees at t-3, or 250+).
+- S6 *(fixed, see above)* Regression samples include firms that are not
+  eligible to scale (fewer than 10 employees at t-3, or 250+).
 - S7 *(fixed, see above)* Regions with TL3 typology ".." form their own
   category.
 - S8 *(fixed, see above)* A user-supplied `age_cat` together with

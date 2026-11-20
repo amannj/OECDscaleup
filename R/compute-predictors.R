@@ -263,7 +263,13 @@ compute_predictors <- function(config, accounts_indicators) {
             used_cats <- if (controls_on) cat_vars else character(0)
 
             # `reg <scaler> <keyvars> [i.(<cat_vars>)] if year == <year> & <sample> == 1, robust`
-            row_filter <- !is.na(data$year) & data$year == year & stata_num(data[[sample]]) == 1
+            # Fix S6 (decided 2026-11-20): only firms that can be scalers under this
+            # dependent variable (its HG pool: 10+ employees at t-3, growth known) and
+            # with fewer than 250 employees at t-3. Stata used every firm present at t-3,
+            # so micro and 250+ firms counted as non-scalers.
+            pool <- paste0(sub("[0-9]+$", "", scaler), "_pool")
+            row_filter <- !is.na(data$year) & data$year == year & stata_num(data[[sample]]) == 1 &
+              stata_num(data[[pool]]) == 1 & !is.na(data$L3employment) & data$L3employment < 250
             fit_data <- data[row_filter, ]
             complete <- stats::complete.cases(fit_data[c(scaler, keyvars, used_cats)])
             est_sample <- fit_data[complete, ]
