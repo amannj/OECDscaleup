@@ -13,6 +13,10 @@ should touch.
   with no small TL2 region is no longer merged (Stata treated its missing
   share as +infinity). A TL1 whose TL2 regions are all small but have no
   HGET10 firm is still merged.
+- S4 Predictor types: a scaler with a missing (or small-cell) quartile of
+  MFP, physical assets or average wage stays "Missing info" (9) or "<50
+  year-sector N" (50). Stata let Transformational/Expansionist (5/6), which
+  require that none of the three is in the top quartile, overwrite them.
 - S16 Rescaling to thousands (PT, ES, RO, SI, HU) now includes `cash_flow`
   and `gross_profit`, so financial-dependency ratio 4 no longer mixes units.
 
@@ -76,8 +80,8 @@ and are decided one by one before they are changed.
   `D72`, `D73T75`, so divisions 69-75 all end up in `D68T82`.
 - S3 *(fixed, see above)* Region aggregation: a missing small-region share
   counts as above 0.5, so large TL1 regions are aggregated too.
-- S4 Predictor types 9 ("missing info") and 50 ("<50 N") are overwritten
-  by types 5/6.
+- S4 *(fixed, see above)* Predictor types 9 ("missing info") and 50
+  ("<50 N") are overwritten by types 5/6.
 - S5 Contribution: years are hard-coded (2014, 2017, 2019-2021); the
   computed first/last years are unused.
 - S6 *(method)* Regression samples include firms that are not eligible to

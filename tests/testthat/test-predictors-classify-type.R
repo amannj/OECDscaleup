@@ -34,17 +34,16 @@ test_that("rule 5 (Transformational) wins over rule 6 (Expansionist) when the tw
   expect_equal(predictors_classify_type(mk(1, -0.05, 1, 1, gross_profit_gr = 0.1)), 5)
 })
 
-test_that("types 9 and 50 are overridden by rules 5/6 whenever the growth measures are themselves known", {
-  # a missing predictor still counts as "not top quartile" for rules 5/6
-  # (stata_num(NA) != 4 is TRUE), so as long as MFP_gr/gross_profit_gr are
-  # real, one of 5/6 fires regardless of *why* type started at 9 or 50 - see
-  # the comment on predictors_classify_type() for the full explanation.
-  expect_equal(predictors_classify_type(mk(NA, 0.1, 1, 1)), 5) # missing MFP itself
-  expect_equal(predictors_classify_type(mk(1, NA, 1, 1)), 6) # missing MFP_gr, but gross_profit_gr=0 <= 0
-  expect_equal(predictors_classify_type(mk(1, 0.1, NA, 1)), 5) # missing phys_assets
-  expect_equal(predictors_classify_type(mk(1, 0.1, 1, NA)), 5) # missing avg_wage
-  expect_equal(predictors_classify_type(mk(NA, 0.1, 1, 1, L3less50_MFP = 1)), 5) # small-cell MFP, still resolved
-  expect_equal(predictors_classify_type(mk(1, NA, 1, 1, L3less50_phys_assets = 1)), 6) # small-cell phys, still resolved
+test_that("S4: a missing quartile keeps types 9/50; rules 5/6 need all three quartiles", {
+  # Stata (bug S4) let rules 5/6 overwrite 9/50 because a missing quartile
+  # compared as "not top quartile"; "none is top" needs all three known.
+  expect_equal(predictors_classify_type(mk(NA, 0.1, 1, 1)), 9) # missing MFP quartile
+  expect_equal(predictors_classify_type(mk(1, 0.1, NA, 1)), 9) # missing phys_assets quartile
+  expect_equal(predictors_classify_type(mk(1, 0.1, 1, NA)), 9) # missing avg_wage quartile
+  expect_equal(predictors_classify_type(mk(NA, 0.1, 1, 1, L3less50_MFP = 1)), 50) # small-cell MFP
+  # all quartiles known: a missing MFP_gr is resolved by gross_profit_gr, as in Stata
+  expect_equal(predictors_classify_type(mk(1, NA, 1, 1)), 6) # gross_profit_gr = 0 <= 0
+  expect_equal(predictors_classify_type(mk(1, NA, 1, 1, L3less50_phys_assets = 1)), 6)
 })
 
 test_that("type 9/50 only survive when *both* growth measures are unavailable too", {
@@ -56,8 +55,8 @@ test_that("type 9/50 only survive when *both* growth measures are unavailable to
 test_that("type 50 requires the small-cell flag on the *specific* variable that's missing, else stays 9 before rules 5/6 run", {
   # L3q4_MFP is missing (drives type 9), but the small-cell flag set is for a
   # *different* variable (phys_assets) - rule 50's own OR condition still
-  # accepts this (it doesn't check which variable was missing), so 50 fires
-  # before rules 5/6 potentially override it further.
+  # accepts this (it doesn't check which variable was missing); rule 2 then
+  # overwrites it, since MFP is the only known top quartile.
   expect_equal(predictors_classify_type(mk(4, 0.1, NA, 1, L3less50_phys_assets = 1)), 2)
 })
 
