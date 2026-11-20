@@ -271,7 +271,8 @@ build_accounts_indicators <- function(config,
     # in-expression ratio (double); x/0 is missing, so l3.var == 0 never qualifies
     ratio3y <- stata_double(data[[v]] / l3v)
     eligible <- !is.na(ratio3y) & !is.na(l3emp) & l3emp >= 10
-    eligible_micro <- !is.na(ratio3y) & !is.na(l3emp) & l3emp >= 1 & l3emp < 10
+    # fix S9: micro = employers with fewer than 10 employees at t-3 (Stata: 1 <= l3emp < 10)
+    eligible_micro <- !is.na(ratio3y) & !is.na(l3emp) & l3emp > 0 & l3emp < 10
     cagr <- stata_pow(ratio3y, 1 / 3) - 1 # Stata's ^ (see stata_pow())
     hg20 <- as.integer(eligible & cagr > 0.2)
     hg10 <- as.integer(eligible & cagr > 0.1)

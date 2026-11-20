@@ -50,10 +50,13 @@ compute_characteristics <- function(config, accounts_indicators) {
   l3_findep_vars <- paste0("L3", findep_vars)
 
   # --- restrict the sample -----------------------------------------------------
+  # Fix S9: the documented universe is employers with fewer than 250 employees at
+  # t-3 (0 < L3employment < 250); Stata's 1-249 left out fractional FTE such as
+  # 0.5 or 249.5.
   startyear <- min(data$year)
   data <- data[
     data$year >= startyear + 3 & !is.na(data$L3employment) &
-      data$L3employment >= 1 & data$L3employment <= 249,
+      data$L3employment > 0 & data$L3employment < 250,
   ]
 
   # --- sample definitions (24), as columns on the restricted data ------------
@@ -70,10 +73,12 @@ compute_characteristics <- function(config, accounts_indicators) {
         !is.na(data$L3employment) & data$L3employment >= 10
     )
   }
+  # Fix S9: micro = fewer than 10 employees at t-3, as documented and as for the
+  # micro scalers; Stata's 1-9 left e.g. 9.5 FTE out of the comparison pool.
   for (scaler in c("MHGE20", "MHGT20")) {
     data[[paste0(scaler, "_nonscaler_pool")]] <- as.integer(
       stata_num(data[[scaler]]) == 0 & !is.na(data$L3employment) &
-        data$L3employment >= 1 & data$L3employment <= 9
+        data$L3employment > 0 & data$L3employment < 10
     )
   }
   data$micro <- as.integer(data$L3employment < 10)

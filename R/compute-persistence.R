@@ -175,7 +175,7 @@ compute_transitions <- function(config, accounts_indicators) {
     data$ALL <- 1L
     keep <- first_occurrence_flag(data$idf, data$year, data[[spec$hg]]) == 1 &
       data$year >= 2014 & data$year <= 2016 &
-      !is.na(data$L3employment) & data$L3employment >= 1 & data$L3employment <= 249
+      !is.na(data$L3employment) & data$L3employment > 0 & data$L3employment < 250 # fix S9
     data <- data[keep, ]
     if (nrow(data) == 0) next
     f3grvar3y <- f3grvar3y[keep]
@@ -313,7 +313,7 @@ compute_evolutions <- function(config, accounts_indicators) {
     pos_grvar1y <- as.integer(!is.na(data[[spec$grvar1y]]) & data[[spec$grvar1y]] > 0.10)
     data$nb_years_grow <- stats::ave(pos_grvar1y, data$idf, FUN = function(x) sum(x, na.rm = TRUE))
 
-    keep2 <- data$year == 2017 & !is.na(data$L3employment) & data$L3employment >= 1 & data$L3employment <= 249
+    keep2 <- data$year == 2017 & !is.na(data$L3employment) & data$L3employment > 0 & data$L3employment < 250 # fix S9
     data <- data[keep2, ]
     if (nrow(data) == 0) next
     if (!is.null(f3_exit_acq)) f3_exit_acq <- f3_exit_acq[keep2]

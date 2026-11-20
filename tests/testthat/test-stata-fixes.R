@@ -95,6 +95,21 @@ test_that("S5: contribution years need their t-3 inside the panel", {
   expect_setequal(unique(compute_contribution(cfg_fr(), ai_full)$contribution_p1$year), c(2014, 2017))
 })
 
+test_that("S9: fractional FTE below 10 (or below 1) at t-3 is micro, in scalers and comparison pool alike", {
+  bf <- make_base_financials_wide()
+  bf$employment[bf$idf == 1 & bf$year == 2012] <- 9.5 # micro non-scaler at 2015
+  bf$employment[bf$idf == 1 & bf$year == 2015] <- 9.6
+  # micro scaler at 2015 (0.5 -> 2), small all along so the jump filter (S1) leaves it alone
+  bf$employment[bf$idf == 2 & bf$year <= 2015] <- c(0.5, 0.5, 1, 1.5, 2)
+  ai <- build_accounts_indicators(cfg_fr(), bf)
+  expect_equal(ai$MHGE20[ai$idf == 2 & ai$year == 2015], 1L)
+  ch <- compute_characteristics(cfg_fr(), ai)
+  pool <- ch[ch$sample == "MHGE20_nonscaler_pool" & ch$category == "ALL" & ch$year == 2015, ]
+  scal <- ch[ch$sample == "MHGE20" & ch$category == "ALL" & ch$year == 2015, ]
+  expect_equal(pool$firm_count, 1) # the 9.5 FTE firm
+  expect_equal(scal$firm_count, 1) # the 0.5 FTE firm
+})
+
 test_that("S13: an unlabelled user-supplied age_cat does not stop the pipeline (Stata crashed)", {
   bf <- make_base_financials_long()
   bf$birth_year <- NULL

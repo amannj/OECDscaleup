@@ -32,6 +32,13 @@ should touch.
   error): `birth_year` now drives age, entry and `L3age`; the supplied
   `age_cat` is kept as the age category. An all-missing `birth_year` column
   counts as absent.
+- S9 Size boundaries follow the documented definitions, consistently:
+  employers with fewer than 250 employees at t-3 (0 < L3employment < 250;
+  Stata 1-249) for the characteristics and persistence samples, and fewer
+  than 10 for micro (0 < L3employment < 10) for both the micro scalers
+  (Stata 1 to < 10) and their comparison pool (Stata 1-9). Firms with
+  fractional FTE such as 0.5, 9.5 or 249.5 are no longer left out, and a
+  micro scaler always has its comparison pool.
 - S13, S14 The two Stata crashes (an unlabelled `age_cat`; no regression
   year in the panel, which also lost desc_predictors) never occurred in R;
   tests now pin that.
@@ -113,8 +120,8 @@ and are decided one by one before they are changed.
   category.
 - S8 *(fixed, see above)* A user-supplied `age_cat` together with
   `birth_year` fails in Stata (`gen birth_year` on an existing variable).
-- S9 *(method)* Fractional FTE between 9 and 10 at t-3: such a firm can be a
-  micro scaler but is never in the micro comparison pool.
+- S9 *(fixed, see above)* Fractional FTE between 9 and 10 at t-3: such a
+  firm can be a micro scaler but is never in the micro comparison pool.
 - S10 *(documentation)* Output file names differ from the documentation.
 - S11 *(documentation)* The documentation calls MFP "productivity growth";
   the code reports the MFP level.
