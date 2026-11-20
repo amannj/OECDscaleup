@@ -84,6 +84,24 @@ test_that("S5: contribution years need their t-3 inside the panel", {
   expect_setequal(unique(compute_contribution(cfg_fr(), ai_full)$contribution_p1$year), c(2014, 2017))
 })
 
+test_that("S13: an unlabelled user-supplied age_cat does not stop the pipeline (Stata crashed)", {
+  bf <- make_base_financials_long()
+  bf$birth_year <- NULL
+  bf$age_cat <- 11 # plain numeric, no value labels
+  ai <- build_accounts_indicators(cfg_fr(), bf)
+  ch <- compute_characteristics(cfg_fr(), ai)
+  expect_true("L3age_cat" %in% ch$category)
+})
+
+test_that("S14: with no regression year in the panel, desc_predictors is still produced (Stata crashed)", {
+  bf <- make_base_financials_wide()
+  bf <- bf[bf$year >= 2015 & bf$year <= 2019, ] # regressions need 2014/2017/2020 after the t-3 cut
+  ai <- build_accounts_indicators(cfg_fr(), bf)
+  pr <- compute_predictors(cfg_fr(), ai)
+  expect_gt(nrow(pr$desc_predictors), 0)
+  expect_true(is.null(pr$regs_predictors) || nrow(pr$regs_predictors) == 0)
+})
+
 test_that("S16: cash_flow and gross_profit are rescaled to thousands with the other financials", {
   bf <- make_base_financials()
   bf$birth_year <- 2000

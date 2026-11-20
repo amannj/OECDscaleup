@@ -29,6 +29,9 @@ should touch.
   error): `birth_year` now drives age, entry and `L3age`; the supplied
   `age_cat` is kept as the age category. An all-missing `birth_year` column
   counts as absent.
+- S13, S14 The two Stata crashes (an unlabelled `age_cat`; no regression
+  year in the panel, which also lost desc_predictors) never occurred in R;
+  tests now pin that.
 - S16 Rescaling to thousands (PT, ES, RO, SI, HU) now includes `cash_flow`
   and `gross_profit`, so financial-dependency ratio 4 no longer mixes units.
 
@@ -109,12 +112,12 @@ and are decided one by one before they are changed.
   the code reports the MFP level.
 - S12 *(method)* Labour share is labour costs over turnover, not value
   added; the MFP < 0 floor can never apply.
-- S13 Stata crashes when `age_cat` is supplied without value labels
-  (R does not).
-- S14 Stata crashes when no regression can run, losing desc_predictors too
-  (R does not).
-- S15 `tech_grad`: divisions 58-60 (except 582), 63, 77, 90-94 and 96 get no
-  group.
+- S13 *(not in R, tested)* Stata crashes when `age_cat` is supplied
+  without value labels.
+- S14 *(not in R, tested)* Stata crashes when no regression can run,
+  losing desc_predictors too.
+- S15 *(method)* `tech_grad`: divisions 58-60 (except 582), 63, 77, 90-94
+  and 96 get no group (nor do 01-03, 64-66 and 84, possibly on purpose).
 - S16 *(fixed, see above)* Rescaling to thousands (PT, ES, RO, SI, HU)
   leaves out `cash_flow`, so financial-dependency ratio 4 mixes thousands
   with units.
