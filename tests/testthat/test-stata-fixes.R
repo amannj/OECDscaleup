@@ -54,6 +54,17 @@ test_that("S8: with both age_cat and birth_year, birth_year drives age and entry
   expect_no_error(build_accounts_indicators(cfg_fr(), bf2))
 })
 
+test_that("S5: contribution years need their t-3 inside the panel", {
+  bf <- make_base_financials()
+  bf$birth_year <- 2000
+  ai <- build_accounts_indicators(cfg_fr(), bf[bf$year >= 2012, ]) # panel 2012-2018
+  co <- compute_contribution(cfg_fr(), ai)
+  expect_false(2014 %in% co$contribution_p1$year) # t-3 = 2011 is outside the panel
+  expect_true(all(co$contribution_p1$year %in% 2017))
+  ai_full <- build_accounts_indicators(cfg_fr(), bf) # panel 2010-2018: 2014 and 2017
+  expect_setequal(unique(compute_contribution(cfg_fr(), ai_full)$contribution_p1$year), c(2014, 2017))
+})
+
 test_that("S16: cash_flow and gross_profit are rescaled to thousands with the other financials", {
   bf <- make_base_financials()
   bf$birth_year <- 2000

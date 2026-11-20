@@ -57,6 +57,13 @@ contribution_dominance <- function(data, sample, group, config) {
 compute_contribution <- function(config, accounts_indicators) {
   data <- accounts_indicators
   groups <- contribution_categories(data)
+  # Fix S5: Stata computed the first and last year but never used them, so a
+  # panel starting after 2011 got a 2014 window without t-3 data (every firm
+  # then counts as an entrant). Keep only analysis years with t-3 in the panel.
+  first_year <- min(data$year, na.rm = TRUE)
+  last_year <- max(data$year, na.rm = TRUE)
+  analysis_years <- c(2014, 2017, 2019, 2020, 2021)
+  analysis_years <- analysis_years[analysis_years - 3 >= first_year & analysis_years <= last_year]
 
   # --- Step 2: balance the panel (FILLIN idf x year) --------------------------
   full_grid <- expand.grid(idf = unique(data$idf), year = unique(data$year))
@@ -103,8 +110,8 @@ compute_contribution <- function(config, accounts_indicators) {
       !(stata_num(data$employment) == 0 & stata_num(data$L3employment) == 0),
   ]
 
-  # --- Step 8: restrict to the 5 analysis years --------------------------------
-  data <- data[data$year %in% c(2014, 2017, 2019, 2020, 2021), ]
+  # --- Step 8: restrict to the analysis years (Stata's 5, within the panel) ----
+  data <- data[data$year %in% analysis_years, ]
 
   # --- Step 9/10: sample-independent helper columns ----------------------------
   data$firms <- 1L

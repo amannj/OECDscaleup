@@ -17,6 +17,10 @@ should touch.
   MFP, physical assets or average wage stays "Missing info" (9) or "<50
   year-sector N" (50). Stata let Transformational/Expansionist (5/6), which
   require that none of the three is in the top quartile, overwrite them.
+- S5 Contribution: of Stata's analysis years (2014, 2017, 2019, 2020,
+  2021), only those whose t-3 lies inside the panel are used. A panel
+  starting after 2011 no longer gets a 2014 window without t-3 data, where
+  every firm counted as an entrant. Which years to analyse is still open.
 - S8 Raw data with both `age_cat` and `birth_year` (Stata stopped with an
   error): `birth_year` now drives age, entry and `L3age`; the supplied
   `age_cat` is kept as the age category. An all-missing `birth_year` column
@@ -86,8 +90,9 @@ and are decided one by one before they are changed.
   counts as above 0.5, so large TL1 regions are aggregated too.
 - S4 *(fixed, see above)* Predictor types 9 ("missing info") and 50
   ("<50 N") are overwritten by types 5/6.
-- S5 Contribution: years are hard-coded (2014, 2017, 2019-2021); the
-  computed first/last years are unused.
+- S5 *(partly fixed, see above)* Contribution: years are hard-coded (2014,
+  2017, 2019-2021); the computed first/last years are unused. *(method)*
+  Whether other years should be analysed is still to be decided.
 - S6 *(method)* Regression samples include firms that are not eligible to
   scale (fewer than 10 employees at t-3, or 250+).
 - S7 *(method)* Regions with TL3 typology ".." form their own category.
