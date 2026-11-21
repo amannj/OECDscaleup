@@ -381,11 +381,13 @@ build_accounts_indicators <- function(config,
     data$region_adj <- data$region_2d
   }
   tech_grad_str <- decode_category(data$tech_grad, "tech_grad")
-  # Stata: `if region_adj != "." & tech_grad_str != ""` - only the literal "." is
-  # excluded; an empty region_adj still yields "_<sector group>".
+  # Fix S17: a missing region (empty, "." or NA) gives a missing pair. Stata
+  # (`if region_adj != "." & tech_grad_str != ""`) excluded only the literal ".",
+  # so an empty region formed a pseudo-region "_<sector group>".
+  region_known <- !is.na(data$region_adj) & !data$region_adj %in% c("", ".")
   data$reg_techgrad <- dplyr::if_else(
-    dplyr::coalesce(data$region_adj, "") != "." & !is.na(tech_grad_str),
-    paste0(dplyr::coalesce(data$region_adj, ""), "_", tech_grad_str), NA_character_
+    region_known & !is.na(tech_grad_str),
+    paste0(data$region_adj, "_", tech_grad_str), NA_character_
   )
   data$region_adj <- NULL
   # `replace region_2d = "" if region_2d == "."` then `encode`

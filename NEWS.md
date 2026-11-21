@@ -60,6 +60,10 @@ should touch.
   unclassified, as in Stata.
 - S16 Rescaling to thousands (PT, ES, RO, SI, HU) now includes `cash_flow`
   and `gross_profit`, so financial-dependency ratio 4 no longer mixes units.
+- S17 A firm with an empty region code gets a missing region-sector pair
+  (`reg_techgrad`). Stata excluded only `"."`, so an empty region formed a
+  pseudo-region `_<sector group>`. Such firms still count in all other
+  breakdowns and totals.
 
 ## Verified against Stata
 
@@ -148,6 +152,8 @@ decided one by one against the package documentation.
 - S16 *(fixed, see above)* Rescaling to thousands (PT, ES, RO, SI, HU)
   leaves out `cash_flow`, so financial-dependency ratio 4 mixes thousands
   with units.
+- S17 *(fixed, see above)* An empty region code forms a region-sector pair
+  `_<sector group>` (only `"."` is excluded).
 
 # OECDscaleup 0.1.0
 

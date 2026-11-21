@@ -1,5 +1,5 @@
 # Fixes of bugs in the original Stata code (FixStataBugs branch). Each test
-# pins the corrected behaviour; the bug ids (S1-S16) refer to NEWS.md
+# pins the corrected behaviour; the bug ids (S1-S17) refer to NEWS.md
 # "Known issues inherited from the Stata code".
 
 cfg_fr <- function() config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
@@ -83,6 +83,17 @@ test_that("S7: a region with typology '..' has a missing typology, not a '..' ca
   expect_true(all(is.na(ai$typology_UR[ai$idf == 2])))
   expect_false(".." %in% ai$typology_UR)
   expect_true(all(!is.na(ai$typology_UR[ai$idf == 1])))
+})
+
+test_that("S17: a firm without a region has no region-sector pair (no '_<sector>' pseudo-region)", {
+  bf <- make_base_financials()
+  bf$birth_year <- 2000
+  bf$region_2d[bf$idf == 2] <- ""
+  bf$region_2d[bf$idf == 3] <- "."
+  ai <- build_accounts_indicators(cfg_fr(), bf)
+  expect_true(all(is.na(ai$reg_techgrad[ai$idf %in% c(2, 3)])))
+  expect_false(any(startsWith(stats::na.omit(as.character(ai$reg_techgrad)), "_")))
+  expect_true(all(startsWith(as.character(ai$reg_techgrad[ai$idf == 1]), "FR10_")))
 })
 
 test_that("S8: with both age_cat and birth_year, birth_year drives age and entry; age_cat is kept", {
