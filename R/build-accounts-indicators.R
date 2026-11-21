@@ -50,7 +50,19 @@ build_accounts_indicators <- function(config,
       dplyr::distinct(.data$idf, .data$idp, .data$year) %>%
       dplyr::count(.data$idf, .data$year, name = "number_plants") %>%
       dplyr::mutate(multiplant = dplyr::if_else(.data$number_plants > 1, 1, 0))
-    data <- dplyr::left_join(data, plant_counts, by = c("idf", "year"))
+    # Stata merges the plant counts (master) onto base_financials (using): where
+    # a firm-year has plant records the computed counts win; a base_financials
+    # that already carries number_plants/multiplant (Stata saves the merge back
+    # into it, so a second run sees them) keeps its own values elsewhere.
+    data <- dplyr::left_join(
+      data, dplyr::rename(plant_counts, .number_plants = "number_plants", .multiplant = "multiplant"),
+      by = c("idf", "year")
+    )
+    for (v in c("number_plants", "multiplant")) {
+      fresh <- data[[paste0(".", v)]]
+      data[[v]] <- if (has_column(data, v)) dplyr::coalesce(as.numeric(fresh), as.numeric(data[[v]])) else fresh
+      data[[paste0(".", v)]] <- NULL
+    }
   }
 
   # --- Step 4: validation and normalization -----------------------------------

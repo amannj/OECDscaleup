@@ -37,6 +37,20 @@ test_that("L3age is created in the birth_year branch", {
   expect_equal(r$L3age[r$year == 2014], r$age[r$year == 2011])
 })
 
+test_that("plant counts replace number_plants/multiplant already in base_financials, as Stata's merge does", {
+  # Stata saves the plant merge back into base_financials, so a later run sees the columns already there
+  bf <- make_base_financials()
+  bf$number_plants <- 5
+  bf$multiplant <- 1
+  plants <- data.frame(idf = c(1, 1, 1), idp = c(1, 2, 1), year = c(2010, 2010, 2011))
+  out <- build_accounts_indicators(cfg_fr(), bf, plants_raw = plants)
+  expect_false(any(grepl("\\.(x|y)$|^\\.", names(out))))
+  one <- function(y, v) out[[v]][out$idf == 1 & out$year == y]
+  expect_equal(c(one(2010, "number_plants"), one(2010, "multiplant")), c(2, 1)) # from the plants file
+  expect_equal(c(one(2011, "number_plants"), one(2011, "multiplant")), c(1, 0))
+  expect_equal(c(one(2012, "number_plants"), one(2012, "multiplant")), c(5, 1)) # no plant record: kept
+})
+
 test_that("region_2d '.' becomes missing and never forms a '._<sector>' pair", {
   bf <- make_base_financials()
   bf$region_2d[bf$idf == 3] <- "."

@@ -47,6 +47,12 @@ S14). Translation errors found and corrected:
   categories and `encode` codes (byte order; `typology_UR` extends the label
   that comes with `tl3_typology.dta`).
 - `fixest` is no longer a dependency.
+- Plant counts: when `base_financials` already holds `number_plants` /
+  `multiplant` (Stata saves the plant merge back into it, so a second run
+  sees them), the counts from the plants file replace them where a firm-year
+  has plant records and the existing values are kept elsewhere, as Stata's
+  `merge` does. R produced `.x`/`.y` duplicates and lost `multiplant`. Found
+  on real data after the tag; fixed on master.
 
 ## Known issues inherited from the Stata code
 
