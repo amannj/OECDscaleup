@@ -53,6 +53,14 @@ S14). Translation errors found and corrected:
   has plant records and the existing values are kept elsewhere, as Stata's
   `merge` does. R produced `.x`/`.y` duplicates and lost `multiplant`. Found
   on real data after the tag; fixed on master.
+- Float storage in the rescaling: Stata's `replace v = v/1000` keeps a
+  `float` variable `float` (and promotes `byte`/`int` to `float`), so the
+  rescaled financials are rounded to single precision when the input file
+  stores them as float. `run_scaleup_pipeline()` now reads the storage types
+  from the `.dta` header and rounds the same way; `build_accounts_indicators()`
+  takes them as `storage_types`. The difference is tiny in the levels but is
+  amplified in capex (`findep_rat4`) and the MFP inputs. Found on real data
+  after the tag; fixed on master.
 
 ## Known issues inherited from the Stata code
 

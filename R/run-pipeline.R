@@ -37,7 +37,8 @@ run_scaleup_pipeline <- function(config) {
 
   accounts_indicators <- build_accounts_indicators(
     config, base_financials,
-    plants_raw = plants_raw, exchange_rates = exchange_rates, tl3_typology = tl3_typology
+    plants_raw = plants_raw, exchange_rates = exchange_rates, tl3_typology = tl3_typology,
+    storage_types = dta_storage_types(base_financials_path)
   )
   haven::write_dta(
     as_stata_accounts(accounts_indicators),

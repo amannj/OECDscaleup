@@ -32,6 +32,13 @@
 #' @param tl3_typology Optional data frame with columns `region_3d,
 #'   typology_access_cities` (as shipped in this package's `tl3_typology`
 #'   dataset). Required only if `base_financials` has a `region_3d` column.
+#' @param storage_types Optional named character vector giving the Stata
+#'   storage type (`"byte"`, `"int"`, `"long"`, `"float"`, `"double"`) of the
+#'   columns of `base_financials`, as stored in its `.dta` file.
+#'   [run_scaleup_pipeline()] reads it from the file header. Where Stata
+#'   rescales a `float` (or `byte`/`int`) variable in place, the result is
+#'   stored in single precision, and R rounds it the same way. `NULL` (the
+#'   default) treats every column as `double`.
 #'
 #' @return A data frame, one row per `(idf, year)`, ready to be passed to
 #'   [compute_characteristics()], [compute_persistence()],
@@ -41,7 +48,8 @@ build_accounts_indicators <- function(config,
                                        base_financials,
                                        plants_raw = NULL,
                                        exchange_rates = NULL,
-                                       tl3_typology = NULL) {
+                                       tl3_typology = NULL,
+                                       storage_types = NULL) {
   data <- base_financials
 
   # --- Step 2: optional plant-count / multiplant flag ------------------------
@@ -130,8 +138,12 @@ build_accounts_indicators <- function(config,
       "tangible_fixed_assets", "fixed_assets", "current_assets",
       "total_assets", "loans", "total_liabilities"
     )
+    # `replace v = v/1000` keeps a float variable float (and promotes byte/int to
+    # float), so the stored result is the single-precision rounding of the quotient
     for (v in intersect(rescale_vars, names(data))) {
-      data[[v]] <- data[[v]] / 1000
+      orig_type <- if (v %in% names(storage_types)) storage_types[[v]] else NA_character_
+      to_float <- stata_replace_type(orig_type) == "float"
+      data[[v]] <- if (to_float) stata_float(data[[v]] / 1000) else data[[v]] / 1000
     }
   }
 
