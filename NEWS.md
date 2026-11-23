@@ -1,5 +1,25 @@
 # OECDscaleup (development version)
 
+## Trade package
+
+- New: the firm-level trade extension (Stata trade package v1.0,
+  `MASTER_OECD_trade.do`). `run_trade_pipeline()` reads `trade_RAW_<CT>.dta`
+  next to `base_financials_<CT>.dta` and writes
+  `trade_accounts_indicators_<CT>.dta` and
+  `n16_trade_characteristics_p1/p2_<CT>.csv`. The steps are
+  `build_trade_panel()` (transactions to a firm-year panel),
+  `build_trade_accounts_indicators()` (`n0_2`: the panel build of the second
+  package, an earlier version of it, with exporter/importer flags,
+  first-time exporters, heavy/light exporting scalers, `sector_exporter`
+  and `digit_sect`) and `compute_trade_characteristics()` (`n1_6`).
+- `n0_2` is a modified copy of `n0_1`, so both run through one shared body;
+  the trade differences (PT-only rescaling, no region aggregation, no
+  `reg_techgrad`, no `D68T82`, ...) are switched on by the trade panel.
+- Like the base package, the trade code reproduces the Stata code including
+  its bugs (T1-T7 in the reproduction notes); two of them make Stata stop,
+  and R stops with the same cause: trade data without import (or export)
+  rows (T4) and non-numeric product codes (T5).
+
 ## Verified against Stata
 
 Outputs were compared with the original Stata code (package version 1.3)

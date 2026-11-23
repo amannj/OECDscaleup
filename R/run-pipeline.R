@@ -63,3 +63,44 @@ run_scaleup_pipeline <- function(config) {
 
   invisible(outputs)
 }
+
+#' Run the trade package, reading and writing files on disk
+#'
+#' Mirrors `MASTER_OECD_trade.do`: reads `base_financials_<country>.dta`,
+#' `trade_RAW_<country>.dta` and (if present) `plants_RAW_<country>.dta`,
+#' `exchange_rates.dta` and `tl3_typology.dta` from `config$input_dir`; runs
+#' [build_trade_accounts_indicators()] and [compute_trade_characteristics()];
+#' writes `trade_accounts_indicators_<country>.dta` to `config$input_dir` and
+#' `n16_trade_characteristics_p1_<country>.csv` / `..._p2_...` to
+#' `config$output_dir`. The second package ([run_scaleup_pipeline()]) is not
+#' needed first: like the Stata code, the trade package builds its own panel.
+#'
+#' @param config A `scaleup_config` from [config_scaleup()].
+#' @return Invisibly, a list with the `p1` and `p2` tables.
+#' @export
+run_trade_pipeline <- function(config) {
+  path <- function(f) file.path(config$input_dir, f)
+  read_opt <- function(f) if (file.exists(path(f))) haven::read_dta(path(f)) else NULL
+  bf_file <- paste0("base_financials_", config$country, ".dta")
+  trade_file <- paste0("trade_RAW_", config$country, ".dta")
+  for (f in c(bf_file, trade_file)) {
+    if (!file.exists(path(f))) {
+      rlang::abort(sprintf("Required input not found: %s", path(f)), class = "OECDscaleup_data_error")
+    }
+  }
+  trade_ai <- build_trade_accounts_indicators(
+    config, haven::read_dta(path(bf_file)), haven::read_dta(path(trade_file)),
+    plants_raw = read_opt(paste0("plants_RAW_", config$country, ".dta")),
+    exchange_rates = read_opt("exchange_rates.dta"),
+    tl3_typology = read_opt("tl3_typology.dta"),
+    storage_types = dta_storage_types(path(bf_file)),
+    trade_storage_types = dta_storage_types(path(trade_file))
+  )
+  haven::write_dta(as_stata_accounts(trade_ai), path(paste0("trade_accounts_indicators_", config$country, ".dta")))
+  out <- compute_trade_characteristics(config, trade_ai)
+  for (p in names(out)) {
+    utils::write.csv(out[[p]], file.path(config$output_dir, sprintf("n16_trade_characteristics_%s_%s.csv", p, config$country)),
+                     row.names = FALSE, na = "")
+  }
+  invisible(out)
+}

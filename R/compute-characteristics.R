@@ -24,37 +24,12 @@ compute_characteristics <- function(config, accounts_indicators) {
   data$L3idf <- panel_lag(data$idf, 3, data$idf, data$year)
 
   # --- financial dependency ratios (each conditional on its inputs) ----------
-  findep_vars <- character(0)
-  if (has_column(data, "current_assets") && has_column(data, "total_assets")) {
-    data$findep_rat1 <- stata_float(data$current_assets / data$total_assets)
-    data$L3findep_rat1 <- panel_lag(data$findep_rat1, 3, data$idf, data$year)
-    findep_vars <- c(findep_vars, "findep_rat1")
-  }
-  if (has_column(data, "total_liabilities") && has_column(data, "total_assets")) {
-    data$findep_rat2 <- stata_float(data$total_liabilities / data$total_assets)
-    data$L3findep_rat2 <- panel_lag(data$findep_rat2, 3, data$idf, data$year)
-    findep_vars <- c(findep_vars, "findep_rat2")
-  }
-  if (has_column(data, "total_liabilities") && has_column(data, "interest_costs")) {
-    data$findep_rat3 <- stata_float(data$interest_costs / data$total_liabilities)
-    data$L3findep_rat3 <- panel_lag(data$findep_rat3, 3, data$idf, data$year)
-    findep_vars <- c(findep_vars, "findep_rat3")
-  }
-  if (has_column(data, "tangible_fixed_assets") && has_column(data, "depr_amort") && has_column(data, "cash_flow")) {
-    capex <- stata_float(data$tangible_fixed_assets -
-      panel_lag(data$tangible_fixed_assets, 1, data$idf, data$year) + data$depr_amort)
-    data$findep_rat4 <- stata_float((capex - data$cash_flow) / capex)
-    data$L3findep_rat4 <- panel_lag(data$findep_rat4, 3, data$idf, data$year)
-    findep_vars <- c(findep_vars, "findep_rat4")
-  }
+  data <- add_findep_ratios(data)
+  findep_vars <- attr(data, "findep_vars")
   l3_findep_vars <- paste0("L3", findep_vars)
 
   # --- restrict the sample -----------------------------------------------------
-  startyear <- min(data$year)
-  data <- data[
-    data$year >= startyear + 3 & !is.na(data$L3employment) &
-      data$L3employment >= 1 & data$L3employment <= 249,
-  ]
+  data <- restrict_characteristics_sample(data)
 
   # --- sample definitions (24), as columns on the restricted data ------------
   for (stub in c("HGE", "HGT", "HGET")) {
@@ -197,4 +172,45 @@ compute_characteristics <- function(config, accounts_indicators) {
   out <- out[c("year", front, rest, dom_cols)]
 
   dplyr::as_tibble(out)
+}
+
+#' Financial dependency ratios of n1_3 / n1_6 (each only if its inputs exist)
+#' @return `data` with the ratios and their L3 lags; their names in attribute `findep_vars`.
+#' @noRd
+add_findep_ratios <- function(data) {
+  findep_vars <- character(0)
+  if (has_column(data, "current_assets") && has_column(data, "total_assets")) {
+    data$findep_rat1 <- stata_float(data$current_assets / data$total_assets)
+    data$L3findep_rat1 <- panel_lag(data$findep_rat1, 3, data$idf, data$year)
+    findep_vars <- c(findep_vars, "findep_rat1")
+  }
+  if (has_column(data, "total_liabilities") && has_column(data, "total_assets")) {
+    data$findep_rat2 <- stata_float(data$total_liabilities / data$total_assets)
+    data$L3findep_rat2 <- panel_lag(data$findep_rat2, 3, data$idf, data$year)
+    findep_vars <- c(findep_vars, "findep_rat2")
+  }
+  if (has_column(data, "total_liabilities") && has_column(data, "interest_costs")) {
+    data$findep_rat3 <- stata_float(data$interest_costs / data$total_liabilities)
+    data$L3findep_rat3 <- panel_lag(data$findep_rat3, 3, data$idf, data$year)
+    findep_vars <- c(findep_vars, "findep_rat3")
+  }
+  if (has_column(data, "tangible_fixed_assets") && has_column(data, "depr_amort") && has_column(data, "cash_flow")) {
+    capex <- stata_float(data$tangible_fixed_assets -
+      panel_lag(data$tangible_fixed_assets, 1, data$idf, data$year) + data$depr_amort)
+    data$findep_rat4 <- stata_float((capex - data$cash_flow) / capex)
+    data$L3findep_rat4 <- panel_lag(data$findep_rat4, 3, data$idf, data$year)
+    findep_vars <- c(findep_vars, "findep_rat4")
+  }
+  attr(data, "findep_vars") <- findep_vars
+  data
+}
+
+#' n1_3 / n1_6: drop the first 3 years and keep firms with 1-249 employees at t-3
+#' @noRd
+restrict_characteristics_sample <- function(data) {
+  startyear <- min(data$year)
+  data[
+    data$year >= startyear + 3 & !is.na(data$L3employment) &
+      data$L3employment >= 1 & data$L3employment <= 249,
+  ]
 }
