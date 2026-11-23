@@ -9,7 +9,8 @@ build_accounts_indicators(
   base_financials,
   plants_raw = NULL,
   exchange_rates = NULL,
-  tl3_typology = NULL
+  tl3_typology = NULL,
+  storage_types = NULL
 )
 }
 \arguments{
@@ -29,6 +30,14 @@ only for the non-Euro countries listed in \code{country_patches$non_euro}.}
 
 \item{tl3_typology}{Optional data frame with columns \verb{region_3d, typology_access_cities} (as shipped in this package's \code{tl3_typology}
 dataset). Required only if \code{base_financials} has a \code{region_3d} column.}
+
+\item{storage_types}{Optional named character vector giving the Stata
+storage type (\code{"byte"}, \code{"int"}, \code{"long"}, \code{"float"}, \code{"double"}) of the
+columns of \code{base_financials}, as stored in its \code{.dta} file.
+\code{\link[=run_scaleup_pipeline]{run_scaleup_pipeline()}} reads it from the file header. Where Stata
+rescales a \code{float} (or \code{byte}/\code{int}) variable in place, the result is
+stored in single precision, and R rounds it the same way. \code{NULL} (the
+default) treats every column as \code{double}.}
 }
 \value{
 A data frame, one row per \verb{(idf, year)}, ready to be passed to

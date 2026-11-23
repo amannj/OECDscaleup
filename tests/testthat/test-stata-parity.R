@@ -37,6 +37,36 @@ test_that("L3age is created in the birth_year branch", {
   expect_equal(r$L3age[r$year == 2014], r$age[r$year == 2011])
 })
 
+test_that("dta_storage_types reads every storage type from .dta headers (formats 118, 117, 115)", {
+  # fixtures written by Stata 19.5 (save; saveold version(13); saveold version(11))
+  want <- c(v_byte = "byte", v_int = "int", v_long = "long", v_float = "float",
+            v_double = "double", v_str = "str", v_strl = "str")
+  expect_equal(dta_storage_types(test_path("fixtures", "types_118.dta")), want)
+  expect_equal(dta_storage_types(test_path("fixtures", "types_117.dta")), want)
+  expect_equal(dta_storage_types(test_path("fixtures", "types_115.dta")), want[names(want) != "v_strl"])
+  f <- tempfile(fileext = ".dta")
+  haven::write_dta(data.frame(a = 1.5, b = 1L), f)
+  expect_equal(dta_storage_types(f), c(a = "double", b = "long"))
+  expect_null(dta_storage_types(tempfile()))
+  writeLines("not a dta", f)
+  expect_null(dta_storage_types(f))
+})
+
+test_that("rescaling a float variable rounds to single precision, as Stata's replace does", {
+  # n0_1: `replace v = v/1000` leaves a float (or byte/int) variable float, a long/double one double
+  expect_equal(stata_replace_type(c("byte", "int", "long", "float", "double", NA)),
+               c("float", "float", "double", "float", "double", "double"))
+  cfg <- config_scaleup(country = "PT", input_dir = tempdir(), output_dir = tempdir())
+  bf <- make_base_financials()
+  bf$turnover <- stata_float(bf$turnover * 1.37) # values a float column can hold
+  bf$added_value <- bf$turnover
+  as_double <- build_accounts_indicators(cfg, bf)
+  as_float <- build_accounts_indicators(cfg, bf, storage_types = c(turnover = "float", added_value = "double"))
+  expect_identical(as_float$turnover, stata_float(as_double$turnover))
+  expect_false(identical(as_float$turnover, as_double$turnover))
+  expect_identical(as_float$added_value, as_double$added_value) # double stays double
+})
+
 test_that("plant counts replace number_plants/multiplant already in base_financials, as Stata's merge does", {
   # Stata saves the plant merge back into base_financials, so a later run sees the columns already there
   bf <- make_base_financials()
