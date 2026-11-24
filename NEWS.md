@@ -107,6 +107,10 @@ should touch.
 - T4 Trade data without import rows (or without export rows) no longer
   stop the run (Stata stopped at `rename trade_value1`). That flow is then
   unknown for every firm: its variables are missing, non-traders included.
+- T5 Products are told apart by their 6-character code as a string. Stata
+  converted it to a number without `force`: a code with letters (e.g. a
+  confidential code) stopped the run, and codes differing only in leading
+  zeros were counted as one product.
 
 ## Verified against Stata
 

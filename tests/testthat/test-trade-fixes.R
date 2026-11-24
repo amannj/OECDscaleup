@@ -50,3 +50,12 @@ test_that("T4: trade data without import rows no longer stop; imports are unknow
   expect_false("importer" %in% names(out))                         # unknown everywhere: column dropped
   expect_error(build_trade_panel(cfg_t(), tr[0, ]), class = "OECDscaleup_data_error")
 })
+
+test_that("T5: product codes with letters are counted, and leading zeros are kept", {
+  tr <- tr_rows(idf = 1, year = 2015, trade_type = c(2, 2, 2, 2, 1), trade_value = c(5, 4, 3, 2, 1),
+                code_destin = c("DE", "DE", "DE", "DE", ""),
+                prod_code = c("0101AB00", "010121", "10121", ".", "01012100"))
+  p <- build_trade_panel(cfg_t(), tr)
+  expect_equal(p$exp_products, 3) # 0101AB, 010121, 10121 ("." is missing); Stata stopped
+  expect_equal(p$exp_value, 14)
+})

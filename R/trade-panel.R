@@ -59,18 +59,13 @@ build_trade_panel <- function(config, trade_raw, storage_types = NULL) {
   # egen total() counts a missing value as 0 and stores a float
   value_prod_total <- stata_float(group_sum(d$trade_value, paste(flow, d$prod_code, sep = "\r")))
 
-  # `destring prod_code, replace` (no force): if any code is not a number the variable
-  # stays a string, and the `replace prod_code = .` below stops with a type mismatch (bug T5)
+  # Fix T5: products are told apart by their 6-character code. Stata destring'ed it
+  # (no force): a code with letters left the variable a string and the run stopped
+  # at `replace prod_code = .` (type mismatch), and codes differing only in leading
+  # zeros were merged. "" and "." are a missing code.
   pc <- trimws(d$prod_code)
-  num <- suppressWarnings(as.numeric(pc))
-  bad <- !pc %in% c("", ".") & is.na(num)
-  if (any(bad)) {
-    rlang::abort(
-      "`prod_code` holds non-numeric product codes: Stata's destring leaves it a string and n0_2 stops (r(109) type mismatch).",
-      class = "OECDscaleup_stata_crash"
-    )
-  }
-  d$prod_code <- num
+  pc[pc %in% c("", ".")] <- NA_character_
+  d$prod_code <- pc
 
   # a flow whose values are all missing must not become 0 in the collapse
   miss_value <- group_all(is.na(d$trade_value), flow)

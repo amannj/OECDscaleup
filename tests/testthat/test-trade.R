@@ -57,11 +57,6 @@ test_that("PT and HU trade values are divided by 1000, other countries' are not"
   expect_equal(p$exp_value, stata_float(1234.567))
 })
 
-test_that("Stata's stop on non-numeric product codes (T5) is reproduced", {
-  letters <- trade_rows(idf = 1, year = 2015, trade_type = c(2, 1), trade_value = 5, code_destin = c("DE", ""),
-                        prod_code = c("0101AB00", "01012100"))
-  expect_error(build_trade_panel(cfg_trade(), letters), class = "OECDscaleup_stata_crash")
-})
 
 test_that("exporter flags: non-traders are 0, a firm without a flow is 0 for it (fix T2); y4_exporter and HGX", {
   bf <- make_base_financials_wide()
