@@ -92,10 +92,15 @@ build_trade_panel <- function(config, trade_raw, storage_types = NULL) {
   share_product <- ifelse(stata_num(unique_product) == 1, stata_float(total_prod / total_tmp), NA_real_)
   share_product[!is.finite(share_product)] <- NA_real_
 
-  # EU partner (fixed EU-27 list incl. EL and GR, bug T6)
+  # EU partner (Greece as EL or GR). Fix T6: membership of the year. Stata used
+  # the EU-27 of 2020 for every year, so the UK counted as non-EU before 2020 and
+  # Croatia as EU before it joined (July 2013, counted from 2013).
   eu27 <- c("AT", "BE", "BG", "CZ", "DE", "EE", "IE", "EL", "GR", "ES", "FR", "HR", "HU", "CY", "IT",
             "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "DK", "FI", "SE")
-  EU <- as.integer(country_code %in% eu27 & stata_num(unique_trade_partner) == 1)
+  in_eu <- country_code %in% eu27
+  in_eu[country_code == "HR" & d$year < 2013] <- FALSE
+  in_eu[country_code %in% c("GB", "UK") & d$year <= 2020] <- TRUE
+  EU <- as.integer(in_eu & stata_num(unique_trade_partner) == 1)
   EU[country_code == ""] <- NA
 
   g <- data.frame(idf = d$idf, year = d$year, trade_type = d$trade_type, flow = flow,

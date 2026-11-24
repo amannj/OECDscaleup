@@ -111,6 +111,12 @@ should touch.
   converted it to a number without `force`: a code with letters (e.g. a
   confidential code) stopped the run, and codes differing only in leading
   zeros were counted as one product.
+- T6 EU partners are counted by the EU membership of each year: the United
+  Kingdom (`GB` or `UK`) up to and including 2020, Croatia from 2013. Stata
+  used the EU-27 of 2020 in every year.
+- HGX (heavy exporting scalers) keeps `>=` half the HGT growth threshold,
+  as the code always did; the documentation's "more than 50 %" is the
+  same in practice and is now worded "at least half".
 
 ## Verified against Stata
 

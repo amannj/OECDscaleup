@@ -59,3 +59,12 @@ test_that("T5: product codes with letters are counted, and leading zeros are kep
   expect_equal(p$exp_products, 3) # 0101AB, 010121, 10121 ("." is missing); Stata stopped
   expect_equal(p$exp_value, 14)
 })
+
+test_that("T6: EU partners follow the membership of the year (UK until 2020, Croatia from 2013)", {
+  rows <- function(y) tr_rows(idf = 1, year = y, trade_type = c(2, 2, 2, 1), trade_value = 5,
+                              code_destin = c("GB", "HR", "DE", ""), prod_code = "01012100")
+  p <- build_trade_panel(cfg_t(), rbind(rows(2012), rows(2015), rows(2021)))
+  eu <- stats::setNames(p$exp_eu_partners, p$year)
+  expect_equal(unname(eu[c("2012", "2015", "2021")]), c(2, 3, 2)) # GB+DE; GB+HR+DE; HR+DE
+  expect_true(all(p$exp_all_partners == 3))
+})
