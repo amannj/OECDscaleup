@@ -72,8 +72,9 @@ test_that("exporter flags: non-traders are 0, a firm without a flow is 0 for it 
   expect_equal(f(2, 2015, "importer"), 1)
   expect_equal(f(3, 2015, "exp_value"), 0)
   expect_equal(f(3, 2015, "exporter"), 0)
-  # first observed export year is 2011, so y4_exporter is 1 in 2011-2014 (left-censored, T3)
-  expect_equal(vapply(2011:2015, function(y) f(1, y, "y4_exporter"), numeric(1)), c(1, 1, 1, 1, 0))
+  # exporting from its first observed year (2011): first-time or not is unknown while 2011 is in
+  # t-3..t (fix T3; Stata: 1 in 2011-2014)
+  expect_equal(vapply(2011:2015, function(y) f(1, y, "y4_exporter"), numeric(1)), c(NA, NA, NA, NA, 0))
   # HGX = 1 only for an HGT scaler with export growth >= half the HGT turnover growth
   hgt <- out$HGT10 == 1 & out$idf == 1
   if (any(hgt, na.rm = TRUE)) {

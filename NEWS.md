@@ -104,6 +104,12 @@ should touch.
   exporter/non-exporter comparison and the share of importers among
   exporters was computed over two-way traders only. Values that were
   missing in the raw data stay missing.
+- T3 First-time exporters (`y4_exporter`): a firm that already exports in
+  its first observed year may have exported before the data start, so
+  while that year lies in t-3..t it is now missing (unknown) instead of a
+  first-time exporter, unless that year is the firm's entry year. Stata
+  counted every firm exporting in the first data year as new, which
+  strongly overstated the share in the early years.
 - T4 Trade data without import rows (or without export rows) no longer
   stop the run (Stata stopped at `rename trade_value1`). That flow is then
   unknown for every firm: its variables are missing, non-traders included.

@@ -335,6 +335,15 @@ build_accounts_core <- function(config,
     y4 <- as.integer(y4)
     never_known <- stats::ave(!is.na(data$exporter), data$idf, FUN = function(x) !any(x)) == 1
     y4[never_known] <- NA
+    # Fix T3: a firm already exporting in its first observed year may have exported
+    # before the data start, so whether it is a first-time exporter in t-3..t is
+    # unknown while that year lies in the window (unless it is the firm's entry
+    # year). Stata counted it as first-time, overstating the early years.
+    first_year <- stats::ave(data$year, data$idf, FUN = min)
+    at_first <- data$year == first_year
+    exports_at_first <- stats::ave(as.numeric(at_first & stata_num(data$exporter) == 1 &
+                                                stata_num(data$entry) != 1), data$idf, FUN = max) == 1
+    y4[exports_at_first & first_year >= data$year - 3] <- NA
     data$y4_exporter <- y4
   }
 

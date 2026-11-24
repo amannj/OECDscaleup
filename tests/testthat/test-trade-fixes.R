@@ -60,6 +60,18 @@ test_that("T5: product codes with letters are counted, and leading zeros are kep
   expect_equal(p$exp_value, 14)
 })
 
+test_that("T3: y4_exporter is unknown while a firm exporting from its first observed year is in t-3..t", {
+  bf <- make_base_financials_wide()
+  years <- 2011:2020
+  ex <- function(id, from) tr_rows(idf = id, year = years, trade_type = 2, trade_value = ifelse(years >= from, 100, 0),
+                                   code_destin = "DE", prod_code = "84713000")
+  imp <- tr_rows(idf = 99, year = 2011, trade_type = 1, trade_value = 1, code_destin = "", prod_code = "84713000")
+  out <- build_trade_accounts_indicators(cfg_t(), bf, rbind(ex(1, 2011), ex(2, 2016), imp))
+  y4 <- function(id) vapply(years, function(y) out$y4_exporter[out$idf == id & out$year == y], numeric(1))
+  expect_equal(y4(1), c(NA, NA, NA, NA, 0, 0, 0, 0, 0, 0)) # exports in 2011, its first year: unknown
+  expect_equal(y4(2), c(0, 0, 0, 0, 0, 1, 1, 1, 1, 0))     # starts exporting in 2016: first-time 2016-2019
+})
+
 test_that("T6: EU partners follow the membership of the year (UK until 2020, Croatia from 2013)", {
   rows <- function(y) tr_rows(idf = 1, year = y, trade_type = c(2, 2, 2, 1), trade_value = 5,
                               code_destin = c("GB", "HR", "DE", ""), prod_code = "01012100")
