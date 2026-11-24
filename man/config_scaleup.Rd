@@ -10,7 +10,8 @@ config_scaleup(
   output_dir,
   dominance = FALSE,
   dom_vars = c("employment", "turnover"),
-  dom_num = 2
+  dom_num = 2,
+  trade_value_unit = NULL
 )
 }
 \arguments{
@@ -35,6 +36,11 @@ computed on (only used if \code{dominance = TRUE}). Default
 
 \item{dom_num}{Number of top units defining the dominance ratio (e.g. \code{2}
 means "share held by the 2 largest firms"). Default \code{2}.}
+
+\item{trade_value_unit}{Trade package only: the unit of \code{trade_value} in
+\verb{trade_RAW_<country>.dta}, \code{"EUR"} (divided by 1000) or \code{"EUR thousand"}.
+\code{NULL} (the default) follows the trade package: EUR for PT and HU, EUR
+thousand otherwise (\code{country_patches$trade_values_in_eur}).}
 }
 \value{
 An object of class \code{scaleup_config}.

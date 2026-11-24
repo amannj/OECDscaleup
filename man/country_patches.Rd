@@ -16,6 +16,9 @@ employment/turnover jump pattern in national-currency terms):
 \item{aggregate_small_regions}{Countries where TL2 regions with a thin
 count of HGET10 scalers get coarsened up to the TL1 level:
 \verb{AT, CA, HU, IT, NL, ES, RO}.}
+\item{trade_values_in_eur}{Trade package: countries whose \code{trade_value}
+is supplied in EUR and divided by 1000, unless the configuration says
+otherwise (\code{\link[=config_scaleup]{config_scaleup()}}'s \code{trade_value_unit}): \verb{PT, HU}.}
 }
 }
 \usage{
