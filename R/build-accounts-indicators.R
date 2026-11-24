@@ -50,6 +50,27 @@ build_accounts_indicators <- function(config,
                                        exchange_rates = NULL,
                                        tl3_typology = NULL,
                                        storage_types = NULL) {
+  build_accounts_core(config, base_financials,
+    plants_raw = plants_raw, exchange_rates = exchange_rates,
+    tl3_typology = tl3_typology, storage_types = storage_types
+  )
+}
+
+#' Shared body of `n0_1` (second package) and `n0_2` (trade package)
+#'
+#' `n0_2_trade_accounts_indicators.do` is a copy of `n0_1` v1_3 with a trade
+#' block added and a few steps changed. With `trade_panel = NULL` this runs
+#' `n0_1`; with the firm-year trade panel from [build_trade_panel()] it runs
+#' `n0_2`. The differences are marked `n0_2:` below.
+#' @noRd
+build_accounts_core <- function(config,
+                                base_financials,
+                                plants_raw = NULL,
+                                exchange_rates = NULL,
+                                tl3_typology = NULL,
+                                storage_types = NULL,
+                                trade_panel = NULL) {
+  trade <- !is.null(trade_panel)
   data <- base_financials
 
   # --- Step 2: optional plant-count / multiplant flag ------------------------
@@ -71,6 +92,17 @@ build_accounts_indicators <- function(config,
       data[[v]] <- if (has_column(data, v)) dplyr::coalesce(as.numeric(fresh), as.numeric(data[[v]])) else fresh
       data[[paste0(".", v)]] <- NULL
     }
+  }
+
+  # --- n0_2 PART 3: merge the firm-year trade panel onto base_financials ------
+  # `merge m:1 idf year using base_financials, keep(2 3)`: every base_financials
+  # firm-year is kept, trade-only firm-years are dropped. Firm-years with no
+  # trade record are non-exporters / non-importers (value 0); a firm-year in the
+  # trade file keeps a missing value for the flow it does not have (bug T2).
+  if (trade) {
+    in_trade <- paste(data$idf, data$year) %in% paste(trade_panel$idf, trade_panel$year)
+    data <- dplyr::left_join(data, trade_panel, by = c("idf", "year"))
+    for (v in c("imp_value", "exp_value")) data[[v]][!in_trade] <- 0
   }
 
   # --- Step 4: validation and normalization -----------------------------------
@@ -110,7 +142,8 @@ build_accounts_indicators <- function(config,
   # sector_L: computed on the *raw* sector_1d, before any "." -> NA normalization,
   # so a missing sector_1d yields 0 here (matches the source: a literal-string
   # comparison against "L", not a missing-propagating one).
-  data$sector_L <- as.integer(!is.na(data$sector_1d) & data$sector_1d == "L")
+  # n0_2: no sector_L
+  if (!trade) data$sector_L <- as.integer(!is.na(data$sector_1d) & data$sector_1d == "L")
 
   # `replace sector_1d = "" if sector_1d == "."` then `encode`: "." and "" become missing.
   # The encode code table is fixed here, before the year trimming below drops rows.
@@ -125,6 +158,11 @@ build_accounts_indicators <- function(config,
     "tangible_fixed_assets", "fixed_assets", "current_assets", "total_assets",
     "loans", "total_liabilities"
   )
+  # n0_2: the export-revenue variables are left out, the trade values added
+  if (trade) {
+    negative_clean_vars <- c(setdiff(negative_clean_vars, c("exp_revenues_goods", "exp_revenues_services")),
+                             "exp_value", "imp_value")
+  }
   for (v in intersect(negative_clean_vars, names(data))) {
     data[[v]] <- dplyr::if_else(data[[v]] < 0, NA_real_, data[[v]])
   }
@@ -132,7 +170,10 @@ build_accounts_indicators <- function(config,
   # --- Step 6: unit rescaling for specific countries (data-source patch) -----
   # Fix S16: the Stata list left out cash_flow (and gross_profit), so
   # findep_rat4 = (capex - cash_flow) / capex mixed thousands with units.
-  if (config$country %in% country_patches$rescale_to_thousands) {
+  # n0_2: only PT, and without the export-revenue variables (bug T1). The order
+  # differs from n0_1 (before the negative-value cleaning), which commutes.
+  rescale_countries <- if (trade) "PT" else country_patches$rescale_to_thousands
+  if (config$country %in% rescale_countries) {
     rescale_vars <- c(
       "turnover", "added_value", "labour_costs", "operating_costs",
       "services_costs", "exp_revenues_goods", "exp_revenues_services",
@@ -140,6 +181,7 @@ build_accounts_indicators <- function(config,
       "tangible_fixed_assets", "fixed_assets", "current_assets",
       "total_assets", "loans", "total_liabilities", "cash_flow", "gross_profit"
     )
+    if (trade) rescale_vars <- setdiff(rescale_vars, c("exp_revenues_goods", "exp_revenues_services"))
     # `replace v = v/1000` keeps a float variable float (and promotes byte/int to
     # float), so the stored result is the single-precision rounding of the quotient
     for (v in intersect(rescale_vars, names(data))) {
@@ -172,6 +214,7 @@ build_accounts_indicators <- function(config,
       dplyr::select("year", "rate")
     data <- dplyr::left_join(data, rates, by = "year")
     data$turnover_nat <- stata_float(data$turnover * data$rate)
+    if (trade) data$exports_nat <- stata_float(data$exp_value * data$rate) # n0_2
     data$rate <- NULL
   }
 
@@ -272,6 +315,30 @@ build_accounts_indicators <- function(config,
   data$.max_y <- NULL
   data$.min_y <- NULL
 
+  # --- n0_2: exporters, importers, first-time exporters -------------------------
+  if (trade) {
+    for (pr in c("exp", "imp")) {
+      v <- data[[paste0(pr, "_value")]]
+      flag <- as.integer(!is.na(v) & v > 0)
+      flag[is.na(v)] <- NA # a missing value (e.g. an import-only firm's exports) is not a 0 (bug T2)
+      data[[paste0(pr, "orter")]] <- flag
+    }
+    # `for varlist ...: gen L3X = l3.X` (float)
+    for (v in intersect(c("exporter", "importer", "exp_value", "exp_products", "exp_all_partners",
+                          "exp_eu_partners", "exp_core_prod"), names(data))) {
+      data[[paste0("L3", v)]] <- stata_float(panel_lag(data[[v]], 3, data$idf, data$year))
+    }
+    # first year a firm is seen exporting; y4 = within t-3..t (bug T3: left-censored)
+    data$f_exporter <- first_occurrence_flag(data$idf, data$year, data$exporter)
+    f <- data$f_exporter
+    y4 <- f == 1
+    for (k in 1:3) y4 <- y4 | stata_num(panel_lag(f, k, data$idf, data$year)) == 1
+    y4 <- as.integer(y4)
+    never_known <- stats::ave(!is.na(data$exporter), data$idf, FUN = function(x) !any(x)) == 1
+    y4[never_known] <- NA
+    data$y4_exporter <- y4
+  }
+
   # --- Step 12: growth rates and HGF flags ------------------------------------
   for (spec in list(
     list(lab = "employment", var = "employment"),
@@ -314,7 +381,7 @@ build_accounts_indicators <- function(config,
     data[[paste0("MHG_", lab, "20")]] <- mhg20
     data[[paste0("HG_", lab, "_pool")]] <- pool
   }
-  data$turnover_nat <- NULL
+  if (!trade) data$turnover_nat <- NULL # n0_2 drops it only after the HGX flags
 
   # --- Step 13: rename and combine HGF flags ----------------------------------
   names(data) <- gsub("HG_employment", "HGE", names(data), fixed = TRUE)
@@ -333,6 +400,32 @@ build_accounts_indicators <- function(config,
   emp_missing <- is.na(data$employment) | is.na(panel_lag(data$employment, 3, data$idf, data$year))
   data$HGET10[emp_missing] <- NA
   data$HGET20[emp_missing] <- NA
+
+  # --- n0_2: heavy (HGX) and light (HGNX) exporting turnover scalers --------------
+  # Export growth over t-3..t of at least half the turnover growth needed to be HGT
+  # (0.331 = 1.1^3 - 1, 0.728 = 1.2^3 - 1). Stata compares missing as +infinity.
+  if (trade) {
+    exports_type <- if (config$country %in% country_patches$non_euro) "exports_nat" else "exp_value"
+    ex <- data[[exports_type]]
+    l3ex <- panel_lag(ex, 3, data$idf, data$year)
+    l3turn <- panel_lag(data[[turnover_type]], 3, data$idf, data$year)
+    for (spec in list(list(rate = "10", min_gr = 0.331), list(rate = "20", min_gr = 0.728))) {
+      hgt <- data[[paste0("HGT", spec$rate)]]
+      d <- stata_num(ex - l3ex)
+      rhs <- stata_num((spec$min_gr / 2) * l3turn)
+      known <- !is.na(ex) & !is.na(l3ex) & stata_num(hgt) == 1
+      hgx <- as.integer(d >= rhs & known)
+      hgnx <- as.integer(d < rhs & known)
+      hgnx[!is.na(ex) & !is.na(l3ex) & ex == 0 & l3ex == 0] <- 0L
+      unknown <- is.na(ex) | is.na(l3ex) | is.na(hgt)
+      hgx[unknown] <- NA
+      hgnx[unknown] <- NA
+      data[[paste0("HGX", spec$rate)]] <- hgx
+      data[[paste0("HGNX", spec$rate)]] <- hgnx
+    }
+    data$turnover_nat <- NULL
+    data$exports_nat <- NULL
+  }
 
   # --- Step 14: age and size categories ---------------------------------------
   if (!has_column(data, "age_cat")) {
@@ -374,6 +467,17 @@ build_accounts_indicators <- function(config,
     (s2 > 44 & s2 < 48) | s2 == 68 | s2 == 95 | (s2 >= 35 & s2 <= 39) | (s2 >= 90 & s2 <= 94) | s2 == 96, 7
   )
 
+  # --- n0_2: sector group x exporter (encoded string) ---------------------------
+  if (trade) {
+    tg <- data$tech_grad
+    se <- rep(NA_character_, nrow(data))
+    se <- stata_replace(se, tg %in% 1:2 & stata_num(data$exporter) == 1, "manufact_export")
+    se <- stata_replace(se, tg %in% 1:2 & stata_num(data$exporter) == 0, "manufact_not_export")
+    se <- stata_replace(se, tg %in% 3:4 & stata_num(data$exporter) == 1, "tradable_serv_export")
+    se <- stata_replace(se, tg %in% 3:4 & stata_num(data$exporter) == 0, "tradable_serv_not_export")
+    data$sector_exporter <- se
+  }
+
   # --- Step 16: OECD STAN a38 industry grouping (ind_a38) ---------------------
   # Kept as a plain string throughout (no numeric code needed - see labels.R).
   # Fix S2: the Stata list also contained the aggregate "D68T82", assigned after
@@ -386,6 +490,8 @@ build_accounts_indicators <- function(config,
     "D35", "D41T43", "D45T47", "D77T82", "D86", "D49T53", "D87T88", "D01T03", "D68",
     "D64T66", "D97T98"
   )
+  # (n0_2 already had this list without D68T82, in alphabetical order; without
+  # overlaps the order does not matter, so both packages use it.)
   data$ind_a38 <- NA_character_
   for (code in stan_a38_codes) {
     if (nchar(code) == 3) {
@@ -398,22 +504,36 @@ build_accounts_indicators <- function(config,
     }
   }
 
-  # --- Step 17: region aggregation for small TL2 regions, then region x tech --
-  if (config$country %in% country_patches$aggregate_small_regions) {
-    data <- dplyr::left_join(data, small_region_map(data), by = "region_2d")
-  } else {
-    data$region_adj <- data$region_2d
+  # --- n0_2: sector groups by digital intensity of the A38 industry --------------
+  if (trade) {
+    a38 <- data$ind_a38
+    dg <- rep(NA_real_, nrow(data))
+    dg[a38 %in% c("D01T03", "D05T09", "D10T12", "D35", "D36T39", "D41T43", "D49T53", "D55T56", "D68")] <- 1
+    dg[a38 %in% c("D13T15", "D19", "D20", "D21", "D22T23", "D24T25", "D85", "D86", "D87T88")] <- 2
+    dg[a38 %in% c("D16T18", "D26", "D27", "D28", "D31T33", "D45T47", "D58T60", "D84", "D90T93")] <- 3
+    dg[a38 %in% c("D29T30", "D61", "D62T63", "D64T66", "D69T71", "D72", "D73T75", "D77T82", "D94T96")] <- 4
+    data$digit_sect <- dg
   }
-  tech_grad_str <- decode_category(data$tech_grad, "tech_grad")
-  # Fix S17: a missing region (empty, "." or NA) gives a missing pair. Stata
-  # (`if region_adj != "." & tech_grad_str != ""`) excluded only the literal ".",
-  # so an empty region formed a pseudo-region "_<sector group>".
-  region_known <- !is.na(data$region_adj) & !data$region_adj %in% c("", ".")
-  data$reg_techgrad <- dplyr::if_else(
-    region_known & !is.na(tech_grad_str),
-    paste0(data$region_adj, "_", tech_grad_str), NA_character_
-  )
-  data$region_adj <- NULL
+
+  # --- Step 17: region aggregation for small TL2 regions, then region x tech --
+  # n0_2: neither the aggregation nor reg_techgrad
+  if (!trade) {
+    if (config$country %in% country_patches$aggregate_small_regions) {
+      data <- dplyr::left_join(data, small_region_map(data), by = "region_2d")
+    } else {
+      data$region_adj <- data$region_2d
+    }
+    tech_grad_str <- decode_category(data$tech_grad, "tech_grad")
+    # Fix S17: a missing region (empty, "." or NA) gives a missing pair. Stata
+    # (`if region_adj != "." & tech_grad_str != ""`) excluded only the literal ".",
+    # so an empty region formed a pseudo-region "_<sector group>".
+    region_known <- !is.na(data$region_adj) & !data$region_adj %in% c("", ".")
+    data$reg_techgrad <- dplyr::if_else(
+      region_known & !is.na(tech_grad_str),
+      paste0(data$region_adj, "_", tech_grad_str), NA_character_
+    )
+    data$region_adj <- NULL
+  }
   # `replace region_2d = "" if region_2d == "."` then `encode`
   data$region_2d[data$region_2d %in% c(".", "")] <- NA_character_
 
@@ -519,6 +639,7 @@ build_accounts_indicators <- function(config,
     "region_2d", "multiplant", "independent", "foreign_owned", "reg_techgrad", "ind_a38",
     "size_age"
   )
+  if (trade) groups <- c(setdiff(groups, "reg_techgrad"), "sector_exporter", "digit_sect") # n0_2
   for (gr in intersect(groups, names(data))) {
     data[[paste0("L3", gr)]] <- panel_lag(data[[gr]], 3, data$idf, data$year)
   }
@@ -536,7 +657,7 @@ build_accounts_indicators <- function(config,
   # Code tables Stata's `encode` assigned (sector_1d was fixed before the year
   # trimming; no rows are dropped after the other encodes). Used to write the
   # .dta exactly as Stata does and for Stata-style regression term names.
-  for (v in c("size_age", "ind_a38", "reg_techgrad", "region_2d")) {
+  for (v in c("size_age", "ind_a38", "reg_techgrad", "region_2d", "sector_exporter")) {
     if (v %in% names(data)) encode_levels[[v]] <- stata_encode_levels(data[[v]])
   }
   if ("typology_UR" %in% names(data)) {
@@ -604,14 +725,14 @@ small_region_map <- function(data) {
 #' @noRd
 as_stata_accounts <- function(data) {
   levels <- attr(data, "stata_encode_levels")
-  for (v in c("sector_1d", "size_age", "ind_a38", "reg_techgrad", "region_2d", "typology_UR")) {
+  for (v in c("sector_1d", "size_age", "ind_a38", "reg_techgrad", "region_2d", "typology_UR", "sector_exporter")) {
     if (!v %in% names(data)) next
     lv <- levels[[v]]
     if (is.null(lv)) lv <- stata_encode_levels(data[[v]])
     for (col in intersect(c(v, paste0("L3", v)), names(data))) data[[col]] <- stata_encode(data[[col]], lv)
   }
   user_age <- attr(data, "age_cat_labels")
-  for (v in c("age_cat", "size_cat", "tech_grad", "multiplant", "independent", "foreign_owned")) {
+  for (v in c("age_cat", "size_cat", "tech_grad", "multiplant", "independent", "foreign_owned", "digit_sect")) {
     map <- value_labels[[v]]
     labs <- stats::setNames(as.double(names(map)), unname(map))
     if (v == "age_cat" && !is.null(user_age)) labs <- user_age[[1]]

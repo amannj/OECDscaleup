@@ -35,7 +35,11 @@ value_labels <- list(
   multiplant = c(`0` = "No", `1` = "Yes"),
   independent = c(`0` = "Affiliate", `1` = "Independent"),
   foreign_owned = c(`0` = "No", `1` = "Yes"),
-  ALL = c(`1` = "full sample")
+  ALL = c(`1` = "full sample"),
+  # trade package: `label define digit_sectl` (n0_2) and `exporterl` (n1_6, L3exporter only)
+  digit_sect = c(`1` = "Low digital intensity", `2` = "Medium-low digital intensity",
+                 `3` = "Medium-high digital intensity", `4` = "High digital intensity"),
+  exporter = c(`0` = "Non-exporter", `1` = "Exporter")
 )
 
 #' Value labels of the classification codes written to the output CSVs

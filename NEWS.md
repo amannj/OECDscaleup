@@ -1,5 +1,6 @@
 # OECDscaleup (development version)
 
+<<<<<<< HEAD
 ## Stata bugs fixed
 
 Each fix changes results relative to the Stata code (and to git tag
@@ -64,6 +65,28 @@ should touch.
   (`reg_techgrad`). Stata excluded only `"."`, so an empty region formed a
   pseudo-region `_<sector group>`. Such firms still count in all other
   breakdowns and totals.
+
+## Trade package
+
+- New: the firm-level trade extension (Stata trade package v1.0,
+  `MASTER_OECD_trade.do`). `run_trade_pipeline()` reads `trade_RAW_<CT>.dta`
+  next to `base_financials_<CT>.dta` and writes
+  `trade_accounts_indicators_<CT>.dta` and
+  `n16_trade_characteristics_p1/p2_<CT>.csv`. The steps are
+  `build_trade_panel()` (transactions to a firm-year panel),
+  `build_trade_accounts_indicators()` (`n0_2`: the panel build of the second
+  package, an earlier version of it, with exporter/importer flags,
+  first-time exporters, heavy/light exporting scalers, `sector_exporter`
+  and `digit_sect`) and `compute_trade_characteristics()` (`n1_6`).
+- `n0_2` is a modified copy of `n0_1`, so both run through one shared body;
+  the trade differences (PT-only rescaling, no region aggregation, no
+  `reg_techgrad`, no `D68T82`, ...) are switched on by the trade panel.
+- At git tag `trade-parity-v1_0` the trade code reproduces the Stata code
+  including its bugs; two of them make Stata stop, and R stops with the
+  same cause: trade data without import (or export) rows and non-numeric
+  product codes. Merged into the fixes: the Stata bugs fixed above apply to
+  the trade outputs too, wherever the trade package shares the code (S1,
+  S7-S9, S15, S16); the trade-specific bugs are listed under "Known issues".
 
 ## Verified against Stata
 
