@@ -43,8 +43,12 @@ build_trade_panel <- function(config, trade_raw, storage_types = NULL) {
   d$code_destin[is.na(d$code_destin)] <- ""
   d$prod_code[is.na(d$prod_code)] <- ""
 
-  # trade values to EUR thousand: "only PT and maybe HU" (bug T1)
-  if (config$country %in% c("PT", "HU")) {
+  # Fix T1: trade values to EUR thousand when supplied in EUR. Stata hard-coded
+  # "only PT and maybe HU"; that is now the default of config$trade_value_unit.
+  unit <- if (is.null(config$trade_value_unit)) {
+    if (config$country %in% country_patches$trade_values_in_eur) "EUR" else "EUR thousand"
+  } else config$trade_value_unit
+  if (identical(unit, "EUR")) {
     orig_type <- if ("trade_value" %in% names(storage_types)) storage_types[["trade_value"]] else NA_character_
     d$trade_value <- d$trade_value / 1000
     if (stata_replace_type(orig_type) == "float") d$trade_value <- stata_float(d$trade_value)

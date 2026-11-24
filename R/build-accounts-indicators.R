@@ -158,11 +158,9 @@ build_accounts_core <- function(config,
     "tangible_fixed_assets", "fixed_assets", "current_assets", "total_assets",
     "loans", "total_liabilities"
   )
-  # n0_2: the export-revenue variables are left out, the trade values added
-  if (trade) {
-    negative_clean_vars <- c(setdiff(negative_clean_vars, c("exp_revenues_goods", "exp_revenues_services")),
-                             "exp_value", "imp_value")
-  }
+  # n0_2: the trade values are cleaned too. Fix T1: the export-revenue variables
+  # are cleaned (and rescaled below) as in n0_1; n0_2 had left them out.
+  if (trade) negative_clean_vars <- c(negative_clean_vars, "exp_value", "imp_value")
   for (v in intersect(negative_clean_vars, names(data))) {
     data[[v]] <- dplyr::if_else(data[[v]] < 0, NA_real_, data[[v]])
   }
@@ -170,10 +168,9 @@ build_accounts_core <- function(config,
   # --- Step 6: unit rescaling for specific countries (data-source patch) -----
   # Fix S16: the Stata list left out cash_flow (and gross_profit), so
   # findep_rat4 = (capex - cash_flow) / capex mixed thousands with units.
-  # n0_2: only PT, and without the export-revenue variables (bug T1). The order
-  # differs from n0_1 (before the negative-value cleaning), which commutes.
-  rescale_countries <- if (trade) "PT" else country_patches$rescale_to_thousands
-  if (config$country %in% rescale_countries) {
+  # Fix T1: n0_2 rescaled the financials of PT only, so for ES, RO, SI and HU the
+  # trade outputs mixed EUR with EUR thousand; they now follow n0_1's list.
+  if (config$country %in% country_patches$rescale_to_thousands) {
     rescale_vars <- c(
       "turnover", "added_value", "labour_costs", "operating_costs",
       "services_costs", "exp_revenues_goods", "exp_revenues_services",
@@ -181,7 +178,6 @@ build_accounts_core <- function(config,
       "tangible_fixed_assets", "fixed_assets", "current_assets",
       "total_assets", "loans", "total_liabilities", "cash_flow", "gross_profit"
     )
-    if (trade) rescale_vars <- setdiff(rescale_vars, c("exp_revenues_goods", "exp_revenues_services"))
     # `replace v = v/1000` keeps a float variable float (and promotes byte/int to
     # float), so the stored result is the single-precision rounding of the quotient
     for (v in intersect(rescale_vars, names(data))) {

@@ -21,10 +21,14 @@
 #'   \item{aggregate_small_regions}{Countries where TL2 regions with a thin
 #'     count of HGET10 scalers get coarsened up to the TL1 level:
 #'     `AT, CA, HU, IT, NL, ES, RO`.}
+#'   \item{trade_values_in_eur}{Trade package: countries whose `trade_value`
+#'     is supplied in EUR and divided by 1000, unless the configuration says
+#'     otherwise ([config_scaleup()]'s `trade_value_unit`): `PT, HU`.}
 #' }
 #' @export
 country_patches <- list(
   rescale_to_thousands = c("PT", "ES", "RO", "SI", "HU"),
   non_euro = c("DK", "HU", "RO", "CA", "HR"),
-  aggregate_small_regions = c("AT", "CA", "HU", "IT", "NL", "ES", "RO")
+  aggregate_small_regions = c("AT", "CA", "HU", "IT", "NL", "ES", "RO"),
+  trade_values_in_eur = c("PT", "HU")
 )

@@ -86,7 +86,18 @@ should touch.
   same cause: trade data without import (or export) rows and non-numeric
   product codes. Merged into the fixes: the Stata bugs fixed above apply to
   the trade outputs too, wherever the trade package shares the code (S1,
-  S7-S9, S15, S16); the trade-specific bugs are listed under "Known issues".
+  S7-S9, S15, S16), and the trade-specific bugs below are fixed.
+
+### Trade package bugs fixed
+
+- T1 Units: the trade build rescales the financials for the same countries
+  as the base package (PT, ES, RO, SI, HU; the Stata trade package did PT
+  only, so the trade outputs of ES, RO, SI and HU mixed EUR with EUR
+  thousand), including the export-revenue variables. The unit of
+  `trade_value` is a setting, `config_scaleup(trade_value_unit =)`: `"EUR"`
+  (divided by 1000) or `"EUR thousand"`; by default EUR for PT and HU, as
+  the Stata code assumed. The 1-thousand product threshold (T7) then always
+  applies to EUR thousand.
 
 ## Verified against Stata
 

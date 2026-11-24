@@ -23,6 +23,10 @@
 #'   `c("employment", "turnover")`.
 #' @param dom_num Number of top units defining the dominance ratio (e.g. `2`
 #'   means "share held by the 2 largest firms"). Default `2`.
+#' @param trade_value_unit Trade package only: the unit of `trade_value` in
+#'   `trade_RAW_<country>.dta`, `"EUR"` (divided by 1000) or `"EUR thousand"`.
+#'   `NULL` (the default) follows the trade package: EUR for PT and HU, EUR
+#'   thousand otherwise (`country_patches$trade_values_in_eur`).
 #'
 #' @return An object of class `scaleup_config`.
 #' @export
@@ -41,7 +45,8 @@ config_scaleup <- function(country,
                             output_dir,
                             dominance = FALSE,
                             dom_vars = c("employment", "turnover"),
-                            dom_num = 2) {
+                            dom_num = 2,
+                            trade_value_unit = NULL) {
   if (!is.character(country) || length(country) != 1 || nchar(country) != 2) {
     rlang::abort(
       "`country` must be a single 2-letter ISO country code (e.g. \"FR\").",
@@ -72,6 +77,12 @@ config_scaleup <- function(country,
   if (!is.numeric(dom_num) || length(dom_num) != 1 || dom_num < 1) {
     rlang::abort("`dom_num` must be a single positive integer.", class = "OECDscaleup_config_error")
   }
+  if (is.null(trade_value_unit)) {
+    trade_value_unit <- if (toupper(country) %in% country_patches$trade_values_in_eur) "EUR" else "EUR thousand"
+  }
+  if (!identical(trade_value_unit, "EUR") && !identical(trade_value_unit, "EUR thousand")) {
+    rlang::abort("`trade_value_unit` must be \"EUR\" or \"EUR thousand\".", class = "OECDscaleup_config_error")
+  }
 
   structure(
     list(
@@ -80,7 +91,8 @@ config_scaleup <- function(country,
       output_dir = output_dir,
       dominance = isTRUE(dominance),
       dom_vars = dom_vars,
-      dom_num = as.integer(dom_num)
+      dom_num = as.integer(dom_num),
+      trade_value_unit = trade_value_unit
     ),
     class = "scaleup_config"
   )
