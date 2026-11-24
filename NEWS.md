@@ -98,6 +98,15 @@ should touch.
   (divided by 1000) or `"EUR thousand"`; by default EUR for PT and HU, as
   the Stata code assumed. The 1-thousand product threshold (T7) then always
   applies to EUR thousand.
+- T2 A firm in the trade file that only imports has export value 0 (a
+  non-exporter), and one that only exports has import value 0; Stata left
+  the value missing, so import-only firms dropped out of the
+  exporter/non-exporter comparison and the share of importers among
+  exporters was computed over two-way traders only. Values that were
+  missing in the raw data stay missing.
+- T4 Trade data without import rows (or without export rows) no longer
+  stop the run (Stata stopped at `rename trade_value1`). That flow is then
+  unknown for every firm: its variables are missing, non-traders included.
 
 ## Verified against Stata
 

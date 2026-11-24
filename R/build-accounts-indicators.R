@@ -101,8 +101,11 @@ build_accounts_core <- function(config,
   # trade file keeps a missing value for the flow it does not have (bug T2).
   if (trade) {
     in_trade <- paste(data$idf, data$year) %in% paste(trade_panel$idf, trade_panel$year)
+    flows <- attr(trade_panel, "flows")
+    if (is.null(flows)) flows <- c(1, 2)
     data <- dplyr::left_join(data, trade_panel, by = c("idf", "year"))
-    for (v in c("imp_value", "exp_value")) data[[v]][!in_trade] <- 0
+    # (fix T4: a flow absent from the whole trade file stays unknown, also for non-traders)
+    for (v in c("imp_value", "exp_value")[c(1, 2) %in% flows]) data[[v]][!in_trade] <- 0
   }
 
   # --- Step 4: validation and normalization -----------------------------------

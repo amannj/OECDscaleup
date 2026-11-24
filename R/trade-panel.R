@@ -125,33 +125,46 @@ build_trade_panel <- function(config, trade_raw, storage_types = NULL) {
   out$value[out$miss_value] <- NA
   out <- out[c("trade_type", "idf", "year", "value", "all_partners", "eu_partners", "products", "core_prod")]
 
-  # reshape wide by flow; Stata's renames need both flows (bug T4: no import rows -> crash)
+  # reshape wide by flow
   types <- sort(unique(out$trade_type))
-  if (!all(c(1, 2) %in% types)) {
-    rlang::abort(
-      sprintf("The trade data have no %s rows: n0_2's `rename trade_value%s` stops (r(111)).",
-              if (!1 %in% types) "import (trade_type 1)" else "export (trade_type 2)", if (!1 %in% types) 1 else 2),
-      class = "OECDscaleup_stata_crash"
-    )
-  }
   if (anyNA(types)) {
     rlang::abort("`trade_type` has missing values: Stata's reshape stops.", class = "OECDscaleup_stata_crash")
   }
+  # Fix T4: Stata stopped (`rename trade_value1`) when the data had no import (or
+  # no export) rows. A flow absent from the whole file is now unknown: its
+  # variables are missing for every firm.
+  flows <- intersect(c(1, 2), types)
+  if (!length(flows)) {
+    rlang::abort("The trade data have neither import (trade_type 1) nor export (trade_type 2) rows.",
+                 class = "OECDscaleup_data_error")
+  }
+  vars <- c("value", "all_partners", "eu_partners", "products", "core_prod")
   wide <- dplyr::distinct(out[c("idf", "year")])
-  for (t in types) {
-    part <- out[out$trade_type == t, setdiff(names(out), "trade_type")]
+  for (t in union(c(1, 2), types)) {
     prefix <- if (t == 1) "imp_" else if (t == 2) "exp_" else NULL
-    vars <- c("value", "all_partners", "eu_partners", "products", "core_prod")
     new_names <- if (is.null(prefix)) paste0("trade_", vars, t) else paste0(prefix, vars)
+    if (!t %in% types) {
+      for (v in new_names) wide[[v]] <- NA_real_
+      next
+    }
+    part <- out[out$trade_type == t, setdiff(names(out), "trade_type")]
     names(part)[match(vars, names(part))] <- new_names
     wide <- dplyr::left_join(wide, part, by = c("idf", "year"))
+    # Fix T2: a firm-year in the trade file without this flow had a missing value
+    # (so an import-only firm was neither exporter nor non-exporter); it has none,
+    # i.e. 0, like a firm that does not appear in the trade file at all
+    no_flow <- !paste(wide$idf, wide$year) %in% paste(part$idf, part$year)
+    wide[[new_names[1]]][no_flow] <- 0
   }
+  attr(wide, "flows") <- flows
   # import partners come from code_origin, which the package does not use: always empty, dropped
   if (sum(!is.na(wide$imp_all_partners)) == 0) {
     wide$imp_all_partners <- NULL
     wide$imp_eu_partners <- NULL
   }
-  dplyr::as_tibble(wide)
+  out <- dplyr::as_tibble(wide)
+  attr(out, "flows") <- flows
+  out
 }
 
 # egen total(): group sums with missing as 0, broadcast to the rows

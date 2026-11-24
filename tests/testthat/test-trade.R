@@ -57,15 +57,13 @@ test_that("PT and HU trade values are divided by 1000, other countries' are not"
   expect_equal(p$exp_value, stata_float(1234.567))
 })
 
-test_that("Stata's stops are reproduced: no import rows (T4), non-numeric product codes (T5)", {
-  exports_only <- trade_rows(idf = 1, year = 2015, trade_type = 2, trade_value = 5, code_destin = "DE", prod_code = "01012100")
-  expect_error(build_trade_panel(cfg_trade(), exports_only), class = "OECDscaleup_stata_crash")
+test_that("Stata's stop on non-numeric product codes (T5) is reproduced", {
   letters <- trade_rows(idf = 1, year = 2015, trade_type = c(2, 1), trade_value = 5, code_destin = c("DE", ""),
                         prod_code = c("0101AB00", "01012100"))
   expect_error(build_trade_panel(cfg_trade(), letters), class = "OECDscaleup_stata_crash")
 })
 
-test_that("exporter flags: non-traders are 0, a missing flow is missing (T2); y4_exporter and HGX", {
+test_that("exporter flags: non-traders are 0, a firm without a flow is 0 for it (fix T2); y4_exporter and HGX", {
   bf <- make_base_financials_wide()
   years <- 2011:2020
   # firm 1 exports throughout with exports tripling from 2015; firm 2 only imports; firm 3 has no trade
@@ -75,7 +73,7 @@ test_that("exporter flags: non-traders are 0, a missing flow is missing (T2); y4
   out <- build_trade_accounts_indicators(cfg_trade(), bf, rbind(t1, t2))
   f <- function(id, y, v) out[[v]][out$idf == id & out$year == y]
   expect_equal(f(1, 2015, "exporter"), 1)
-  expect_true(is.na(f(2, 2015, "exporter")))  # import-only: export value missing, not 0
+  expect_equal(f(2, 2015, "exporter"), 0)  # import-only: a non-exporter (Stata: missing, T2)
   expect_equal(f(2, 2015, "importer"), 1)
   expect_equal(f(3, 2015, "exp_value"), 0)
   expect_equal(f(3, 2015, "exporter"), 0)
@@ -87,7 +85,7 @@ test_that("exporter flags: non-traders are 0, a missing flow is missing (T2); y4
     expect_true(all(out$HGX10[which(hgt)] %in% c(0, 1)))
     expect_true(all(out$HGNX10[which(hgt)] == 1 - out$HGX10[which(hgt)]))
   }
-  expect_true(all(is.na(out$HGX10[out$idf == 2]))) # missing exports
+  expect_true(all(out$HGX10[out$idf == 2] %in% c(0, NA))) # no exports: never a heavy exporter
   expect_false(any(c("reg_techgrad", "sector_L") %in% names(out)))
   expect_setequal(unique(stats::na.omit(out$sector_exporter)), c("manufact_export", "manufact_not_export"))
   expect_true(all(out$digit_sect == 3)) # sector 26 -> D26 -> medium-high digital intensity
