@@ -33,7 +33,17 @@ censored, and the cumulative incidence of each (Aalen-Johansen);
 \item \code{entry}: per definition, sample, category and group, the firms
 entering the risk set and those not followed, by reason;
 \item \code{by_year}: per definition, sample, category, group and calendar year,
-firms at risk and crossings.
+firms at risk and crossings;
+\item \code{hazard}: discrete-time logit of a crossing (to \code{mid} or \code{large}) in
+year t, one per definition and scaler type, on scalers and their pool
+non-scalers together (\code{scaler} = 1 for the scalers' spells). Covariates
+at t-1: log employment, 1-year employment growth, log turnover per
+employee and, where present, independence and exporter status; plus a
+young-firm dummy (age class 0-5 at t-1), years since entry and its
+square, and a linear calendar trend. Firm-clustered standard errors
+(CR1, as Stata's \verb{vce(cluster idf)}); \code{ame_scaler} is the average
+change in the yearly crossing probability when \code{scaler} goes from 0 to 1.
+Exits count as no crossing in their year (a cause-specific hazard).
 }
 }
 \description{

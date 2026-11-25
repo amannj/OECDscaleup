@@ -79,6 +79,42 @@ test_that("compute_midcap_transitions: entry, two-year rule, gaps, exit and cens
   expect_equal(by$exits, c(0, 1, 0, 0, 0, 0))
 })
 
+test_that("midcap_person_periods: one row per step, outcome in the event step, covariates from t-1", {
+  sp <- list(row = c(1L, 2L, 3L), entry = c(2013, 2013, 2014), steps = c(3, NA, 2), type = c("mid", NA, "exit"))
+  covariates <- data.frame(idf = c(10, 10, 10, 30, 30), year = c(2013, 2014, 2015, 2014, 2015),
+                           log_employment = c(1, 2, 3, 7, 8))
+  pp <- midcap_person_periods(sp, c(10, 20, 30), covariates, scaler = 1L)
+  expect_equal(pp$idf, c(10, 10, 10, 30, 30))
+  expect_equal(pp$year, c(2014, 2015, 2016, 2015, 2016))
+  expect_equal(pp$step, c(1, 2, 3, 1, 2))
+  expect_equal(pp$y, c(0, 0, 1, 0, 0)) # the exit is not a crossing
+  expect_equal(pp$log_employment, c(1, 2, 3, 7, 8))
+})
+
+test_that("midcap_hazard_fit recovers the logit and gives clustered errors near the model ones", {
+  set.seed(7)
+  n <- 20000
+  firm <- data.frame(idf = seq_len(n), scaler = rbinom(n, 1, 0.3), entry = sample(2012:2016, n, TRUE),
+                     size = rnorm(n, 3.5, 0.6))
+  pp <- firm[rep(seq_len(n), each = 4), ]
+  pp$step <- rep(1:4, n)
+  pp$year <- pp$entry + pp$step
+  pp$log_employment <- pp$size + rnorm(nrow(pp), 0, 0.1)
+  pp$y <- rbinom(nrow(pp), 1, plogis(-6 + 1 * pp$scaler + 0.6 * pp$log_employment))
+  fit <- midcap_hazard_fit(pp[c("idf", "year", "step", "y", "scaler", "log_employment")])
+  b <- setNames(fit$b, fit$term); se <- setNames(fit$se, fit$term)
+  expect_lt(abs(b[["scaler"]] - 1), 4 * se[["scaler"]])
+  expect_lt(abs(b[["log_employment"]] - 0.6), 4 * se[["log_employment"]])
+  # model-based SE for comparison: no within-firm dependence beyond the covariates, so similar
+  X <- cbind(1, as.matrix(pp[c("scaler", "log_employment", "step")]), pp$step^2, pp$year - median(pp$year))
+  m <- glm(pp$y ~ X - 1, family = binomial())
+  ratio <- se[["scaler"]] / sqrt(diag(vcov(m)))[2]
+  expect_gt(ratio, 0.85)
+  expect_lt(ratio, 1.15)
+  expect_gt(fit$ame_scaler[1], 0)
+  expect_equal(fit$events[1], sum(pp$y))
+})
+
 test_that("money_unit: euros are caught when thousands are declared, and rescaled when declared", {
   cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- midcap_fixture()

@@ -63,7 +63,17 @@
 #'   * `entry`: per definition, sample, category and group, the firms
 #'     entering the risk set and those not followed, by reason;
 #'   * `by_year`: per definition, sample, category, group and calendar year,
-#'     firms at risk and crossings.
+#'     firms at risk and crossings;
+#'   * `hazard`: discrete-time logit of a crossing (to `mid` or `large`) in
+#'     year t, one per definition and scaler type, on scalers and their pool
+#'     non-scalers together (`scaler` = 1 for the scalers' spells). Covariates
+#'     at t-1: log employment, 1-year employment growth, log turnover per
+#'     employee and, where present, independence and exporter status; plus a
+#'     young-firm dummy (age class 0-5 at t-1), years since entry and its
+#'     square, and a linear calendar trend. Firm-clustered standard errors
+#'     (CR1, as Stata's `vce(cluster idf)`); `ame_scaler` is the average
+#'     change in the yearly crossing probability when `scaler` goes from 0 to 1.
+#'     Exits count as no crossing in their year (a cause-specific hazard).
 #' @export
 compute_midcap_transitions <- function(config, accounts_indicators, money_unit = c("EUR thousand", "EUR")) {
   money_unit <- match.arg(money_unit)
@@ -102,14 +112,17 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
   )
   specs <- specs[vapply(names(specs), function(s) has_column(data, sub("_nonscaler_pool$", "", s)), TRUE)]
 
-  inc <- list(); ent <- list(); byy <- list()
+  covariates <- midcap_covariates(data)
+  inc <- list(); ent <- list(); byy <- list(); haz <- list()
   for (d in definitions) {
     st <- status[[d]]
     above <- !is.na(st) & st != "sme"
     confirmed <- above & stata_num(panel_lead(as.integer(above), 1, data$idf, data$year)) == 1
+    spells <- list()
     for (s in names(specs)) {
       sp <- midcap_spells(data$idf, data$year, st, confirmed, specs[[s]] & base_ok, last_year, panel_end)
       if (is.null(sp)) next
+      spells[[s]] <- sp
       for (cat in categories) {
         g <- data[[cat]][sp$row]
         lab <- decode_category(g, cat)
@@ -123,14 +136,98 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
         byy[[length(byy) + 1]] <- res$by_year
       }
     }
+    for (scaler in c("HGE20", "HGT20")) {
+      pool <- paste0(scaler, "_nonscaler_pool")
+      if (is.null(spells[[scaler]]) || is.null(spells[[pool]])) next
+      pp <- rbind(
+        midcap_person_periods(spells[[scaler]], data$idf, covariates, scaler = 1L),
+        midcap_person_periods(spells[[pool]], data$idf, covariates, scaler = 0L)
+      )
+      fit <- midcap_hazard_fit(pp)
+      if (is.null(fit)) next
+      fit$definition <- d
+      fit$sample <- paste(scaler, "vs", pool)
+      haz[[length(haz) + 1]] <- fit
+    }
   }
   front <- c("definition", "sample", "category", "group")
-  tidy <- function(x) {
+  tidy <- function(x, front) {
     x <- dplyr::bind_rows(x)
     if (!nrow(x)) return(dplyr::tibble())
     dplyr::as_tibble(x[c(front, setdiff(names(x), front))])
   }
-  list(incidence = tidy(inc), entry = tidy(ent), by_year = tidy(byy))
+  list(incidence = tidy(inc, front), entry = tidy(ent, front), by_year = tidy(byy, front),
+       hazard = tidy(haz, c("definition", "sample")))
+}
+
+#' Hazard covariates, keyed by firm-year (values of year t, used for t + 1)
+#' @noRd
+midcap_covariates <- function(data) {
+  emp <- as.double(data$employment)
+  cov <- data.frame(
+    idf = data$idf, year = as.double(data$year),
+    log_employment = ifelse(!is.na(emp) & emp > 0, log(emp), NA_real_)
+  )
+  if (has_column(data, "employment_growth1y")) cov$employment_growth1y <- as.double(data$employment_growth1y)
+  if (has_column(data, "turnover")) {
+    to <- as.double(data$turnover)
+    cov$log_turnover_per_employee <- ifelse(!is.na(to) & to > 0 & !is.na(emp) & emp > 0, log(to / emp), NA_real_)
+  }
+  if (has_column(data, "age_cat")) cov$young <- as.integer(as.double(data$age_cat) == 0)
+  for (v in c("independent", "exporter")) if (has_column(data, v)) cov[[v]] <- as.double(data[[v]])
+  cov
+}
+
+#' Person-period rows of the followed spells: one per step, outcome = crossing
+#' @noRd
+midcap_person_periods <- function(sp, idf, covariates, scaler) {
+  f <- which(!is.na(sp$steps))
+  if (!length(f)) return(NULL)
+  n <- sp$steps[f]
+  firm <- rep(idf[sp$row[f]], n)
+  step <- sequence(n)
+  year <- rep(sp$entry[f], n) + step
+  last <- step == rep(n, n)
+  y <- as.integer(last & rep(sp$type[f], n) %in% c("mid", "large"))
+  at <- collapse::fmatch(list(firm, year - 1), list(covariates$idf, covariates$year))
+  cov <- covariates[at, setdiff(names(covariates), c("idf", "year")), drop = FALSE]
+  cbind(data.frame(idf = firm, year = year, step = step, y = y, scaler = scaler), cov)
+}
+
+#' Logit with firm-clustered (CR1) standard errors; NULL if it cannot be fitted
+#' @noRd
+midcap_hazard_fit <- function(pp) {
+  if (is.null(pp) || !nrow(pp)) return(NULL)
+  pp$step_sq <- pp$step^2
+  pp$trend <- pp$year - stats::median(pp$year)
+  xvars <- intersect(c("scaler", "log_employment", "employment_growth1y", "log_turnover_per_employee", "young",
+                       "independent", "exporter", "step", "step_sq", "trend"), names(pp))
+  xvars <- xvars[vapply(xvars, function(v) sum(!is.na(pp[[v]])) > 0, TRUE)]
+  cc <- pp[stats::complete.cases(pp[c("y", xvars)]), ]
+  xvars <- xvars[vapply(xvars, function(v) length(unique(cc[[v]])) > 1, TRUE)] # constant columns cannot be estimated
+  events <- sum(cc$y)
+  if (!events || events == nrow(cc) || !"scaler" %in% xvars) return(NULL)
+  X <- cbind(`(Intercept)` = 1, as.matrix(cc[xvars]))
+  fit <- suppressWarnings(stats::glm.fit(X, cc$y, family = stats::binomial()))
+  b <- fit$coefficients
+  ok <- !is.na(b)
+  X <- X[, ok, drop = FALSE]; b <- b[ok]
+  p <- as.vector(stats::plogis(X %*% b))
+  bread <- solve(crossprod(X * sqrt(p * (1 - p))))
+  scores <- rowsum(X * (cc$y - p), cc$idf, reorder = FALSE)
+  G <- nrow(scores)
+  V <- bread %*% crossprod(scores) %*% bread * G / (G - 1)
+  se <- sqrt(diag(V))
+  z <- b / se
+  X1 <- X; X1[, "scaler"] <- 1
+  X0 <- X; X0[, "scaler"] <- 0
+  ame <- mean(stats::plogis(X1 %*% b) - stats::plogis(X0 %*% b))
+  data.frame(
+    term = names(b), b = unname(b), se = unname(se), z = unname(z), pval = 2 * stats::pnorm(-abs(unname(z))),
+    lb95 = unname(b - stats::qnorm(0.975) * se), ub95 = unname(b + stats::qnorm(0.975) * se),
+    odds_ratio = exp(unname(b)), obs = nrow(cc), firms = G, events = events,
+    mean_depvar = mean(cc$y), ame_scaler = ame, converged = isTRUE(fit$converged)
+  )
 }
 
 #' Definitions computable from the columns present
