@@ -52,7 +52,6 @@ compute_top_scalers <- function(config, accounts_indicators,
   data <- accounts_indicators
   data$ALL <- 1L
   data$firms <- 1L
-  data$L3idf <- panel_lag(data$idf, 3, data$idf, data$year)
   data <- add_findep_ratios(data)
   findep_vars <- attr(data, "findep_vars")
 
@@ -76,50 +75,25 @@ compute_top_scalers <- function(config, accounts_indicators,
   # gross creation of all firms, per year and group (before the scaler restriction)
   creation <- top_scaler_creation_base(data, categories)
 
-  data <- restrict_characteristics_sample(data)
-  data <- data[!is.na(data$L3idf), ]
-  clean <- stata_num(data$acquisition) != 1
   for (v in c("employment", "turnover")) {
     s3 <- as.double(data[[v]]) - as.double(data[[paste0("L3", v)]])
     data[[paste0(".S3pos_", v)]] <- ifelse(!is.na(s3) & s3 > 0, s3, 0)
   }
-
   cell_cols <- intersect(c(
     "year", "firms", categories, median_vars, mean_vars, share_vars, ".S3pos_employment", ".S3pos_turnover",
     if (isTRUE(config$dominance)) config$dom_vars
   ), names(data))
 
   results <- list()
-  for (spec in list(list(scaler = "HGE20", var = "employment"), list(scaler = "HGT20", var = "turnover"))) {
-    ranked <- stata_num(data[[spec$scaler]]) == 1 & clean
-    idx <- top_scaler_indices(data[[spec$var]], data[[paste0("L3", spec$var)]])
-    ranked <- ranked & !is.na(idx$rel) & !is.na(idx$abs) & !is.na(idx$bs)
-    if (!any(ranked)) next
-    pool <- data[ranked, cell_cols]
-    idx <- idx[ranked, ]
-    n_ranked <- as.vector(table(pool$year)[as.character(pool$year)])
-
-    samples <- list(list(name = paste0(spec$scaler, "_ranked"), keep = rep(TRUE, nrow(pool)), k = NA_real_))
-    chains <- list(rel = c("rel", "abs", "bs"), abs = c("abs", "rel", "bs"), bs = c("bs", "abs", "rel"))
-    for (index in names(chains)) {
-      ch <- chains[[index]]
-      rk <- lex_rank_desc(pool$year, idx[[ch[1]]], idx[[ch[2]]], idx[[ch[3]]])
-      for (cut in names(cutoffs)) {
-        k <- top_scaler_k(cutoffs[[cut]], n_ranked)
-        samples[[length(samples) + 1]] <- list(name = paste(spec$scaler, index, cut, sep = "_"), keep = rk <= k, k = k)
-      }
-    }
-
-    for (s in samples) {
-      sdf <- pool[s$keep, ]
-      sdf$.n_ranked <- n_ranked[s$keep]
-      sdf$.k <- if (all(is.na(s$k))) NA_real_ else s$k[s$keep]
-      for (cat in categories) {
-        cell <- top_scaler_cells(sdf, cat, median_vars, mean_vars, setdiff(share_vars, cat), config)
-        if (is.null(cell)) next
-        cell$sample <- s$name
-        results[[length(results) + 1]] <- cell
-      }
+  for (m in top_scaler_membership(data, cutoffs)) {
+    sdf <- data[m$rows, cell_cols]
+    sdf$.n_ranked <- m$n_ranked
+    sdf$.k <- m$k
+    for (cat in categories) {
+      cell <- top_scaler_cells(sdf, cat, median_vars, mean_vars, setdiff(share_vars, cat), config)
+      if (is.null(cell)) next
+      cell$sample <- m$name
+      results[[length(results) + 1]] <- cell
     }
   }
   if (!length(results)) return(dplyr::tibble())
@@ -138,6 +112,49 @@ compute_top_scalers <- function(config, accounts_indicators,
   dom_cols <- grep("^dom_", names(out), value = TRUE)
   out <- out[c(front, setdiff(names(out), c(front, dom_cols)), dom_cols)]
   dplyr::as_tibble(out)
+}
+
+#' Firm-years in each top-scaler sample
+#'
+#' The ranked population (scalers with 10 to fewer than 250 employees at t-3,
+#' from the fourth panel year, observed at t-3, not acquisition-driven, all
+#' three indices defined) and, per index and cut-off, the firm-years within it.
+#' Also used by [compute_midcap_transitions()] to follow top scalers.
+#' @return A list of samples in output order, each `list(name, rows, n_ranked,
+#'   k)`: rows of `data`, the scalers ranked that year and the rank cut-off
+#'   (NA for the `_ranked` sample).
+#' @noRd
+top_scaler_membership <- function(data, cutoffs) {
+  first_year <- min(data$year)
+  l3idf <- panel_lag(data$idf, 3, data$idf, data$year)
+  l3e <- data$L3employment
+  clean <- if (has_column(data, "acquisition")) stata_num(data$acquisition) != 1 else TRUE
+  base <- data$year >= first_year + 3 & !is.na(l3e) & l3e > 0 & l3e < 250 & !is.na(l3idf) & clean
+  chains <- list(rel = c("rel", "abs", "bs"), abs = c("abs", "rel", "bs"), bs = c("bs", "abs", "rel"))
+  out <- list()
+  for (spec in list(list(scaler = "HGE20", var = "employment"), list(scaler = "HGT20", var = "turnover"))) {
+    if (!has_column(data, spec$scaler)) next
+    idx <- top_scaler_indices(data[[spec$var]], data[[paste0("L3", spec$var)]])
+    ranked <- base & stata_num(data[[spec$scaler]]) == 1 & !is.na(idx$rel) & !is.na(idx$abs) & !is.na(idx$bs)
+    if (!any(ranked)) next
+    r <- which(ranked)
+    yr <- data$year[r]
+    idx <- idx[r, ]
+    n_ranked <- as.vector(table(yr)[as.character(yr)])
+    out[[length(out) + 1]] <- list(name = paste0(spec$scaler, "_ranked"), rows = r, n_ranked = n_ranked,
+                                   k = rep(NA_real_, length(r)))
+    for (index in names(chains)) {
+      ch <- chains[[index]]
+      rk <- lex_rank_desc(yr, idx[[ch[1]]], idx[[ch[2]]], idx[[ch[3]]])
+      for (cut in names(cutoffs)) {
+        k <- top_scaler_k(cutoffs[[cut]], n_ranked)
+        keep <- rk <= k
+        out[[length(out) + 1]] <- list(name = paste(spec$scaler, index, cut, sep = "_"), rows = r[keep],
+                                       n_ranked = n_ranked[keep], k = k[keep])
+      }
+    }
+  }
+  out
 }
 
 #' The three growth indices over t-3..t (double precision, from the stored values)

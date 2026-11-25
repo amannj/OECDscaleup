@@ -7,7 +7,8 @@
 compute_midcap_transitions(
   config,
   accounts_indicators,
-  money_unit = c("EUR thousand", "EUR")
+  money_unit = c("EUR thousand", "EUR"),
+  top_cutoffs = c(top50 = 50, p1 = 0.01, p5 = 0.05, p10 = 0.1, p25 = 0.25)
 )
 }
 \arguments{
@@ -23,6 +24,11 @@ or \code{"EUR"} (a panel delivered in euros that the pipeline does not rescale).
 As a check, the function stops if firms with 10-49 employees have a
 median turnover per employee above 5,000 when \code{"EUR thousand"} is
 declared (EUR 5 m per person: euros, not thousands).}
+
+\item{top_cutoffs}{Cut-offs of \code{\link[=compute_top_scalers]{compute_top_scalers()}}: each top-scaler
+sample (e.g. \code{HGE20_rel_p10}) is also followed from its first year in
+the sample, category \code{ALL} only, so its crossings compare with those of
+all scalers (the link between the two analyses). \code{NULL} skips them.}
 }
 \value{
 A list of tibbles:

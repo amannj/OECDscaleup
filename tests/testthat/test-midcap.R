@@ -79,6 +79,18 @@ test_that("compute_midcap_transitions: entry, two-year rule, gaps, exit and cens
   expect_equal(by$exits, c(0, 1, 0, 0, 0, 0))
 })
 
+test_that("top-scaler samples are followed as risk sets of their own (the link to part 1)", {
+  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  res <- compute_midcap_transitions(cfg, midcap_fixture(), top_cutoffs = c(top50 = 50))
+  pick <- function(tab) tab[tab$definition == "employment_250" & tab$sample == "HGE20_rel_top50", ]
+  # ranked: firms 1-5 (firm 6 has no t-3 year, firm 7 no employment); firm 5 is above at entry
+  e <- pick(res$entry)
+  expect_equal(c(e$n_entering, e$n_followed, e$n_above_at_entry), c(5, 4, 1))
+  expect_equal(unique(pick(res$incidence)$category), "ALL")
+  expect_equal(pick(res$incidence)$cif_mid[6], 0.25)
+  expect_false(any(grepl("top50", compute_midcap_transitions(cfg, midcap_fixture(), top_cutoffs = NULL)$entry$sample)))
+})
+
 test_that("midcap_person_periods: one row per step, outcome in the event step, covariates from t-1", {
   sp <- list(row = c(1L, 2L, 3L), entry = c(2013, 2013, 2014), steps = c(3, NA, 2), type = c("mid", NA, "exit"))
   covariates <- data.frame(idf = c(10, 10, 10, 30, 30), year = c(2013, 2014, 2015, 2014, 2015),

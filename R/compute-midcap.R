@@ -50,6 +50,10 @@
 #' @param accounts_indicators The output of [build_accounts_indicators()]; needs
 #'   `employment`, and for the first two definitions `turnover` and
 #'   `total_assets`.
+#' @param top_cutoffs Cut-offs of [compute_top_scalers()]: each top-scaler
+#'   sample (e.g. `HGE20_rel_p10`) is also followed from its first year in
+#'   the sample, category `ALL` only, so its crossings compare with those of
+#'   all scalers (the link between the two analyses). `NULL` skips them.
 #' @param money_unit Unit of `turnover` and `total_assets` in
 #'   `accounts_indicators`: `"EUR thousand"` (as the variable dictionary asks)
 #'   or `"EUR"` (a panel delivered in euros that the pipeline does not rescale).
@@ -75,7 +79,8 @@
 #'     change in the yearly crossing probability when `scaler` goes from 0 to 1.
 #'     Exits count as no crossing in their year (a cause-specific hazard).
 #' @export
-compute_midcap_transitions <- function(config, accounts_indicators, money_unit = c("EUR thousand", "EUR")) {
+compute_midcap_transitions <- function(config, accounts_indicators, money_unit = c("EUR thousand", "EUR"),
+                                       top_cutoffs = c(top50 = 50, p1 = 0.01, p5 = 0.05, p10 = 0.10, p25 = 0.25)) {
   money_unit <- match.arg(money_unit)
   data <- accounts_indicators
   data$ALL <- 1L
@@ -111,6 +116,15 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
     HGT20_nonscaler_pool = stata_num(data$HGT20) == 0 & stata_num(data$HGT_pool) == 1
   )
   specs <- specs[vapply(names(specs), function(s) has_column(data, sub("_nonscaler_pool$", "", s)), TRUE)]
+  # link to compute_top_scalers(): each top-scaler sample is a risk set of its own (category ALL only)
+  top_only_all <- character(0)
+  if (length(top_cutoffs)) {
+    for (m in top_scaler_membership(data, top_cutoffs)) {
+      if (grepl("_ranked$", m$name)) next
+      specs[[m$name]] <- seq_len(nrow(data)) %in% m$rows
+      top_only_all <- c(top_only_all, m$name)
+    }
+  }
 
   covariates <- midcap_covariates(data)
   inc <- list(); ent <- list(); byy <- list(); haz <- list()
@@ -123,7 +137,7 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
       sp <- midcap_spells(data$idf, data$year, st, confirmed, specs[[s]] & base_ok, last_year, panel_end)
       if (is.null(sp)) next
       spells[[s]] <- sp
-      for (cat in categories) {
+      for (cat in if (s %in% top_only_all) "ALL" else categories) {
         g <- data[[cat]][sp$row]
         lab <- decode_category(g, cat)
         res <- midcap_tables(sp, lab)
