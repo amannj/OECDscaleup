@@ -51,6 +51,10 @@ square, and a linear calendar trend. Firm-clustered standard errors
 (CR1, as Stata's \verb{vce(cluster idf)}); \code{ame_scaler} is the average
 change in the yearly crossing probability when \code{scaler} goes from 0 to 1.
 Exits count as no crossing in their year (a cause-specific hazard).
+Two models each (\code{window}): \code{from_t-3}, every step; \code{after_window}, only
+the years after the growth window (step 4 = t + 1 on) of firms that had
+not crossed by t, so the scaler effect is net of the growth that defines
+a scaler.
 }
 }
 \description{

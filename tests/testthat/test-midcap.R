@@ -132,6 +132,25 @@ test_that("midcap_hazard_fit recovers the logit and gives clustered errors near 
   expect_equal(fit$events[1], sum(pp$y))
 })
 
+test_that("the hazard table has the full model and the net one (years after the growth window)", {
+  set.seed(11)
+  n <- 600
+  cross <- ifelse(runif(n) < ifelse(seq_len(n) %% 2 == 1, 0.5, 0.15), sample(2011:2019, n, TRUE), Inf)
+  ai <- data.frame(idf = rep(seq_len(n), each = 11), year = rep(2010:2020, n))
+  ai$employment <- ifelse(ai$year >= cross[ai$idf], 300, 100)
+  ai$L3employment <- 100
+  ai$HGE20 <- as.integer(ai$year == 2013 & ai$idf %% 2 == 1)
+  ai$HGE_pool <- as.integer(ai$year == 2013)
+  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  h <- compute_midcap_transitions(cfg, ai, top_cutoffs = NULL)$hazard
+  h <- h[h$definition == "employment_250" & h$term == "scaler", ]
+  expect_setequal(h$window, c("from_t-3", "after_window"))
+  full <- h[h$window == "from_t-3", ]; net <- h[h$window == "after_window", ]
+  expect_lt(net$obs, full$obs)
+  expect_lt(net$events, full$events)
+  expect_gt(net$b, 0) # scalers cross more often after the window too, by construction here
+})
+
 test_that("money_unit: euros are caught when thousands are declared, and rescaled when declared", {
   cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- midcap_fixture()

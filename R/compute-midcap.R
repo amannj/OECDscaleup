@@ -83,6 +83,10 @@
 #'     (CR1, as Stata's `vce(cluster idf)`); `ame_scaler` is the average
 #'     change in the yearly crossing probability when `scaler` goes from 0 to 1.
 #'     Exits count as no crossing in their year (a cause-specific hazard).
+#'     Two models each (`window`): `from_t-3`, every step; `after_window`, only
+#'     the years after the growth window (step 4 = t + 1 on) of firms that had
+#'     not crossed by t, so the scaler effect is net of the growth that defines
+#'     a scaler.
 #' @export
 compute_midcap_transitions <- function(config, accounts_indicators, money_unit = c("EUR thousand", "EUR"),
                                        top_cutoffs = c(top50 = 50, p1 = 0.01, p5 = 0.05, p10 = 0.10, p25 = 0.25)) {
@@ -164,11 +168,16 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
         midcap_person_periods(spells[[scaler]], data$idf, covariates, scaler = 1L),
         midcap_person_periods(spells[[pool]], data$idf, covariates, scaler = 0L)
       )
-      fit <- midcap_hazard_fit(pp)
-      if (is.null(fit)) next
-      fit$definition <- d
-      fit$sample <- paste(scaler, "vs", pool)
-      haz[[length(haz) + 1]] <- fit
+      # all steps from t-3, and the net effect: only the years after the growth window (step 4 = t + 1 on),
+      # for firms that had not crossed by t
+      for (w in c("from_t-3", "after_window")) {
+        fit <- midcap_hazard_fit(if (w == "after_window") pp[pp$step >= 4, ] else pp)
+        if (is.null(fit)) next
+        fit$definition <- d
+        fit$sample <- paste(scaler, "vs", pool)
+        fit$window <- w
+        haz[[length(haz) + 1]] <- fit
+      }
     }
   }
   front <- c("definition", "sample", "category", "group")
@@ -178,7 +187,7 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
     dplyr::as_tibble(x[c(front, setdiff(names(x), front))])
   }
   list(incidence = tidy(inc, front), entry = tidy(ent, front), by_year = tidy(byy, front),
-       hazard = tidy(haz, c("definition", "sample")))
+       hazard = tidy(haz, c("definition", "sample", "window")))
 }
 
 #' Hazard covariates, keyed by firm-year (values of year t, used for t + 1)
