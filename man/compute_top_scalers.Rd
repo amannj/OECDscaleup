@@ -7,7 +7,8 @@
 compute_top_scalers(
   config,
   accounts_indicators,
-  cutoffs = c(top50 = 50, p1 = 0.01, p5 = 0.05, p10 = 0.1, p25 = 0.25)
+  cutoffs = c(top50 = 50, p1 = 0.01, p5 = 0.05, p10 = 0.1, p25 = 0.25),
+  joint_growth = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,10 @@ is a breakdown too).}
 
 \item{cutoffs}{Named cut-offs: values >= 1 are a number of firms, values
 below 1 a share of the ranked scalers.}
+
+\item{joint_growth}{If \code{TRUE}, rank only scalers whose other variable also
+grew over t-3..t (turnover for employment scalers, employment for
+turnover scalers). \code{\link[=run_scaler_analysis]{run_scaler_analysis()}} reports both versions.}
 }
 \value{
 A tibble.

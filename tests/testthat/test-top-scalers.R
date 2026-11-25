@@ -72,6 +72,19 @@ test_that("compute_top_scalers: population, tie inclusion and cut-offs (hand-che
   expect_equal(all$share_creation_turnover[all$sample == "HGT20_abs_top2"], (100 + 80) * 100 / (total * 100))
 })
 
+test_that("joint_growth drops employment scalers whose turnover fell", {
+  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  ai <- top_fixture()
+  ai$turnover[ai$idf == 22 & ai$year == 2013] <- 5000 # 100 * 100 at t-3: turnover fell
+  base <- compute_top_scalers(cfg, ai, cutoffs = c(top2 = 2))
+  joint <- compute_top_scalers(cfg, ai, cutoffs = c(top2 = 2), joint_growth = TRUE)
+  n_of <- function(out, s) out$firm_count[out$category == "ALL" & out$sample == s]
+  expect_equal(n_of(base, "HGE20_abs_top2"), 3)
+  expect_equal(n_of(joint, "HGE20_abs_top2"), 2) # firm 22 out: firms 20 and 21 remain
+  expect_equal(n_of(joint, "HGE20_ranked"), 21)
+  expect_true(all(joint$joint_growth) && !any(base$joint_growth))
+})
+
 test_that("compute_top_scalers runs on a built panel and keeps every cut-off", {
   cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
   bf <- make_base_financials_wide()

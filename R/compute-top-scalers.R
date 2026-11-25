@@ -44,11 +44,16 @@
 #'   is a breakdown too).
 #' @param cutoffs Named cut-offs: values >= 1 are a number of firms, values
 #'   below 1 a share of the ranked scalers.
+#' @param joint_growth If `TRUE`, rank only scalers whose other variable also
+#'   grew over t-3..t (turnover for employment scalers, employment for
+#'   turnover scalers). [run_scaler_analysis()] reports both versions.
 #' @return A tibble.
 #' @export
 compute_top_scalers <- function(config, accounts_indicators,
-                                cutoffs = c(top50 = 50, p1 = 0.01, p5 = 0.05, p10 = 0.10, p25 = 0.25)) {
-  stopifnot(is.numeric(cutoffs), length(names(cutoffs)) == length(cutoffs), all(cutoffs > 0))
+                                cutoffs = c(top50 = 50, p1 = 0.01, p5 = 0.05, p10 = 0.10, p25 = 0.25),
+                                joint_growth = FALSE) {
+  stopifnot(is.numeric(cutoffs), length(names(cutoffs)) == length(cutoffs), all(cutoffs > 0),
+            is.logical(joint_growth), length(joint_growth) == 1)
   data <- accounts_indicators
   data$ALL <- 1L
   data$firms <- 1L
@@ -85,7 +90,7 @@ compute_top_scalers <- function(config, accounts_indicators,
   ), names(data))
 
   results <- list()
-  for (m in top_scaler_membership(data, cutoffs)) {
+  for (m in top_scaler_membership(data, cutoffs, joint_growth)) {
     sdf <- data[m$rows, cell_cols]
     sdf$.n_ranked <- m$n_ranked
     sdf$.k <- m$k
@@ -108,7 +113,8 @@ compute_top_scalers <- function(config, accounts_indicators,
   for (v in mean_vars) names(out)[names(out) == v] <- paste0("mean_", v)
   for (v in share_vars) names(out)[names(out) == v] <- paste0("share_", v)
   names(out)[names(out) == "firms"] <- "firm_count"
-  front <- c("year", "sample", "category", "group", "firm_count", "n_ranked", "rank_cutoff")
+  out$joint_growth <- joint_growth
+  front <- c("year", "sample", "joint_growth", "category", "group", "firm_count", "n_ranked", "rank_cutoff")
   dom_cols <- grep("^dom_", names(out), value = TRUE)
   out <- out[c(front, setdiff(names(out), c(front, dom_cols)), dom_cols)]
   dplyr::as_tibble(out)
@@ -124,7 +130,7 @@ compute_top_scalers <- function(config, accounts_indicators,
 #'   k)`: rows of `data`, the scalers ranked that year and the rank cut-off
 #'   (NA for the `_ranked` sample).
 #' @noRd
-top_scaler_membership <- function(data, cutoffs) {
+top_scaler_membership <- function(data, cutoffs, joint_growth = FALSE) {
   first_year <- min(data$year)
   l3idf <- panel_lag(data$idf, 3, data$idf, data$year)
   l3e <- data$L3employment
@@ -132,10 +138,16 @@ top_scaler_membership <- function(data, cutoffs) {
   base <- data$year >= first_year + 3 & !is.na(l3e) & l3e > 0 & l3e < 250 & !is.na(l3idf) & clean
   chains <- list(rel = c("rel", "abs", "bs"), abs = c("abs", "rel", "bs"), bs = c("bs", "abs", "rel"))
   out <- list()
-  for (spec in list(list(scaler = "HGE20", var = "employment"), list(scaler = "HGT20", var = "turnover"))) {
+  specs <- list(list(scaler = "HGE20", var = "employment", other = "turnover"),
+                list(scaler = "HGT20", var = "turnover", other = "employment"))
+  for (spec in specs) {
     if (!has_column(data, spec$scaler)) next
     idx <- top_scaler_indices(data[[spec$var]], data[[paste0("L3", spec$var)]])
     ranked <- base & stata_num(data[[spec$scaler]]) == 1 & !is.na(idx$rel) & !is.na(idx$abs) & !is.na(idx$bs)
+    if (joint_growth) {
+      other <- as.double(data[[spec$other]]) - as.double(data[[paste0("L3", spec$other)]])
+      ranked <- ranked & !is.na(other) & other > 0
+    }
     if (!any(ranked)) next
     r <- which(ranked)
     yr <- data$year[r]
