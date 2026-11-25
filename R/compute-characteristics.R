@@ -28,7 +28,31 @@ compute_characteristics <- function(config, accounts_indicators) {
   findep_vars <- attr(data, "findep_vars")
   l3_findep_vars <- paste0("L3", findep_vars)
 
-  # --- restrict the sample -----------------------------------------------------
+  categories <- intersect(
+    c(
+      "ALL", "L3size_cat", "L3age_cat", "L3tech_grad", "L3region_2d", "L3typology_UR",
+      "L3independent", "L3multiplant", "L3foreign_owned", "L3reg_techgrad", "L3ind_a38",
+      "L3size_age"
+    ),
+    names(data)
+  )
+
+  median_vars <- intersect(c(
+    "L3age", "L3employment", "L3turnover", "L3labour_share", "L3avg_wage", "L3labour_prod",
+    l3_findep_vars, "L3phys_assets", "L3MFP", "employment", "turnover", "labour_share",
+    "avg_wage", "labour_prod", findep_vars, "phys_assets", "MFP", "employment_growth3y",
+    "turnover_growth3y", "employment_futgrowth", "turnover_futgrowth", "MFP_gr"
+  ), names(data))
+
+  # --- keep only the columns used below, then restrict the sample --------------
+  data <- data[intersect(names(data), c(
+    "year", "firms", "L3idf", "L3employment", categories, median_vars,
+    c(outer(c("HGE", "HGT", "HGET", "HGB"), c("10", "20"), paste0)), "MHGE20", "MHGT20",
+    "HGE_pool", "HGT_pool", "HGET_pool", "f_HGET10", "f_HGET20",
+    "employment_growth3y", "turnover_growth3y", "employment_futgrowth", "turnover_futgrowth", "acquisition",
+    "L3multiplant", "L3independent", "L3foreign_owned", "L3young", "multiplant", "independent", "foreign_owned",
+    if (isTRUE(config$dominance)) config$dom_vars
+  ))]
   data <- restrict_characteristics_sample(data)
 
   # --- sample definitions (24), as columns on the restricted data ------------
@@ -65,22 +89,6 @@ compute_characteristics <- function(config, accounts_indicators) {
     "non_micro_sme", "micro"
   )
 
-  categories <- intersect(
-    c(
-      "ALL", "L3size_cat", "L3age_cat", "L3tech_grad", "L3region_2d", "L3typology_UR",
-      "L3independent", "L3multiplant", "L3foreign_owned", "L3reg_techgrad", "L3ind_a38",
-      "L3size_age"
-    ),
-    names(data)
-  )
-
-  median_vars <- intersect(c(
-    "L3age", "L3employment", "L3turnover", "L3labour_share", "L3avg_wage", "L3labour_prod",
-    l3_findep_vars, "L3phys_assets", "L3MFP", "employment", "turnover", "labour_share",
-    "avg_wage", "labour_prod", findep_vars, "phys_assets", "MFP", "employment_growth3y",
-    "turnover_growth3y", "employment_futgrowth", "turnover_futgrowth", "MFP_gr"
-  ), names(data))
-
   micro_only_samples <- c("MHGE20", "MHGT20", "MHGE20_nonscaler_pool", "MHGT20_nonscaler_pool", "micro")
 
   othcat_for <- function(cat) {
@@ -103,13 +111,22 @@ compute_characteristics <- function(config, accounts_indicators) {
     full
   }
 
+  # columns the cells use (each sample's rows are copied once, with only these)
+  cell_cols <- intersect(c(
+    "year", "firms", categories, median_vars, "employment_growth3y", "turnover_growth3y",
+    "employment_futgrowth", "turnover_futgrowth", "acquisition", othcat_for("ALL"),
+    if (isTRUE(config$dominance)) config$dom_vars
+  ), names(data))
+
   results <- list()
   for (sample in samples) {
+    in_sample <- stata_num(data[[sample]]) == 1 & !is.na(data$L3idf)
+    if (!any(in_sample)) next
+    sample_df <- data[in_sample, cell_cols]
     for (cat in categories) {
       if (sample %in% micro_only_samples && cat == "L3size_cat") next
 
-      subset_df <- data[stata_num(data[[sample]]) == 1 & !is.na(data$L3idf), ]
-      if (nrow(subset_df) == 0) next
+      subset_df <- sample_df
 
       othcat <- othcat_for(cat)
       mean_vars <- intersect(

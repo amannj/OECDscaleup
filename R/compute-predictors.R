@@ -123,11 +123,21 @@ compute_predictors <- function(config, accounts_indicators) {
   region_codes <- attr(accounts_indicators, "stata_encode_levels")$region_2d
   if (is.null(region_codes) && "region_2d" %in% names(data)) region_codes <- stata_encode_levels(data$region_2d)
 
+  # only the columns used below (the first row selection would copy them all)
+  hg_cols <- c(outer(c("HGE", "HGT", "HGET"), c("10", "20", "_pool"), paste0))
+  data <- data[intersect(names(data), c(
+    "idf", "year", "size_cat", "sector_2d", "region_2d", hg_cols, "added_value", "labour_costs",
+    "avg_wage", "phys_assets", "MFP", "MFP_gr", "L3age_cat", "L3tech_grad", "L3region_2d", "L3typology_UR",
+    "L3independent", "L3size_age", "L3size_cat", "L3young", "L3age", "L3employment", "L3turnover",
+    "employment", "turnover", "employment_growth3y", "turnover_growth3y",
+    if (isTRUE(config$dominance)) config$dom_vars
+  ))]
+
   # --- 1. Preparation ----------------------------------------------------------
   nonmicro <- as.integer(!is.na(data$size_cat) & data$size_cat >= 10)
   nonlarge <- as.integer(!is.na(data$size_cat) & data$size_cat < 250)
-  ever_nonmicro <- stats::ave(nonmicro, data$idf, FUN = max)
-  ever_nonlarge <- stats::ave(nonlarge, data$idf, FUN = max)
+  ever_nonmicro <- group_fill(nonmicro, data$idf, "max")
+  ever_nonlarge <- group_fill(nonlarge, data$idf, "max")
   data <- data[ever_nonmicro == 1 & ever_nonlarge == 1, ]
 
   for (hg in c("HGE10", "HGE20", "HGT10", "HGT20", "HGET10", "HGET20")) {
@@ -172,11 +182,15 @@ compute_predictors <- function(config, accounts_indicators) {
     names(data)
   )
 
+  desc_cols <- intersect(c("type", "year", categories, median_vars, "employment_growth3y", "turnover_growth3y",
+                           if (isTRUE(config$dominance)) config$dom_vars), names(data))
   desc_acc <- list()
   for (scaler in scalers) {
+    in_scaler <- stata_num(data[[scaler]]) == 1
+    if (!any(in_scaler)) next
+    scaler_df <- data[in_scaler, desc_cols] # copied once per scaler, with only the columns used
     for (cat in categories) {
-      subset_df <- data[stata_num(data[[scaler]]) == 1, ]
-      if (nrow(subset_df) == 0) next
+      subset_df <- scaler_df
 
       grp <- subset_df %>% dplyr::group_by(dplyr::across(dplyr::all_of(c("type", cat, "year"))))
       # medians before means: summarise() evaluates in order and the means
@@ -277,7 +291,7 @@ compute_predictors <- function(config, accounts_indicators) {
             pool <- paste0(sub("[0-9]+$", "", scaler), "_pool")
             row_filter <- !is.na(data$year) & data$year == year & stata_num(data[[sample]]) == 1 &
               stata_num(data[[pool]]) == 1 & !is.na(data$L3employment) & data$L3employment < 250
-            fit_data <- data[row_filter, ]
+            fit_data <- data[row_filter, intersect(c(scaler, keyvars, used_cats, config$dom_vars), names(data))]
             complete <- stats::complete.cases(fit_data[c(scaler, keyvars, used_cats)])
             est_sample <- fit_data[complete, ]
             factors <- lapply(stats::setNames(used_cats, used_cats), function(cv) {

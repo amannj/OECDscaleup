@@ -39,7 +39,10 @@ round_half_up <- function(x, digits = 0) {
 #' @return A numeric vector with every `NA` replaced by `Inf`.
 #' @export
 stata_num <- function(x) {
-  ifelse(is.na(x), Inf, x)
+  if (!is.numeric(x)) return(ifelse(is.na(x), Inf, x))
+  x <- as.double(x) # (drops any value labels, as ifelse() did)
+  x[is.na(x)] <- Inf
+  x
 }
 
 #' Stata-style conditional replace, preserving the existing value on `NA`
@@ -61,8 +64,9 @@ stata_num <- function(x) {
 #' @return A vector the same length/type as `cur`.
 #' @export
 stata_replace <- function(cur, cond, value) {
-  cond[is.na(cond)] <- FALSE
-  dplyr::if_else(cond, value, cur)
+  cond <- !is.na(cond) & cond
+  if (length(value) == 1L) cur[cond] <- value else cur[cond] <- value[cond]
+  cur
 }
 
 #' Bin a numeric variable into intervals (Stata's `egen ... = cut(x), at(...)`)
@@ -158,15 +162,17 @@ panel_sdiff <- function(x, n, id, time) {
 #' @return A single numeric value (or `NA` if `x` has no non-missing values).
 #' @export
 approx_median <- function(x) {
-  n <- sum(!is.na(x))
+  x <- x[!is.na(x)]
+  n <- length(x)
   if (n == 0) {
     return(NA_real_)
   }
   center <- round_half_up(n / 2)
-  x_sorted <- sort(x, na.last = TRUE)
   idx <- (center - 2):(center + 2)
   idx <- idx[idx >= 1 & idx <= n]
-  mean(x_sorted[idx], na.rm = TRUE)
+  # a partial sort puts the exact order statistics at idx (missing values sort
+  # last, so they never reach these positions); same values, same order, as a full sort
+  mean(sort.int(unclass(x), partial = idx)[idx])
 }
 
 #' Dominance-rule concentration share (disclosure-control statistic)
@@ -193,9 +199,12 @@ dominance_share <- function(x, top_n) {
   if (is.na(total) || total == 0) {
     return(NA_real_)
   }
-  x_sorted <- sort(x, decreasing = TRUE, na.last = TRUE)
-  x_sorted[is.na(x_sorted)] <- 0
-  sum(x_sorted[seq_len(top_n)]) / total
+  # the top_n largest values in decreasing order (a partial sort finds them
+  # exactly); missing values sort last and count as 0
+  v <- as.double(x[!is.na(x)])
+  k <- min(top_n, length(v))
+  top <- if (k > 0) -sort.int(-v, partial = seq_len(k))[seq_len(k)] else numeric(0)
+  sum(c(top, rep(0, top_n - k))) / total
 }
 
 #' Flag a firm's chronologically first occurrence of a 0/1 event
@@ -215,12 +224,29 @@ dominance_share <- function(x, top_n) {
 #' @export
 first_occurrence_flag <- function(id, time, x) {
   ord <- order(id, time)
-  increment <- ifelse(is.na(x[ord]) | x[ord] != 1, 0L, 1L)
-  running <- stats::ave(increment, id[ord], FUN = cumsum)
-  flag_ord <- as.integer(increment == 1 & running == 1)
+  # the first row (in time order) of each id with x == 1
+  hit <- ord[!is.na(x[ord]) & x[ord] == 1]
   flag <- integer(length(x))
-  flag[ord] <- flag_ord
+  flag[hit[!duplicated(id[hit])]] <- 1L
   flag
+}
+
+#' Group statistic broadcast to every row of the group (`egen ... = max(x), by(g)`)
+#'
+#' Replaces `stats::ave(x, g, FUN = function(v) f(v, na.rm = TRUE))`: missing
+#' values are ignored, and a group whose values are all missing gets `NA`
+#' (where `min()`/`max()` give `Inf` and `mean()` `NaN`). Only used where the
+#' result is exact whatever the summation order (integer counts, maxima, or
+#' means of a single value per group).
+#'
+#' @param x A numeric vector.
+#' @param g The grouping vector (e.g. `idf`).
+#' @param stat One of `"min"`, `"max"`, `"mean"`, `"sum"`.
+#' @return A vector the same length as `x`.
+#' @noRd
+group_fill <- function(x, g, stat = c("min", "max", "mean", "sum")) {
+  f <- switch(match.arg(stat), min = collapse::fmin, max = collapse::fmax, mean = collapse::fmean, sum = collapse::fsum)
+  f(x, g = g, TRA = "fill", na.rm = TRUE, use.g.names = FALSE)
 }
 
 #' Grouped equal-frequency quartile bins (Stata's `xtile ..., nq(4)`)

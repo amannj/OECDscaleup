@@ -1,5 +1,20 @@
 # OECDscaleup (development version)
 
+## Faster, with less memory
+
+- The output stages copy only the columns they use. In particular,
+  `compute_contribution()` no longer carries all of `accounts_indicators`
+  through its balanced (firm x year) panel. Group statistics broadcast to
+  firms use `collapse` instead of `stats::ave()`, the approximate medians
+  and dominance shares use partial sorts, the trade panel groups by integer
+  ids instead of pasted keys, and `run_scaleup_pipeline()` drops the raw
+  input once the panel is built. Every output is unchanged (checked byte for
+  byte on all reproduction scenarios, synthetic and real). On the real
+  national panels used for validation the pipelines run 2.2 to 3 times
+  faster, and the peak R heap is 20 to 50 % lower; the largest panel (5.7 GB
+  of indicators in memory) now takes 14 minutes instead of 42 and peaks at
+  19 GB instead of 32 GB.
+
 ## Stata bugs fixed
 
 Each fix changes results relative to the Stata code (and to git tag

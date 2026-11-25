@@ -24,23 +24,11 @@ compute_trade_characteristics <- function(config, trade_accounts_indicators) {
   data$L3idf <- panel_lag(data$idf, 3, data$idf, data$year)
   data <- add_findep_ratios(data)
   findep_vars <- attr(data, "findep_vars")
-  data <- restrict_characteristics_sample(data)
-  data$ALL <- 1L
-  for (stub in c("HGE", "HGT", "HGET")) {
-    for (i in c("10", "20")) {
-      data[[paste0(stub, i, "_nonscaler_pool")]] <- as.integer(
-        stata_num(data[[paste0(stub, i)]]) == 0 & stata_num(data[[paste0(stub, "_pool")]]) == 1
-      )
-    }
-  }
-  data$firms <- data$ALL
 
   opt <- function(v) intersect(v, names(data))
   trade_medians <- c("L3exp_value", "exp_value", "L3exp_products", "exp_products",
                      "L3exp_all_partners", "exp_all_partners", "L3exp_eu_partners", "exp_eu_partners")
   shares <- c("L3multiplant", "L3independent", "L3foreign_owned", "L3young", "multiplant", "independent", "foreign_owned")
-
-  # --- PART 1 ---------------------------------------------------------------------
   p1_median_vars <- c(
     opt(c("L3age", "L3employment", "L3turnover", "L3labour_share", "L3avg_wage", "L3labour_prod")),
     opt(paste0("L3", findep_vars)), # (paste0 of an empty vector gives "L3")
@@ -53,6 +41,27 @@ compute_trade_characteristics <- function(config, trade_accounts_indicators) {
   p1_mean_vars <- c("employment_growth3y", "turnover_growth3y", "employment_futgrowth", "turnover_futgrowth",
                     "acquisition", "L3exp_core_prod", "exp_core_prod", opt(shares),
                     "y4_exporter", "L3importer", "importer")
+  p2_categories <- c("ALL", "L3size_cat", "L3age_cat", "L3tech_grad", "L3region_2d",
+                     opt(c("L3typology_UR", "L3independent", "L3multiplant", "L3foreign_owned")))
+
+  # keep only the columns used below, then restrict the sample
+  data <- data[intersect(names(data), c(
+    "year", "L3idf", "L3employment", "exporter", c(outer(c("HGE", "HGT", "HGET"), c("10", "20", "_pool"), paste0)),
+    "HGX10", "HGX20", "HGNX10", "HGNX20", "L3exporter", "L3size_age", "L3sector_exporter", "L3digit_sect",
+    p2_categories, p1_median_vars, p1_mean_vars, if (isTRUE(config$dominance)) config$dom_vars
+  ))]
+  data <- restrict_characteristics_sample(data)
+  data$ALL <- 1L
+  for (stub in c("HGE", "HGT", "HGET")) {
+    for (i in c("10", "20")) {
+      data[[paste0(stub, i, "_nonscaler_pool")]] <- as.integer(
+        stata_num(data[[paste0(stub, i)]]) == 0 & stata_num(data[[paste0(stub, "_pool")]]) == 1
+      )
+    }
+  }
+  data$firms <- data$ALL
+
+  # --- PART 1 ---------------------------------------------------------------------
   p1 <- trade_cells(
     config, data,
     samples = c("HGE10", "HGE10_nonscaler_pool", "HGT10", "HGT10_nonscaler_pool", "HGET10",
@@ -76,8 +85,7 @@ compute_trade_characteristics <- function(config, trade_accounts_indicators) {
   p2 <- trade_cells(
     config, exporters,
     samples = c("HGE10", "HGT10", "HGET10", "HGE20", "HGT20", "HGET20"),
-    categories = c("ALL", "L3size_cat", "L3age_cat", "L3tech_grad", "L3region_2d",
-                   opt(c("L3typology_UR", "L3independent", "L3multiplant", "L3foreign_owned"))),
+    categories = p2_categories,
     skip = function(sample, cat) FALSE,
     median_vars = trade_medians,
     mean_vars = function(sample) c("L3exp_core_prod", "exp_core_prod", "y4_exporter", "L3importer", "importer",
@@ -105,10 +113,15 @@ compute_trade_characteristics <- function(config, trade_accounts_indicators) {
 trade_cells <- function(config, data, samples, categories, skip, median_vars, mean_vars) {
   results <- list()
   for (sample in samples) {
+    in_sample <- stata_num(data[[sample]]) == 1 & !is.na(data$L3idf)
+    if (!any(in_sample)) next
+    # one copy per sample, with only the columns the cells use
+    cols <- intersect(c("year", "firms", categories, median_vars, mean_vars(sample),
+                        if (isTRUE(config$dominance)) config$dom_vars), names(data))
+    sample_df <- data[in_sample, cols]
     for (cat in categories) {
       if (skip(sample, cat)) next
-      subset_df <- data[stata_num(data[[sample]]) == 1 & !is.na(data$L3idf), ]
-      if (nrow(subset_df) == 0) next
+      subset_df <- sample_df
       means <- intersect(mean_vars(sample), names(subset_df))
       grp <- subset_df %>% dplyr::group_by(dplyr::across(dplyr::all_of(c(cat, "year"))))
       cell <- grp %>%

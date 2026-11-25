@@ -40,6 +40,9 @@ run_scaleup_pipeline <- function(config) {
     plants_raw = plants_raw, exchange_rates = exchange_rates, tl3_typology = tl3_typology,
     storage_types = dta_storage_types(base_financials_path)
   )
+  # R lets garbage grow to a multiple of the live data before it collects, so
+  # the raw input, if kept, raises the peak memory of every later stage
+  rm(base_financials, plants_raw)
   haven::write_dta(
     as_stata_accounts(accounts_indicators),
     file.path(config$input_dir, paste0("accounts_indicators_", config$country, ".dta"))

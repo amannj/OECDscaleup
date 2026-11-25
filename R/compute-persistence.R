@@ -76,6 +76,18 @@ classify_pre_scaling_var <- function(l_hg, l_grvar3y, birth_year) {
   x
 }
 
+#' The columns of accounts_indicators one (hgstub, def) pass uses
+#' @keywords internal
+persistence_columns <- function(data, spec, config) {
+  used <- c(
+    "idf", "year", "employment", "turnover", "L3employment", "L3turnover", "entry", "exit",
+    "birth_year", "exit_acq", spec$hg, spec$othhg, spec$grvar3y, spec$othgrvar3y,
+    spec$grvar1y, spec$othgrvar1y, persistence_category_groups(),
+    if (isTRUE(config$dominance)) config$dom_vars
+  )
+  data[intersect(names(data), used)]
+}
+
 #' @keywords internal
 persistence_exit_acq_f3 <- function(data) {
   if (!has_column(data, "exit_acq")) {
@@ -152,8 +164,8 @@ compute_transitions <- function(config, accounts_indicators) {
   accumulator <- list()
 
   for (combo in persistence_hg_combinations()) {
-    data <- accounts_indicators # fresh, unmodified copy every iteration
     spec <- persistence_hg_spec(combo$hgstub, combo$def)
+    data <- persistence_columns(accounts_indicators, spec, config) # fresh, unmodified copy every iteration
 
     finyear <- max(data$year)
     inityear <- min(data$year)
@@ -272,15 +284,15 @@ compute_evolutions <- function(config, accounts_indicators) {
   acc_p2 <- list()
 
   for (combo in persistence_hg_combinations()) {
-    data <- accounts_indicators # fresh, unmodified copy every iteration
     spec <- persistence_hg_spec(combo$hgstub, combo$def)
+    data <- persistence_columns(accounts_indicators, spec, config) # fresh, unmodified copy every iteration
 
     finyear <- max(data$year)
     inityear <- min(data$year)
     if (!(finyear - inityear >= 9 && finyear >= 2020)) next
 
     keep_tmp <- as.integer(stata_num(data[[spec$hg]]) == 1 & data$year == 2017)
-    keep <- stats::ave(keep_tmp, data$idf, FUN = max)
+    keep <- group_fill(keep_tmp, data$idf, "max")
     data <- data[keep == 1, ]
     if (nrow(data) == 0) next
 
@@ -296,6 +308,7 @@ compute_evolutions <- function(config, accounts_indicators) {
 
     for (v in c("entry", "exit")) {
       v_year <- ifelse(stata_num(data[[v]]) == 1, data$year, NA_real_)
+      # (stats::ave: a supplied `exit` may flag several years, whose mean must be R's)
       data[[paste0(v, "_year")]] <- stats::ave(v_year, data$idf, FUN = function(x) mean(x, na.rm = TRUE))
       data[[paste0(v, "_year")]][is.nan(data[[paste0(v, "_year")]])] <- NA_real_
       # `replace <var>_year = . if <var> == .`
@@ -311,7 +324,7 @@ compute_evolutions <- function(config, accounts_indicators) {
     f3_exit_acq <- persistence_exit_acq_f3(data)
 
     pos_grvar1y <- as.integer(!is.na(data[[spec$grvar1y]]) & data[[spec$grvar1y]] > 0.10)
-    data$nb_years_grow <- stats::ave(pos_grvar1y, data$idf, FUN = function(x) sum(x, na.rm = TRUE))
+    data$nb_years_grow <- group_fill(pos_grvar1y, data$idf, "sum")
 
     keep2 <- data$year == 2017 & !is.na(data$L3employment) & data$L3employment > 0 & data$L3employment < 250 # fix S9
     data <- data[keep2, ]

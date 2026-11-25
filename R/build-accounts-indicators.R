@@ -100,7 +100,8 @@ build_accounts_core <- function(config,
   # trade record are non-exporters / non-importers (value 0); a firm-year in the
   # trade file keeps a missing value for the flow it does not have (bug T2).
   if (trade) {
-    in_trade <- paste(data$idf, data$year) %in% paste(trade_panel$idf, trade_panel$year)
+    in_trade <- !is.na(collapse::fmatch(list(as.double(data$idf), as.double(data$year)),
+                                        list(as.double(trade_panel$idf), as.double(trade_panel$year))))
     flows <- attr(trade_panel, "flows")
     if (is.null(flows)) flows <- c(1, 2)
     data <- dplyr::left_join(data, trade_panel, by = c("idf", "year"))
@@ -247,10 +248,8 @@ build_accounts_core <- function(config,
   }
 
   # --- Step 11: entry (first appearance) and exit (last appearance) ----------
-  data <- data %>%
-    dplyr::group_by(.data$idf) %>%
-    dplyr::mutate(.max_y = max(.data$year), .min_y = min(.data$year)) %>%
-    dplyr::ungroup()
+  data$.max_y <- group_fill(data$year, data$idf, "max") # (year is never missing here)
+  data$.min_y <- group_fill(data$year, data$idf, "min")
 
   age_cat_supplied <- has_column(data, "age_cat")
   # Fix S8: with both age_cat and birth_year supplied, Stata took branch A and
@@ -262,7 +261,7 @@ build_accounts_core <- function(config,
     # stata_num(): a missing age_cat must compare FALSE to 0, not propagate NA (see stata_num()).
     data$entry <- as.integer(data$year == data$.min_y & data$year > ymin & stata_num(data$age_cat) == 0)
     birth_year_at_entry <- dplyr::if_else(data$entry == 1, data$year, NA_real_)
-    data$birth_year <- stats::ave(birth_year_at_entry, data$idf, FUN = function(v) mean(v, na.rm = TRUE))
+    data$birth_year <- group_fill(birth_year_at_entry, data$idf, "mean")
     data$birth_year[is.nan(data$birth_year)] <- NA_real_
     data$entry <- dplyr::if_else(data$year == ymin, NA_real_, data$entry)
   } else {
@@ -273,7 +272,7 @@ build_accounts_core <- function(config,
         class = "OECDscaleup_data_error"
       )
     }
-    data$birth_year <- suppressWarnings(stats::ave(data$birth_year, data$idf, FUN = function(v) min(v, na.rm = TRUE)))
+    data$birth_year <- group_fill(data$birth_year, data$idf, "min")
     data$birth_year[is.infinite(data$birth_year)] <- NA_real_
     if (!has_column(data, "age")) {
       data$age <- data$year - data$birth_year
@@ -285,24 +284,19 @@ build_accounts_core <- function(config,
       stata_num(data$year) == stata_num(data$birth_year) |
         (stata_num(data$age) < 2 & data$year == data$.min_y & data$year > ymin)
     )
-    data <- data %>%
-      dplyr::group_by(.data$idf) %>%
-      dplyr::arrange(.data$year, .by_group = TRUE) %>%
-      dplyr::mutate(
-        .cumsum_entry = cumsum(.data$entry),
-        entry = dplyr::if_else(.data$.cumsum_entry > 1, 0L, .data$entry)
-      ) %>%
-      dplyr::mutate(entry_tot = sum(.data$entry)) %>%
-      dplyr::ungroup()
-    data <- dplyr::filter(data, !(.data$.cumsum_entry == 0 & .data$entry_tot >= 1))
-    data$.cumsum_entry <- NULL
-    data$entry_tot <- NULL
+    # rows sorted by idf, then year; only a firm's first entry counts, and the
+    # years before it are dropped
+    data <- data[order(data$idf, data$year), ]
+    cumsum_entry <- collapse::fcumsum(data$entry, g = data$idf)
+    data$entry <- dplyr::if_else(cumsum_entry > 1, 0L, data$entry)
+    entry_tot <- group_fill(data$entry, data$idf, "sum")
+    data <- data[!(cumsum_entry == 0 & entry_tot >= 1), ]
     data$entry <- dplyr::if_else(is.na(data$birth_year) & data$.min_y == ymin, NA_real_, data$entry)
   }
 
   if (!has_column(data, "birth_year")) {
     birth_year_at_entry <- dplyr::if_else(data$entry == 1, data$year, NA_real_)
-    data$birth_year <- stats::ave(birth_year_at_entry, data$idf, FUN = function(v) mean(v, na.rm = TRUE))
+    data$birth_year <- group_fill(birth_year_at_entry, data$idf, "mean")
     data$birth_year[is.nan(data$birth_year)] <- NA_real_
   }
   data$birth_year <- dplyr::if_else(data$birth_year > ymax, NA_real_, data$birth_year)
@@ -333,16 +327,16 @@ build_accounts_core <- function(config,
     y4 <- f == 1
     for (k in 1:3) y4 <- y4 | stata_num(panel_lag(f, k, data$idf, data$year)) == 1
     y4 <- as.integer(y4)
-    never_known <- stats::ave(!is.na(data$exporter), data$idf, FUN = function(x) !any(x)) == 1
+    never_known <- group_fill(as.integer(!is.na(data$exporter)), data$idf, "max") == 0
     y4[never_known] <- NA
     # Fix T3: a firm already exporting in its first observed year may have exported
     # before the data start, so whether it is a first-time exporter in t-3..t is
     # unknown while that year lies in the window (unless it is the firm's entry
     # year). Stata counted it as first-time, overstating the early years.
-    first_year <- stats::ave(data$year, data$idf, FUN = min)
+    first_year <- group_fill(data$year, data$idf, "min")
     at_first <- data$year == first_year
-    exports_at_first <- stats::ave(as.numeric(at_first & stata_num(data$exporter) == 1 &
-                                                stata_num(data$entry) != 1), data$idf, FUN = max) == 1
+    exports_at_first <- group_fill(as.integer(at_first & stata_num(data$exporter) == 1 &
+                                                stata_num(data$entry) != 1), data$idf, "max") == 1
     y4[exports_at_first & first_year >= data$year - 3] <- NA
     data$y4_exporter <- y4
   }

@@ -65,6 +65,16 @@ compute_contribution <- function(config, accounts_indicators) {
   analysis_years <- c(2014, 2017, 2019, 2020, 2021)
   analysis_years <- analysis_years[analysis_years - 3 >= first_year & analysis_years <= last_year]
 
+  # Only the columns used below: the balanced panel has (firms x years) rows,
+  # so carrying all of accounts_indicators through it costs many GB.
+  hg_cols <- c(outer(c("HGE", "HGT", "HGET"), c("10", "20", "_pool"), paste0))
+  used <- c(
+    "idf", "year", "entry", "exit", "employment", "turnover", "S3employment", "S3turnover",
+    hg_cols, "L3size_cat", groups, sub("L3", "", groups, fixed = TRUE),
+    if (isTRUE(config$dominance)) config$dom_vars
+  )
+  data <- data[intersect(names(data), used)]
+
   # --- Step 2: balance the panel (FILLIN idf x year) --------------------------
   full_grid <- expand.grid(idf = unique(data$idf), year = unique(data$year))
   data <- dplyr::full_join(full_grid, data, by = c("idf", "year"))
@@ -159,7 +169,8 @@ compute_contribution <- function(config, accounts_indicators) {
           # Stata: `if _N == 0 { restore; continue }` - an empty detail block also
           # skips the aggregate block below (so `exiting` gets its p2 rows only
           # from the D pass, since exiting firms never create).
-          detail <- data[n_xy == 1, ]
+          cell_cols <- intersect(c("year", group, "firms", config$dom_vars, paste0("L3", config$dom_vars)), names(data))
+          detail <- data[n_xy == 1, cell_cols]
           if (nrow(detail) == 0) next
           {
             detail$.xy <- xy[n_xy == 1]
@@ -186,7 +197,7 @@ compute_contribution <- function(config, accounts_indicators) {
 
           # --- aggregate block -> contribution_p2 (once per (var,sample,group)) ---
           if (Y == "D" && sample != "exiting") next
-          agg_src <- data[cond, ]
+          agg_src <- data[cond, cell_cols]
           if (nrow(agg_src) > 0) {
             agg_src$.l3xxx <- l3xxx_sample[cond]
             dom <- contribution_dominance(agg_src, sample, group, config)

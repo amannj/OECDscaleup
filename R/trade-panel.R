@@ -55,9 +55,10 @@ build_trade_panel <- function(config, trade_raw, storage_types = NULL) {
   }
 
   d$prod_code <- substr(d$prod_code, 1, 6)
-  flow <- paste(d$idf, d$year, d$trade_type, sep = "\r")
+  # group keys as integer ids (Stata's `by idf year trade_type ...`)
+  flow <- collapse::group(d$idf, d$year, d$trade_type)
   # egen total() counts a missing value as 0 and stores a float
-  value_prod_total <- stata_float(group_sum(d$trade_value, paste(flow, d$prod_code, sep = "\r")))
+  value_prod_total <- stata_float(group_sum(d$trade_value, collapse::group(flow, d$prod_code)))
 
   # Fix T5: products are told apart by their 6-character code. Stata destring'ed it
   # (no force): a code with letters left the variable a string and the run stopped
@@ -81,9 +82,9 @@ build_trade_panel <- function(config, trade_raw, storage_types = NULL) {
   country_code[country_code == "."] <- ""
 
   # one row per distinct partner and product (the first in Stata's sort; any one does)
-  partner_key <- paste(flow, country_code, sep = "\r")
+  partner_key <- collapse::group(flow, country_code)
   unique_trade_partner <- ifelse(country_code != "", as.integer(!duplicated(partner_key)), NA_integer_)
-  prod_key <- paste(flow, d$prod_code, sep = "\r")
+  prod_key <- collapse::group(flow, d$prod_code)
   unique_product <- ifelse(!is.na(d$prod_code), as.integer(!duplicated(prod_key)), NA_integer_)
 
   # share of each product in the flow (float egen totals, float gen)
@@ -103,7 +104,7 @@ build_trade_panel <- function(config, trade_raw, storage_types = NULL) {
   EU <- as.integer(in_eu & stata_num(unique_trade_partner) == 1)
   EU[country_code == ""] <- NA
 
-  g <- data.frame(idf = d$idf, year = d$year, trade_type = d$trade_type, flow = flow,
+  g <- data.frame(idf = d$idf, year = d$year, trade_type = d$trade_type,
                   trade_value = d$trade_value, unique_trade_partner, EU, unique_product, share_product,
                   miss_value)
   out <- g %>%
@@ -153,7 +154,7 @@ build_trade_panel <- function(config, trade_raw, storage_types = NULL) {
     # Fix T2: a firm-year in the trade file without this flow had a missing value
     # (so an import-only firm was neither exporter nor non-exporter); it has none,
     # i.e. 0, like a firm that does not appear in the trade file at all
-    no_flow <- !paste(wide$idf, wide$year) %in% paste(part$idf, part$year)
+    no_flow <- is.na(collapse::fmatch(list(wide$idf, wide$year), list(part$idf, part$year)))
     wide[[new_names[1]]][no_flow] <- 0
   }
   attr(wide, "flows") <- flows
@@ -167,15 +168,21 @@ build_trade_panel <- function(config, trade_raw, storage_types = NULL) {
   out
 }
 
-# egen total(): group sums with missing as 0, broadcast to the rows
+# egen total(): group sums with missing as 0, broadcast to the rows. `g` holds
+# integer group ids 1..n (collapse::group()). Each group is summed with base
+# sum() in row order, as stats::ave() did (collapse::fsum() accumulates in
+# double, not long double, and can differ in the last bit).
 group_sum <- function(x, g) {
-  x0 <- ifelse(is.na(x), 0, x)
-  stats::ave(x0, g, FUN = sum)
+  x0 <- x
+  x0[is.na(x0)] <- 0
+  g <- as.integer(g)
+  f <- structure(g, levels = as.character(seq_len(max(g, 0L))), class = "factor")
+  vapply(split(x0, f), sum, numeric(1), USE.NAMES = FALSE)[g]
 }
 
 # TRUE on every row of a group whose x is TRUE on all rows
 group_all <- function(x, g) {
-  as.logical(stats::ave(as.integer(x), g, FUN = function(v) as.integer(all(v == 1L))))
+  group_fill(as.integer(!x), as.integer(g), "max") == 0
 }
 
 #' Build the trade package's firm-year panel (`trade_accounts_indicators`)
