@@ -1,6 +1,5 @@
 # OECDscaleup (development version)
 
-<<<<<<< HEAD
 ## Stata bugs fixed
 
 Each fix changes results relative to the Stata code (and to git tag
