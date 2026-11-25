@@ -72,7 +72,12 @@
 #'   * `entry`: per definition, sample, category and group, the firms
 #'     entering the risk set and those not followed, by reason;
 #'   * `by_year`: per definition, sample, category, group and calendar year,
-#'     firms at risk and crossings;
+#'     firms at risk, crossings, exits and `status_missing`: at-risk firm-years
+#'     without a status (no row that year, or values that cannot decide it),
+#'     where a crossing could neither start nor be confirmed;
+#'   * `coverage`: per year, firm-years with 100+ employees and how many of
+#'     them have both turnover and total assets (the financial coverage behind
+#'     the first two definitions);
 #'   * `hazard`: discrete-time logit of a crossing (to `mid` or `large`) in
 #'     year t, one per definition and scaler type, on scalers and their pool
 #'     non-scalers together (`scaler` = 1 for the scalers' spells). Covariates
@@ -151,7 +156,7 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
       for (cat in if (s %in% top_only_all) "ALL" else categories) {
         g <- data[[cat]][sp$row]
         lab <- decode_category(g, cat)
-        res <- midcap_tables(sp, lab)
+        res <- midcap_tables(sp, lab, data$idf, data$year, !is.na(st))
         for (nm in names(res)) {
           if (!nrow(res[[nm]])) next
           res[[nm]]$definition <- d; res[[nm]]$sample <- s; res[[nm]]$category <- cat
@@ -187,6 +192,7 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
     dplyr::as_tibble(x[c(front, setdiff(names(x), front))])
   }
   list(incidence = tidy(inc, front), entry = tidy(ent, front), by_year = tidy(byy, front),
+       coverage = midcap_coverage(data),
        hazard = tidy(haz, c("definition", "sample", "window")))
 }
 
@@ -332,7 +338,7 @@ midcap_spells <- function(idf, year, status, status_l3, confirmed, entry_ok, las
 
 #' Incidence, entry and calendar-year tables for one breakdown
 #' @noRd
-midcap_tables <- function(sp, lab) {
+midcap_tables <- function(sp, lab, idf, year, known) {
   keep_lab <- !is.na(lab)
   entry <- data.frame(group = lab, nf = sp$not_followed)[keep_lab, ]
   entry_tab <- if (nrow(entry)) {
@@ -379,5 +385,37 @@ midcap_tables <- function(sp, lab) {
     exits = sum(.data$ev == "exit"),
     .groups = "drop"
   )
+
+  # at-risk firm-years with a known status (a row that year and a decidable status); the rest are missing
+  firm <- idf[sp$row][f]
+  m <- collapse::fmatch(idf, firm)
+  yr <- as.double(year)
+  ok <- !is.na(m) & known
+  ok[ok] <- yr[ok] > d$entry[m[ok]] & yr[ok] <= d$entry[m[ok]] + d$steps[m[ok]]
+  if (any(ok)) {
+    kn <- dplyr::count(data.frame(group = d$group[m[ok]], year = yr[ok]), .data$group, .data$year, name = "known")
+    by_year <- dplyr::left_join(by_year, kn, by = c("group", "year"))
+    by_year$known[is.na(by_year$known)] <- 0L
+  } else {
+    by_year$known <- 0L
+  }
+  by_year$status_missing <- by_year$at_risk - by_year$known
+  by_year$known <- NULL
   list(incidence = incidence, entry = entry_tab, by_year = by_year)
+}
+
+#' Financial coverage per year: firm-years with 100+ employees, and those with turnover and total assets
+#' @noRd
+midcap_coverage <- function(data) {
+  emp <- as.double(data$employment)
+  big <- !is.na(emp) & emp >= 100
+  both <- if (isTRUE(has_column(data, "turnover") && has_column(data, "total_assets"))) {
+    big & !is.na(data$turnover) & !is.na(data$total_assets)
+  } else rep(FALSE, nrow(data))
+  out <- dplyr::summarise(
+    dplyr::group_by(data.frame(year = as.double(data$year), big = big, both = both), .data$year),
+    firm_years_100plus = sum(.data$big), with_turnover_and_assets = sum(.data$both), .groups = "drop"
+  )
+  out$share_with_both <- ifelse(out$firm_years_100plus > 0, out$with_turnover_and_assets / out$firm_years_100plus, NA_real_)
+  dplyr::as_tibble(out)
 }

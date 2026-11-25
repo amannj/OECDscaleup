@@ -25,6 +25,7 @@ breakdown) over \verb{accounts_indicators_<country>.dta}, runs
 \itemize{
 \item \verb{sa_top_scalers_<country>.csv} (both versions, column \code{joint_growth});
 \item \verb{sa_midcap_incidence_<country>.csv}, \verb{sa_midcap_entry_<country>.csv},
-\verb{sa_midcap_by_year_<country>.csv}, \verb{sa_midcap_hazard_<country>.csv}.
+\verb{sa_midcap_by_year_<country>.csv}, \verb{sa_midcap_coverage_<country>.csv},
+\verb{sa_midcap_hazard_<country>.csv}.
 }
 }

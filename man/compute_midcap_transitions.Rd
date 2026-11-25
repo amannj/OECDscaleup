@@ -40,7 +40,12 @@ censored, and the cumulative incidence of each (Aalen-Johansen);
 \item \code{entry}: per definition, sample, category and group, the firms
 entering the risk set and those not followed, by reason;
 \item \code{by_year}: per definition, sample, category, group and calendar year,
-firms at risk and crossings;
+firms at risk, crossings, exits and \code{status_missing}: at-risk firm-years
+without a status (no row that year, or values that cannot decide it),
+where a crossing could neither start nor be confirmed;
+\item \code{coverage}: per year, firm-years with 100+ employees and how many of
+them have both turnover and total assets (the financial coverage behind
+the first two definitions);
 \item \code{hazard}: discrete-time logit of a crossing (to \code{mid} or \code{large}) in
 year t, one per definition and scaler type, on scalers and their pool
 non-scalers together (\code{scaler} = 1 for the scalers' spells). Covariates

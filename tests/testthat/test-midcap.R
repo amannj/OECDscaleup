@@ -82,6 +82,24 @@ test_that("compute_midcap_transitions: entry, two-year rule, gaps, exit and cens
   expect_equal(by$cross_mid, c(0, 0, 1, 0, 0, 1, 0, 0, 0))
   expect_equal(by$cross_large, c(0, 0, 0, 0, 0, 1, 0, 0, 0))
   expect_equal(by$exits, c(0, 0, 0, 0, 1, 0, 0, 0, 0))
+  expect_equal(by$status_missing, c(0, 0, 0, 0, 1, 0, 0, 0, 0)) # firm 2 has no 2015 row
+
+  cov <- res$coverage
+  expect_equal(cov$year, 2010:2020)
+  expect_true(all(cov$share_with_both == 1))
+})
+
+test_that("coverage and status_missing follow missing financials", {
+  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  ai <- midcap_fixture()
+  ai$total_assets[ai$year == 2012] <- NA
+  ai$turnover[ai$year == 2012] <- 60000 # above EUR 50 m with no balance sheet: status undecidable
+  res <- compute_midcap_transitions(cfg, ai, top_cutoffs = NULL)
+  expect_equal(res$coverage$share_with_both[res$coverage$year == 2012], 0)
+  by <- res$by_year[res$by_year$definition == "small_midcap" & res$by_year$sample == "HGE20" & res$by_year$category == "ALL", ]
+  expect_equal(by$status_missing[by$year == 2012], 5) # firms 1-5 at risk in 2012, none with a status
+  by3 <- res$by_year[res$by_year$definition == "employment_250" & res$by_year$sample == "HGE20" & res$by_year$category == "ALL", ]
+  expect_equal(by3$status_missing[by3$year == 2012], 0) # the employment definition needs no financials
 })
 
 test_that("top-scaler samples are followed as risk sets of their own (the link to part 1)", {

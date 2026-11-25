@@ -8,7 +8,8 @@
 #' [compute_midcap_transitions()], and writes to `config$output_dir`:
 #' * `sa_top_scalers_<country>.csv` (both versions, column `joint_growth`);
 #' * `sa_midcap_incidence_<country>.csv`, `sa_midcap_entry_<country>.csv`,
-#'   `sa_midcap_by_year_<country>.csv`, `sa_midcap_hazard_<country>.csv`.
+#'   `sa_midcap_by_year_<country>.csv`, `sa_midcap_coverage_<country>.csv`,
+#'   `sa_midcap_hazard_<country>.csv`.
 #'
 #' @param config A `scaleup_config` from [config_scaleup()].
 #' @param money_unit Unit of turnover and total assets in the indicators
