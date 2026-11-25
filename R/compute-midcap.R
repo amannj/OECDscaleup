@@ -1,7 +1,7 @@
 #' Scalers to mid-caps: crossings into mid-cap status
 #'
 #' New analysis (not part of the original Stata package). Follows firms from
-#' the year they enter a risk set (their first year as a scaler, or as a
+#' the start of the 3-year window that first makes them a scaler (or a
 #' non-scaler of the pool) and records when they cross into mid-cap status,
 #' with firm exit as a competing event.
 #'
@@ -31,29 +31,34 @@
 #' not a crossing. The crossing's type is the status in the crossing year:
 #' `mid` or `large` (the firm jumped past the mid-cap band).
 #'
-#' **Risk set.** `HGE20` / `HGT20`: firms from their first year as a scaler;
-#' `HGE20_nonscaler_pool` / `HGT20_nonscaler_pool`: firms from their first
-#' year in the pool as a non-scaler (as in [compute_characteristics()];
-#' firms that scale later stay in it). Entry needs 10 to fewer than 250
-#' employees at t-3, the fourth panel year or later, and SME status in the
-#' entry year: firms already above it, or without a status, are counted
-#' (`n_above_at_entry`, `n_status_missing_at_entry`) and not followed.
+#' **Risk set.** A firm's sample year t is its first year as a scaler
+#' (`HGE20` / `HGT20`), as a non-scaler of the pool (`HGE20_nonscaler_pool` /
+#' `HGT20_nonscaler_pool`, as in [compute_characteristics()]; firms that scale
+#' later stay in it) or as a top scaler (see `top_cutoffs`), with 10 to fewer
+#' than 250 employees at t-3, from the fourth panel year. The firm enters the
+#' risk set at **t-3**, the start of that growth window, so a crossing during
+#' the growth spell itself counts. Scalers and pool firms are both observed
+#' at t-3 and t, so both groups survive the first three steps by
+#' construction. Entry needs SME status at t-3: firms already above it, or
+#' without a status, are counted (`n_above_at_entry`,
+#' `n_status_missing_at_entry`) and not followed. Breakdowns are the
+#' categories at t-3 (`L3size_cat`, `L3age_cat`, ...).
 #'
-#' **Time** is years since entry (step 1 = the year after). A firm that
-#' crosses at step k has its event at k; a firm whose last year L is before
-#' the panel's last year exits at step L - entry (competing event); other
-#' firms are censored at the last step whose crossing could still be
-#' confirmed (panel end - 1 - entry). Firms with no step left are counted
-#' (`n_no_followup`).
+#' **Time** is years since entry (step 1 = t-2). A firm that crosses at step
+#' k has its event at k; a firm whose last year L is before the panel's last
+#' year exits at step L - entry (competing event); other firms are censored
+#' at the last step whose crossing could still be confirmed (panel end - 1 -
+#' entry). Firms with no step left are counted (`n_no_followup`).
 #'
 #' @param config A `scaleup_config` from [config_scaleup()].
 #' @param accounts_indicators The output of [build_accounts_indicators()]; needs
 #'   `employment`, and for the first two definitions `turnover` and
 #'   `total_assets`.
 #' @param top_cutoffs Cut-offs of [compute_top_scalers()]: each top-scaler
-#'   sample (e.g. `HGE20_rel_p10`) is also followed from its first year in
-#'   the sample, category `ALL` only, so its crossings compare with those of
-#'   all scalers (the link between the two analyses). `NULL` skips them.
+#'   sample (e.g. `HGE20_rel_p10`) is also followed, from t-3 of its first
+#'   year in the sample, category `ALL` only, so its crossings compare with
+#'   those of all scalers (the link between the two analyses). `NULL` skips
+#'   them.
 #' @param money_unit Unit of `turnover` and `total_assets` in
 #'   `accounts_indicators`: `"EUR thousand"` (as the variable dictionary asks)
 #'   or `"EUR"` (a panel delivered in euros that the pipeline does not rescale).
@@ -97,7 +102,7 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
   }
   first_year <- min(data$year, na.rm = TRUE)
   panel_end <- max(data$year, na.rm = TRUE)
-  categories <- intersect(c("ALL", "size_cat", "age_cat", "tech_grad", "independent", "exporter"), names(data))
+  categories <- intersect(c("ALL", "L3size_cat", "L3age_cat", "L3tech_grad", "L3independent", "L3exporter"), names(data))
 
   definitions <- midcap_definitions(data)
   status <- lapply(setNames(definitions, definitions), function(d) {
@@ -132,9 +137,11 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
     st <- status[[d]]
     above <- !is.na(st) & st != "sme"
     confirmed <- above & stata_num(panel_lead(as.integer(above), 1, data$idf, data$year)) == 1
+    levels_ <- c("sme", "mid", "large")
+    status_l3 <- levels_[panel_lag(match(st, levels_), 3, data$idf, data$year)] # status at t-3, on the row of t
     spells <- list()
     for (s in names(specs)) {
-      sp <- midcap_spells(data$idf, data$year, st, confirmed, specs[[s]] & base_ok, last_year, panel_end)
+      sp <- midcap_spells(data$idf, data$year, st, status_l3, confirmed, specs[[s]] & base_ok, last_year, panel_end)
       if (is.null(sp)) next
       spells[[s]] <- sp
       for (cat in if (s %in% top_only_all) "ALL" else categories) {
@@ -276,27 +283,30 @@ midcap_status <- function(employment, turnover, total_assets, definition) {
 
 #' One spell per firm: entry year, step of the first event, event type
 #'
-#' @param entry_ok Rows where the firm may enter the risk set (the sample's
-#'   condition); the firm enters at its first such year.
-#' @return NULL when no firm enters; else a list with `row` (the entry row of
-#'   each firm), `entry`, `steps` (NA when not followed), `type` ("mid",
-#'   "large", "exit", "censored") and `not_followed` (NA, "above",
-#'   "status_missing" or "no_followup").
+#' @param status_l3 The status at t-3, on the row of year t.
+#' @param entry_ok Rows where the firm qualifies for the sample (year t); the
+#'   firm's sample year is its first such year and it enters at t-3.
+#' @return NULL when no firm qualifies; else a list with `row` (the row of
+#'   each firm's sample year t, whose L3 categories are the entry ones),
+#'   `entry` (t-3), `steps` (NA when not followed), `type` ("mid", "large",
+#'   "exit", "censored") and `not_followed` (NA, "above", "status_missing" or
+#'   "no_followup").
 #' @noRd
-midcap_spells <- function(idf, year, status, confirmed, entry_ok, last_year, panel_end) {
+midcap_spells <- function(idf, year, status, status_l3, confirmed, entry_ok, last_year, panel_end) {
   entry_ok <- !is.na(entry_ok) & entry_ok
   if (!any(entry_ok)) return(NULL)
   yr <- as.double(year)
-  entry <- group_fill(ifelse(entry_ok, yr, NA_real_), idf, "min")
+  sample_year <- group_fill(ifelse(entry_ok, yr, NA_real_), idf, "min")
+  entry <- sample_year - 3
   first_cross <- group_fill(ifelse(confirmed & !is.na(entry) & yr > entry, yr, NA_real_), idf, "min")
   # status in the crossing year (2 = large, 1 = mid), one value per firm
   cross_code <- group_fill(ifelse(!is.na(first_cross) & yr == first_cross, ifelse(status == "large", 2, 1), NA_real_),
                            idf, "max")
 
-  row <- which(entry_ok & yr == entry)
+  row <- which(entry_ok & yr == sample_year)
   row <- row[!duplicated(idf[row])]
   e <- entry[row]
-  st0 <- status[row]
+  st0 <- status_l3[row]
   fc <- first_cross[row]
   ly <- last_year[row]
 

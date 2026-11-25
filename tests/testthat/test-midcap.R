@@ -19,13 +19,16 @@ test_that("midcap_status follows the EU thresholds, with three-valued logic for 
 })
 
 # Panel 2010-2020; every firm scales (HGE20) in its entry year, employment drives the status:
-#  1: 100 (2013), 300, 100, 300, 300 ... -> 2014 not confirmed; crossing 2016 (step 3, mid)
-#  2: 100, 300, [no 2015 row], 3500, 3500 ... -> 2014 not confirmed (gap); crossing 2016 (step 3, large)
-#  3: 100, 100, 300, last year 2015 -> no confirmation; exit at step 2
-#  4: 100 throughout -> censored at 2019 (step 6)
-#  5: 300 at entry -> above at entry, not followed
-#  6: enters 2019, panel ends 2020 -> no follow-up
-#  7: employment missing at entry -> status missing, not followed
+# Panel 2010-2020; the sample year t is 2013 (firm 6: 2019), so firms enter at t-3 = 2010 (firm 6: 2016).
+# Employment drives the status:
+#  1: 100 to 2013, 300, 100, 300, 300 ... -> 2014 not confirmed; crossing 2016 (step 6, mid)
+#  2: 100, ..., 300 (2014), [no 2015 row], 3500 ... -> 2014 not confirmed (gap); crossing 2016 (step 6, large)
+#  3: 100 ..., 300 in its last year 2015 -> no confirmation; exit at step 5
+#  4: 100 throughout -> censored at 2019 (step 9)
+#  5: 300 from 2013 -> crossing during the growth window, 2013 (step 3, mid)
+#  6: enters 2016, censored at 2019 (step 3)
+#  7: employment missing at t-3 -> status missing, not followed
+#  8: 300 at t-3 -> above at entry, not followed
 midcap_fixture <- function() {
   rows <- function(idf, years, emp) data.frame(idf = idf, year = years, employment = emp)
   ai <- rbind(
@@ -34,11 +37,12 @@ midcap_fixture <- function() {
     rows(3, 2010:2015, c(100, 100, 100, 100, 100, 300)),
     rows(4, 2010:2020, 100),
     rows(5, 2010:2020, c(100, 100, 100, 300, rep(300, 7))),
-    rows(6, 2019:2020, 100),
-    rows(7, 2010:2020, c(100, 100, 100, NA, rep(100, 7)))
+    rows(6, 2016:2020, 100),
+    rows(7, 2010:2020, c(NA, rep(100, 10))),
+    rows(8, 2010:2020, c(300, rep(100, 10)))
   )
-  ai$L3employment <- 100
-  ai$HGE20 <- as.integer(ai$year == 2013 | (ai$idf == 6 & ai$year == 2019))
+  ai$L3employment <- 100 # the sample condition at t (10 to < 250 at t-3), set directly
+  ai$HGE20 <- as.integer((ai$idf != 6 & ai$year == 2013) | (ai$idf == 6 & ai$year == 2019))
   ai$HGE_pool <- 0L
   ai$turnover <- 1000
   ai$total_assets <- 1000
@@ -51,43 +55,44 @@ test_that("compute_midcap_transitions: entry, two-year rule, gaps, exit and cens
   pick <- function(tab, d = "employment_250") tab[tab$definition == d & tab$sample == "HGE20" & tab$category == "ALL", ]
 
   ent <- pick(res$entry)
-  expect_equal(ent$n_entering, 7)
-  expect_equal(ent$n_followed, 4)
-  expect_equal(c(ent$n_above_at_entry, ent$n_status_missing_at_entry, ent$n_no_followup), c(1, 1, 1))
+  expect_equal(ent$n_entering, 8)
+  expect_equal(ent$n_followed, 6)
+  expect_equal(c(ent$n_above_at_entry, ent$n_status_missing_at_entry, ent$n_no_followup), c(1, 1, 0))
 
   inc <- pick(res$incidence)
-  expect_equal(inc$step, 1:6)
-  expect_equal(inc$at_risk, c(4, 4, 3, 1, 1, 1))
-  expect_equal(inc$cross_mid, c(0, 0, 1, 0, 0, 0))
-  expect_equal(inc$cross_large, c(0, 0, 1, 0, 0, 0))
-  expect_equal(inc$exits, c(0, 1, 0, 0, 0, 0))
-  expect_equal(inc$censored, c(0, 0, 0, 0, 0, 1))
-  # Aalen-Johansen: S(1) = 1, S(2) = 3/4; mid and large at step 3 each 3/4 * 1/3
-  expect_equal(inc$cif_exit[6], 0.25)
-  expect_equal(inc$cif_mid[6], 0.25)
-  expect_equal(inc$cif_large[6], 0.25)
-  expect_equal(inc$cif_mid[2], 0)
+  expect_equal(inc$step, 1:9)
+  expect_equal(inc$at_risk, c(6, 6, 6, 4, 4, 3, 1, 1, 1))
+  expect_equal(inc$cross_mid, c(0, 0, 1, 0, 0, 1, 0, 0, 0))
+  expect_equal(inc$cross_large, c(0, 0, 0, 0, 0, 1, 0, 0, 0))
+  expect_equal(inc$exits, c(0, 0, 0, 0, 1, 0, 0, 0, 0))
+  expect_equal(inc$censored, c(0, 0, 1, 0, 0, 0, 0, 0, 1))
+  # Aalen-Johansen: mid 1/6 at step 3; S(3) = 5/6; exit 5/6 * 1/4 at step 5; S(5) = 5/8;
+  # mid and large 5/8 * 1/3 each at step 6
+  expect_equal(inc$cif_mid[3], 1 / 6)
+  expect_equal(inc$cif_exit[9], 5 / 24)
+  expect_equal(inc$cif_mid[9], 1 / 6 + 5 / 24)
+  expect_equal(inc$cif_large[9], 5 / 24)
 
   # the three definitions agree here (turnover and balance sheet far below the limits; 3,500 is large in all)
   for (d in c("small_midcap", "sme_exit")) expect_equal(pick(res$incidence, d)$cif_large, inc$cif_large)
 
   by <- pick(res$by_year)
-  expect_equal(by$year, 2014:2019)
-  expect_equal(by$at_risk, c(4, 4, 3, 1, 1, 1))
-  expect_equal(by$cross_mid, c(0, 0, 1, 0, 0, 0))
-  expect_equal(by$cross_large, c(0, 0, 1, 0, 0, 0))
-  expect_equal(by$exits, c(0, 1, 0, 0, 0, 0))
+  expect_equal(by$year, 2011:2019)
+  expect_equal(by$at_risk, c(5, 5, 5, 4, 4, 3, 2, 2, 2))
+  expect_equal(by$cross_mid, c(0, 0, 1, 0, 0, 1, 0, 0, 0))
+  expect_equal(by$cross_large, c(0, 0, 0, 0, 0, 1, 0, 0, 0))
+  expect_equal(by$exits, c(0, 0, 0, 0, 1, 0, 0, 0, 0))
 })
 
 test_that("top-scaler samples are followed as risk sets of their own (the link to part 1)", {
   cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
   res <- compute_midcap_transitions(cfg, midcap_fixture(), top_cutoffs = c(top50 = 50))
   pick <- function(tab) tab[tab$definition == "employment_250" & tab$sample == "HGE20_rel_top50", ]
-  # ranked: firms 1-5 (firm 6 has no t-3 year, firm 7 no employment); firm 5 is above at entry
+  # all 8 firms are ranked (each observed at t-3 and t); firm 7 has no status and firm 8 is above at t-3
   e <- pick(res$entry)
-  expect_equal(c(e$n_entering, e$n_followed, e$n_above_at_entry), c(5, 4, 1))
+  expect_equal(c(e$n_entering, e$n_followed, e$n_above_at_entry, e$n_status_missing_at_entry), c(8, 6, 1, 1))
   expect_equal(unique(pick(res$incidence)$category), "ALL")
-  expect_equal(pick(res$incidence)$cif_mid[6], 0.25)
+  expect_equal(pick(res$incidence)$cif_mid[9], 1 / 6 + 5 / 24)
   expect_false(any(grepl("top50", compute_midcap_transitions(cfg, midcap_fixture(), top_cutoffs = NULL)$entry$sample)))
 })
 
@@ -143,10 +148,10 @@ test_that("money_unit: euros are caught when thousands are declared, and rescale
 test_that("consolidated accounts get no status, and a status needs the financials it depends on", {
   cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- midcap_fixture()
-  ai$consolidation_code <- ifelse(ai$idf == 4 & ai$year == 2013, "C1", "U1")
+  ai$consolidation_code <- ifelse(ai$idf == 4 & ai$year == 2010, "C1", "U1")
   ent <- compute_midcap_transitions(cfg, ai)$entry
   e <- ent[ent$definition == "employment_250" & ent$sample == "HGE20" & ent$category == "ALL", ]
-  expect_equal(e$n_status_missing_at_entry, 2) # firm 7 and firm 4's consolidated entry year
+  expect_equal(e$n_status_missing_at_entry, 2) # firm 7 and firm 4's consolidated entry year (t-3)
 
   ai <- midcap_fixture()
   ai$total_assets <- NULL

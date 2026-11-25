@@ -26,9 +26,10 @@ median turnover per employee above 5,000 when \code{"EUR thousand"} is
 declared (EUR 5 m per person: euros, not thousands).}
 
 \item{top_cutoffs}{Cut-offs of \code{\link[=compute_top_scalers]{compute_top_scalers()}}: each top-scaler
-sample (e.g. \code{HGE20_rel_p10}) is also followed from its first year in
-the sample, category \code{ALL} only, so its crossings compare with those of
-all scalers (the link between the two analyses). \code{NULL} skips them.}
+sample (e.g. \code{HGE20_rel_p10}) is also followed, from t-3 of its first
+year in the sample, category \code{ALL} only, so its crossings compare with
+those of all scalers (the link between the two analyses). \code{NULL} skips
+them.}
 }
 \value{
 A list of tibbles:
@@ -54,7 +55,7 @@ Exits count as no crossing in their year (a cause-specific hazard).
 }
 \description{
 New analysis (not part of the original Stata package). Follows firms from
-the year they enter a risk set (their first year as a scaler, or as a
+the start of the 3-year window that first makes them a scaler (or a
 non-scaler of the pool) and records when they cross into mid-cap status,
 with firm exit as a competing event.
 }
@@ -87,18 +88,22 @@ calendar year. A missing year or an exit before the confirmation year is
 not a crossing. The crossing's type is the status in the crossing year:
 \code{mid} or \code{large} (the firm jumped past the mid-cap band).
 
-\strong{Risk set.} \code{HGE20} / \code{HGT20}: firms from their first year as a scaler;
-\code{HGE20_nonscaler_pool} / \code{HGT20_nonscaler_pool}: firms from their first
-year in the pool as a non-scaler (as in \code{\link[=compute_characteristics]{compute_characteristics()}};
-firms that scale later stay in it). Entry needs 10 to fewer than 250
-employees at t-3, the fourth panel year or later, and SME status in the
-entry year: firms already above it, or without a status, are counted
-(\code{n_above_at_entry}, \code{n_status_missing_at_entry}) and not followed.
+\strong{Risk set.} A firm's sample year t is its first year as a scaler
+(\code{HGE20} / \code{HGT20}), as a non-scaler of the pool (\code{HGE20_nonscaler_pool} /
+\code{HGT20_nonscaler_pool}, as in \code{\link[=compute_characteristics]{compute_characteristics()}}; firms that scale
+later stay in it) or as a top scaler (see \code{top_cutoffs}), with 10 to fewer
+than 250 employees at t-3, from the fourth panel year. The firm enters the
+risk set at \strong{t-3}, the start of that growth window, so a crossing during
+the growth spell itself counts. Scalers and pool firms are both observed
+at t-3 and t, so both groups survive the first three steps by
+construction. Entry needs SME status at t-3: firms already above it, or
+without a status, are counted (\code{n_above_at_entry},
+\code{n_status_missing_at_entry}) and not followed. Breakdowns are the
+categories at t-3 (\code{L3size_cat}, \code{L3age_cat}, ...).
 
-\strong{Time} is years since entry (step 1 = the year after). A firm that
-crosses at step k has its event at k; a firm whose last year L is before
-the panel's last year exits at step L - entry (competing event); other
-firms are censored at the last step whose crossing could still be
-confirmed (panel end - 1 - entry). Firms with no step left are counted
-(\code{n_no_followup}).
+\strong{Time} is years since entry (step 1 = t-2). A firm that crosses at step
+k has its event at k; a firm whose last year L is before the panel's last
+year exits at step L - entry (competing event); other firms are censored
+at the last step whose crossing could still be confirmed (panel end - 1 -
+entry). Firms with no step left are counted (\code{n_no_followup}).
 }
