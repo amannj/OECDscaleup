@@ -128,6 +128,9 @@ These are not part of the dictionary, but `base_financials` may carry them:
 * `number_plants`, `multiplant`: if already present (Stata saves them back
   into `base_financials`), they are kept for the firm-years without records
   in `plants_RAW`.
+* `consolidation_code`: the type of accounts (codes as in Orbis). Where
+  present, the scaler analysis (`run_scaler_analysis()`) gives a mid-cap
+  status only to unconsolidated accounts (`U1`, `U2`).
 * `country`: dropped.
 
 ## plants_RAW
