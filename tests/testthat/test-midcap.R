@@ -50,7 +50,7 @@ midcap_fixture <- function() {
 }
 
 test_that("compute_midcap_transitions: entry, two-year rule, gaps, exit and censoring (hand-checked)", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   res <- compute_midcap_transitions(cfg, midcap_fixture())
   pick <- function(tab, d = "employment_250") tab[tab$definition == d & tab$sample == "HGE20" & tab$category == "ALL", ]
 
@@ -90,7 +90,7 @@ test_that("compute_midcap_transitions: entry, two-year rule, gaps, exit and cens
 })
 
 test_that("coverage and status_missing follow missing financials", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- midcap_fixture()
   ai$total_assets[ai$year == 2012] <- NA
   ai$turnover[ai$year == 2012] <- 60000 # above EUR 50 m with no balance sheet: status undecidable
@@ -103,7 +103,7 @@ test_that("coverage and status_missing follow missing financials", {
 })
 
 test_that("top-scaler samples are followed as risk sets of their own (the link to part 1)", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   res <- compute_midcap_transitions(cfg, midcap_fixture(), top_cutoffs = c(top50 = 50))
   pick <- function(tab) tab[tab$definition == "employment_250" & tab$sample == "HGE20_rel_top50", ]
   # all 8 firms are ranked (each observed at t-3 and t); firm 7 has no status and firm 8 is above at t-3
@@ -159,7 +159,7 @@ test_that("the hazard table has the full model and the net one (years after the 
   ai$L3employment <- 100
   ai$HGE20 <- as.integer(ai$year == 2013 & ai$idf %% 2 == 1)
   ai$HGE_pool <- as.integer(ai$year == 2013)
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   h <- compute_midcap_transitions(cfg, ai, top_cutoffs = NULL)$hazard
   h <- h[h$definition == "employment_250" & h$term == "scaler", ]
   expect_setequal(h$window, c("from_t-3", "after_window"))
@@ -170,7 +170,7 @@ test_that("the hazard table has the full model and the net one (years after the 
 })
 
 test_that("money_unit: euros are caught when thousands are declared, and rescaled when declared", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- midcap_fixture()
   ai$employment[ai$idf == 4] <- 20 # a firm with 10-49 employees for the check
   ref <- compute_midcap_transitions(cfg, ai)
@@ -183,7 +183,7 @@ test_that("money_unit: euros are caught when thousands are declared, and rescale
 })
 
 test_that("consolidated accounts get no status, and a status needs the financials it depends on", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- midcap_fixture()
   ai$consolidation_code <- ifelse(ai$idf == 4 & ai$year == 2010, "C1", "U1")
   ent <- compute_midcap_transitions(cfg, ai)$entry

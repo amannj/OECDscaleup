@@ -19,8 +19,9 @@ compute_midcap_transitions(
 \code{total_assets}.}
 
 \item{money_unit}{Unit of \code{turnover} and \code{total_assets} in
-\code{accounts_indicators}: \code{"EUR thousand"} (as the variable dictionary asks)
-or \code{"EUR"} (a panel delivered in euros that the pipeline does not rescale).
+\code{accounts_indicators}: \code{"EUR thousand"} (what \code{\link[=build_accounts_indicators]{build_accounts_indicators()}}
+produces, see \code{financials_unit} in \code{\link[=config_scaleup]{config_scaleup()}}) or \code{"EUR"} (for an
+indicators panel built in euros by an earlier version of the package).
 As a check, the function stops if firms with 10-49 employees have a
 median turnover per employee above 5,000 when \code{"EUR thousand"} is
 declared (EUR 5 m per person: euros, not thousands).}

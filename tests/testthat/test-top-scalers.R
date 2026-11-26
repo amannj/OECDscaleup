@@ -45,7 +45,7 @@ top_fixture <- function() {
 }
 
 test_that("compute_top_scalers: population, tie inclusion and cut-offs (hand-checked)", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   out <- compute_top_scalers(cfg, top_fixture(), cutoffs = c(top2 = 2, p10 = 0.10))
   all <- out[out$category == "ALL", ]
   n_of <- function(s) all$firm_count[all$sample == s]
@@ -73,7 +73,7 @@ test_that("compute_top_scalers: population, tie inclusion and cut-offs (hand-che
 })
 
 test_that("joint_growth drops employment scalers whose turnover fell", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- top_fixture()
   ai$turnover[ai$idf == 22 & ai$year == 2013] <- 5000 # 100 * 100 at t-3: turnover fell
   base <- compute_top_scalers(cfg, ai, cutoffs = c(top2 = 2))
@@ -86,7 +86,7 @@ test_that("joint_growth drops employment scalers whose turnover fell", {
 })
 
 test_that("compute_top_scalers runs on a built panel and keeps every cut-off", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   bf <- make_base_financials_wide()
   fast <- bf$idf <= 15 # steady 30 % a year: high-growth scalers every year from 2014
   bf$employment[fast] <- round(20 * 1.3^(bf$year[fast] - 2011) * (1 + bf$idf[fast] / 100))

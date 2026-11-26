@@ -11,13 +11,15 @@
 #'   `sa_midcap_by_year_<country>.csv`, `sa_midcap_coverage_<country>.csv`,
 #'   `sa_midcap_hazard_<country>.csv`.
 #'
+#' The money variables of the indicators panel are in EUR thousand (the build
+#' rescales them, see `financials_unit` in [config_scaleup()]), as the mid-cap
+#' thresholds need; [compute_midcap_transitions()] stops if they look like
+#' euros.
+#'
 #' @param config A `scaleup_config` from [config_scaleup()].
-#' @param money_unit Unit of turnover and total assets in the indicators
-#'   panel, see [compute_midcap_transitions()].
 #' @return Invisibly, a list of the tables written.
 #' @export
-run_scaler_analysis <- function(config, money_unit = c("EUR thousand", "EUR")) {
-  money_unit <- match.arg(money_unit)
+run_scaler_analysis <- function(config) {
   files <- file.path(config$input_dir, paste0(c("trade_accounts_indicators_", "accounts_indicators_"), config$country, ".dta"))
   found <- files[file.exists(files)]
   if (!length(found)) {
@@ -30,7 +32,7 @@ run_scaler_analysis <- function(config, money_unit = c("EUR thousand", "EUR")) {
     compute_top_scalers(config, ai, joint_growth = FALSE),
     compute_top_scalers(config, ai, joint_growth = TRUE)
   )
-  mid <- compute_midcap_transitions(config, ai, money_unit = money_unit)
+  mid <- compute_midcap_transitions(config, ai)
   out <- c(list(top_scalers = top), stats::setNames(mid, paste0("midcap_", names(mid))))
   for (nm in names(out)) {
     utils::write.csv(out[[nm]], file.path(config$output_dir, sprintf("sa_%s_%s.csv", nm, config$country)),

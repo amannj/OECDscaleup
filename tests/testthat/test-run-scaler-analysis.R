@@ -2,7 +2,7 @@
 
 test_that("run_scaler_analysis writes every table from accounts_indicators_<CT>.dta", {
   dir <- local_test_dir()
-  cfg <- config_scaleup(country = "FR", input_dir = dir, output_dir = dir)
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = dir, output_dir = dir)
   expect_error(run_scaler_analysis(cfg), class = "OECDscaleup_data_error")
 
   bf <- make_base_financials_wide()

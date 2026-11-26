@@ -4,13 +4,10 @@
 \alias{run_scaler_analysis}
 \title{Run the scaler analysis (top scalers, scalers to mid-caps) from files}
 \usage{
-run_scaler_analysis(config, money_unit = c("EUR thousand", "EUR"))
+run_scaler_analysis(config)
 }
 \arguments{
 \item{config}{A \code{scaleup_config} from \code{\link[=config_scaleup]{config_scaleup()}}.}
-
-\item{money_unit}{Unit of turnover and total assets in the indicators
-panel, see \code{\link[=compute_midcap_transitions]{compute_midcap_transitions()}}.}
 }
 \value{
 Invisibly, a list of the tables written.
@@ -28,4 +25,10 @@ breakdown) over \verb{accounts_indicators_<country>.dta}, runs
 \verb{sa_midcap_by_year_<country>.csv}, \verb{sa_midcap_coverage_<country>.csv},
 \verb{sa_midcap_hazard_<country>.csv}.
 }
+}
+\details{
+The money variables of the indicators panel are in EUR thousand (the build
+rescales them, see \code{financials_unit} in \code{\link[=config_scaleup]{config_scaleup()}}), as the mid-cap
+thresholds need; \code{\link[=compute_midcap_transitions]{compute_midcap_transitions()}} stops if they look like
+euros.
 }

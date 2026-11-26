@@ -1,5 +1,31 @@
 # OECDscaleup (development version)
 
+## New analysis: high-growth scalers and scalers to mid-caps
+
+Not part of the original Stata package. `run_scaler_analysis()` runs both
+parts from the indicators panel and writes the `sa_*_<country>.csv` tables.
+
+- `compute_top_scalers()`: the fastest growers among the 20 % scalers
+  (employment scalers by employment, turnover scalers by turnover), ranked
+  each year on three 3-year indices (relative growth, absolute growth,
+  Birch-Schreyer), with fixed tie-break chains; cut-offs top 50 and top 1, 5,
+  10 and 25 %, every cut-off reported for every cell. Acquisition-driven
+  growth is left out; `joint_growth = TRUE` also requires the other variable
+  to grow (both versions are written). Cells in the characteristics format,
+  plus each cell's share of gross job and turnover creation.
+- `compute_midcap_transitions()`: crossings into mid-cap status under three
+  definitions, all reported: EU small mid-cap (Recommendation (EU)
+  2025/1099; firms jumping past its ceilings are a separate outcome),
+  leaving the EU SME category (up to 3,000 employees) and 250+ employees.
+  A crossing must be confirmed in the next year; nothing is imputed, a
+  status that the data cannot decide is missing. Scalers, pool non-scalers
+  and each top-scaler sample are followed from the start of their growth
+  window (t-3), with exit as a competing event: cumulative incidence by years
+  since entry, entry counts, crossings by calendar year, and a discrete-time
+  logit hazard with firm-clustered errors, also net of the growth window.
+  Diagnostics for choosing between the definitions: financial coverage per
+  year and the at-risk years without a status.
+
 ## Input data documented in the package
 
 - The OECD variable dictionary (Phase 3 spreadsheet) is now part of the

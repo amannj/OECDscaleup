@@ -60,8 +60,9 @@
 #'   those of all scalers (the link between the two analyses). `NULL` skips
 #'   them.
 #' @param money_unit Unit of `turnover` and `total_assets` in
-#'   `accounts_indicators`: `"EUR thousand"` (as the variable dictionary asks)
-#'   or `"EUR"` (a panel delivered in euros that the pipeline does not rescale).
+#'   `accounts_indicators`: `"EUR thousand"` (what [build_accounts_indicators()]
+#'   produces, see `financials_unit` in [config_scaleup()]) or `"EUR"` (for an
+#'   indicators panel built in euros by an earlier version of the package).
 #'   As a check, the function stops if firms with 10-49 employees have a
 #'   median turnover per employee above 5,000 when `"EUR thousand"` is
 #'   declared (EUR 5 m per person: euros, not thousands).
