@@ -1,5 +1,5 @@
 Package: OECDscaleup
-Title: Construct OECD Scale-Up High-Growth-Firm Indicators
+Title: Measuring the Scale-Up of SMEs
 Version: 0.2.0.9000
 Authors@R:
     person("OECD", "Scale Up Team", , "scaleup@oecd.org", role = c("aut", "cre", "cph"))
@@ -11,7 +11,7 @@ Description: Builds the firm-level high-growth-firm (HGF) / scale-up
     confidentiality checks. Also analyses the fastest-growing scalers
     and scalers growing into mid-caps. Builds on previous OECD routines
     written in Stata.
-License: MIT + file LICENSE
+License: CC0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends:

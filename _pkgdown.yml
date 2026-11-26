@@ -6,6 +6,23 @@ template:
 development:
   mode: unreleased
 
+home:
+  links:
+  - text: "OECD: Helping SMEs scale up"
+    href: https://www.oecd.org/en/about/programmes/helping-smes-scale-up.html
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+  components:
+    articles:
+      text: Input data
+      menu:
+      - text: Firm-level input data (base_financials, plants_RAW)
+        href: articles/input-data.html
+      - text: Trade input data (trade_RAW)
+        href: articles/input-trade-data.html
+
 articles:
 - title: Getting started
   contents:

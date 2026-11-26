@@ -4,7 +4,7 @@
 \name{OECDscaleup-package}
 \alias{OECDscaleup}
 \alias{OECDscaleup-package}
-\title{OECDscaleup: Construct OECD Scale-Up High-Growth-Firm Indicators}
+\title{OECDscaleup: Measuring the Scale-Up of SMEs}
 \description{
 Builds the firm-level high-growth-firm (HGF) / scale-up indicators used in the OECD Scale Up project from confidential national firm microdata, and produces the aggregate tables (characteristics, transitions/evolutions, contribution, predictors, trade) shared back with the OECD, with the statistics needed for confidentiality checks. Also analyses the fastest-growing scalers and scalers growing into mid-caps. Builds on previous OECD routines written in Stata.
 }
