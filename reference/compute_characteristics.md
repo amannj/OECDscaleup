@@ -1,10 +1,9 @@
 # Descriptive characteristics of scaler and non-scaler populations
 
-Translates `n1_3_characteristics.do`. For every combination of 24 firm
-samples (each HGF definition, its "eligible non-scaler" complement,
-micro/non-micro) and up to 12 category breakdowns (age, size, sector,
-region, ownership, ...), reports firm counts, mean growth rates, the
-disclosure-safe
+For every combination of 24 firm samples (each HGF definition, its
+"eligible non-scaler" complement, micro/non-micro) and up to 12 category
+breakdowns (age, size, sector, region, ownership, ...), reports firm
+counts, mean growth rates, the disclosure-safe
 [`approx_median()`](https://amannj.github.io/OECDscaleup/reference/approx_median.md)
 of size/age/productivity/financial variables, and (optionally)
 [`dominance_share()`](https://amannj.github.io/OECDscaleup/reference/dominance_share.md)

@@ -22,8 +22,8 @@ with the OECD team.
 
 ## Files
 
-The pipeline reads its inputs from `config$input_dir`, as Stata `.dta`
-files. `<CT>` is the two-letter country code given to
+The pipeline reads its inputs from `config$input_dir`, as `.dta` files.
+`<CT>` is the two-letter country code given to
 [`config_scaleup()`](https://amannj.github.io/OECDscaleup/reference/config_scaleup.md).
 
 | File | Content | Needed |
@@ -164,8 +164,8 @@ them:
   6 (6-10 years) and 11 (11 years or more). With both supplied,
   `birth_year` is used for age and entry and the supplied `age_cat` is
   kept as the age class.
-- `number_plants`, `multiplant`: if already present (Stata saves them
-  back into `base_financials`), they are kept for the firm-years without
+- `number_plants`, `multiplant`: if already present in `base_financials`
+  (from an earlier run), they are kept for the firm-years without
   records in `plants_RAW`.
 - `consolidation_code`: the type of accounts (codes as in Orbis). Where
   present, the scaler analysis

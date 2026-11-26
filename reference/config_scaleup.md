@@ -1,9 +1,7 @@
 # Build a Scale-Up pipeline configuration
 
 Constructs and validates the configuration shared by every pipeline
-stage, replacing the Stata global macros (`$country`, `$inputdir`,
-`$outputdir`, `$dominance`, `$domvars`, `$dom_num`) set once in
-`MASTER_OECD_p2.do` and read implicitly by every downstream `.do` file.
+stage, passed to every function of the package.
 
 ## Usage
 

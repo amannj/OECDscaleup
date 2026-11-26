@@ -2,8 +2,8 @@
 
 ### Getting started
 
-- [Getting Started with
-  OECDscaleup](https://amannj.github.io/OECDscaleup/articles/OECDscaleup.md):
+- [Get
+  started](https://amannj.github.io/OECDscaleup/articles/OECDscaleup.md):
 
 ### Input data
 

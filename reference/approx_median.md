@@ -2,11 +2,10 @@
 
 A confidentiality-preserving stand-in for a true median: true medians
 are not published per this project's disclosure rules. Sorts `x`
-ascending (`NA` sorted last, matching Stata's convention), then averages
-the (up to) 5 values centred on position
-`round_half_up(n_non_missing / 2)`. This is **not** interchangeable with
-a true median except by coincidence — do not replace with
-[`median()`](https://rdrr.io/r/stats/median.html).
+ascending (`NA` sorted last), then averages the (up to) 5 values centred
+on position `round_half_up(n_non_missing / 2)`. This is **not**
+interchangeable with a true median except by coincidence — do not
+replace with [`median()`](https://rdrr.io/r/stats/median.html).
 
 ## Usage
 

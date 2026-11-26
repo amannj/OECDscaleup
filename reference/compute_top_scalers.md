@@ -1,8 +1,8 @@
 # Top scalers: the fastest-growing high-growth firms
 
-New analysis (not part of the original Stata package). Ranks the
-high-growth scalers of each year by how much they grew over the 3-year
-window t-3..t and describes the fastest ones, in the format of
+New analysis. Ranks the high-growth scalers of each year by how much
+they grew over the 3-year window t-3..t and describes the fastest ones,
+in the format of
 [`compute_characteristics()`](https://amannj.github.io/OECDscaleup/reference/compute_characteristics.md).
 
 ## Usage

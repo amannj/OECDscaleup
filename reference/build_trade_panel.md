@@ -1,13 +1,12 @@
 # Collapse transaction-level trade data to a firm-year panel
 
-Translates PART 2 of `n0_2_trade_accounts_indicators.do` (trade package
-v1.0). The raw trade file has one row per firm, year, flow (`trade_type`
-1 = import, 2 = export), destination country and CN8 product. The result
-has one row per firm-year with, for each flow, the total value, the
-number of distinct 6-digit products and the largest product's share; for
+The raw trade file has one row per firm, year, flow (`trade_type` 1 =
+import, 2 = export), destination country and CN8 product. The result has
+one row per firm-year with, for each flow, the total value, the number
+of distinct 6-digit products and the largest product's share; for
 exports also the number of destination countries (all and EU). Imports
 have no partner country in the data, so their partner counts are
-dropped, as in Stata.
+dropped.
 
 ## Usage
 
@@ -31,7 +30,7 @@ build_trade_panel(config, trade_raw, storage_types = NULL)
 
 - storage_types:
 
-  Optional Stata storage types of `trade_raw`'s columns (see
+  Optional storage types of `trade_raw`'s columns (see
   [`build_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_accounts_indicators.md));
   used for the PT/HU rescaling.
 
@@ -41,9 +40,8 @@ A data frame, one row per `(idf, year)` present in `trade_raw`.
 
 ## Details
 
-Stata semantics reproduced: `egen total()` and `gen` results are stored
-as `float`, `collapse (sum)` as `double`; products whose 6-digit total
-is below 1 (thousand EUR) are blanked before the counts; a flow whose
-values were all missing stays missing after the collapse (which would
-sum them to 0); a flow that is entirely absent stays missing after the
-reshape (bug T2).
+Values are stored as in the original routines (`float` totals, `double`
+sums); products whose 6-digit total is below 1 (thousand EUR) are
+blanked before the counts; a flow whose values were all missing stays
+missing after the collapse (which would sum them to 0); a flow that is
+entirely absent stays missing for every firm.

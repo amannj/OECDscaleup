@@ -19,7 +19,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">OECDscaleup</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,7 +77,7 @@ records, so it can be shared with the OECD team.</p>
 <h2 id="files">Files<a class="anchor" aria-label="anchor" href="#files"></a>
 </h2>
 <p>The pipeline reads its inputs from <code>config$input_dir</code>, as
-Stata <code>.dta</code> files. <code>&lt;CT&gt;</code> is the two-letter
+<code>.dta</code> files. <code>&lt;CT&gt;</code> is the two-letter
 country code given to <code><a href="../reference/config_scaleup.html">config_scaleup()</a></code>.</p>
 <table class="table">
 <colgroup>
@@ -828,9 +828,8 @@ age and entry and the supplied <code>age_cat</code> is kept as the age
 class.</li>
 <li>
 <code>number_plants</code>, <code>multiplant</code>: if already
-present (Stata saves them back into <code>base_financials</code>), they
-are kept for the firm-years without records in
-<code>plants_RAW</code>.</li>
+present in <code>base_financials</code> (from an earlier run), they are
+kept for the firm-years without records in <code>plants_RAW</code>.</li>
 <li>
 <code>consolidation_code</code>: the type of accounts (codes as in
 Orbis). Where present, the scaler analysis

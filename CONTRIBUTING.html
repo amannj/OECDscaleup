@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">OECDscaleup</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,11 +36,11 @@
 
 <div id="contributing-to-oecdscaleup" class="section level1">
 
-<p>Thanks for contributing. This package is a behaviour-preserving translation of the OECD Scale Up project’s Stata pipeline, used by national statistical institutes across the OECD to compute internationally-comparable high-growth-firm statistics — correctness and faithfulness to the documented methodology matter more here than in most packages.</p>
+<p>Thanks for contributing. This package computes the OECD Scale Up project’s indicators, used by national statistical institutes across the OECD to compute internationally-comparable high-growth-firm statistics — correctness and faithfulness to the documented methodology matter more here than in most packages.</p>
 <div class="section level2">
 <h2 id="before-you-start">Before you start<a class="anchor" aria-label="anchor" href="#before-you-start"></a></h2>
 <ul><li>For anything beyond a small fix, open an issue first to discuss the change — especially anything touching indicator definitions (<code><a href="reference/build_accounts_indicators.html">build_accounts_indicators()</a></code>), the classification rules in <code><a href="reference/compute_persistence.html">compute_persistence()</a></code>/<code><a href="reference/compute_predictors.html">compute_predictors()</a></code>, or the disclosure-control logic (<code><a href="reference/dominance_share.html">dominance_share()</a></code>, <code><a href="reference/approx_median.html">approx_median()</a></code>).</li>
-<li>If you’re changing behaviour rather than just refactoring, say how the change departs from the original Stata code (the <code>.do</code> file and step) and add a <code>NEWS.md</code> entry: departures from Stata are documented there, one by one.</li>
+<li>If you’re changing behaviour rather than just refactoring, explain the change and add a <code>NEWS.md</code> entry.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a></h2>
@@ -65,7 +65,7 @@
 </ul></div>
 <div class="section level2">
 <h2 id="reporting-bugs">Reporting bugs<a class="anchor" aria-label="anchor" href="#reporting-bugs"></a></h2>
-<p>Please include: the function involved, a minimal reproducible example (synthetic data only — never attach real firm microdata to an issue, even internally), and, if you believe the translated behaviour diverges from the original Stata pipeline, which <code>.do</code> file and step you believe it diverges from.</p>
+<p>Please include: the function involved, a minimal reproducible example (synthetic data only — never attach real firm microdata to an issue, even internally) and what you expected instead.</p>
 </div>
 </div>
 

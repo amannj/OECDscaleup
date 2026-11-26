@@ -1,8 +1,8 @@
 # Build the trade package's firm-year panel (`trade_accounts_indicators`)
 
-Translates `n0_2_trade_accounts_indicators.do`: the second package's
+The panel of
 [`build_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_accounts_indicators.md)
-(an earlier version of it) with the firm-year trade panel
+with the firm-year trade panel
 ([`build_trade_panel()`](https://amannj.github.io/OECDscaleup/reference/build_trade_panel.md))
 merged in, and exporter/importer flags, first-time exporters
 (`y4_exporter`), heavy/light exporting turnover scalers (`HGX10/20`,
@@ -67,18 +67,17 @@ build_trade_accounts_indicators(
 
 - storage_types:
 
-  Optional named character vector giving the Stata storage type
-  (`"byte"`, `"int"`, `"long"`, `"float"`, `"double"`) of the columns of
+  Optional named character vector giving the storage type (`"byte"`,
+  `"int"`, `"long"`, `"float"`, `"double"`) of the columns of
   `base_financials`, as stored in its `.dta` file.
   [`run_scaleup_pipeline()`](https://amannj.github.io/OECDscaleup/reference/run_scaleup_pipeline.md)
-  reads it from the file header. Where Stata rescales a `float` (or
-  `byte`/`int`) variable in place, the result is stored in single
-  precision, and R rounds it the same way. `NULL` (the default) treats
-  every column as `double`.
+  reads it from the file header. A `float` (or `byte`/`int`) variable
+  rescaled to EUR thousand is rounded to single precision, as the file
+  stores it. `NULL` (the default) treats every column as `double`.
 
 - trade_storage_types:
 
-  Optional Stata storage types of `trade_raw`.
+  Optional storage types of `trade_raw`.
 
 ## Value
 

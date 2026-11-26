@@ -1,7 +1,6 @@
 # Country-specific data patches
 
-The source Stata pipeline hardcodes three country-list branches inside
-`n0_1_accounts_indicators_v2.do` to work around idiosyncrasies of
+Three country-list rules of the build work around idiosyncrasies of
 specific national data sources — these are data-source patches, not
 general econometric rules (steps 6, 8 and 17 of
 [`build_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_accounts_indicators.md)).

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">OECDscaleup</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="configuration-and-input-checks">Configuration and input checks<a class="anchor" aria-label="anchor" href="#configuration-and-input-checks"></a></h2>
 
 
 
@@ -45,31 +45,10 @@
 
       <dl><dt>
 
-          <code><a href="approx_median.html">approx_median()</a></code>
+          <code><a href="config_scaleup.html">config_scaleup()</a></code>
 
         </dt>
-        <dd>Disclosure-safe "approximate median" (average of 5 central sorted values)</dd>
-
-        <dt>
-
-          <code><a href="build_accounts_indicators.html">build_accounts_indicators()</a></code>
-
-        </dt>
-        <dd>Build the firm-year analytical panel and its derived indicators</dd>
-
-        <dt>
-
-          <code><a href="build_trade_accounts_indicators.html">build_trade_accounts_indicators()</a></code>
-
-        </dt>
-        <dd>Build the trade package's firm-year panel (<code>trade_accounts_indicators</code>)</dd>
-
-        <dt>
-
-          <code><a href="build_trade_panel.html">build_trade_panel()</a></code>
-
-        </dt>
-        <dd>Collapse transaction-level trade data to a firm-year panel</dd>
+        <dd>Build a Scale-Up pipeline configuration</dd>
 
         <dt>
 
@@ -80,24 +59,40 @@
 
         <dt>
 
+          <code><a href="country_patches.html">country_patches</a></code>
+
+        </dt>
+        <dd>Country-specific data patches</dd>
+      </dl></div><div class="section level2">
+      <h2 id="scale-up-pipeline">Scale-up pipeline<a class="anchor" aria-label="anchor" href="#scale-up-pipeline"></a></h2>
+
+      <div class="section-desc"><p>The baseline indicators, from files or step by step.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="run_scaleup_pipeline.html">run_scaleup_pipeline()</a></code>
+
+        </dt>
+        <dd>Run the full Scale-Up pipeline, reading and writing files on disk</dd>
+
+        <dt>
+
+          <code><a href="build_accounts_indicators.html">build_accounts_indicators()</a></code>
+
+        </dt>
+        <dd>Build the firm-year analytical panel and its derived indicators</dd>
+
+        <dt>
+
           <code><a href="compute_characteristics.html">compute_characteristics()</a></code>
 
         </dt>
         <dd>Descriptive characteristics of scaler and non-scaler populations</dd>
-
-        <dt>
-
-          <code><a href="compute_contribution.html">compute_contribution()</a></code>
-
-        </dt>
-        <dd>Job/turnover creation-destruction accounting by firm sample</dd>
-
-        <dt>
-
-          <code><a href="compute_midcap_transitions.html">compute_midcap_transitions()</a></code>
-
-        </dt>
-        <dd>Scalers to mid-caps: crossings into mid-cap status</dd>
 
         <dt>
 
@@ -108,10 +103,33 @@
 
         <dt>
 
+          <code><a href="compute_contribution.html">compute_contribution()</a></code>
+
+        </dt>
+        <dd>Job/turnover creation-destruction accounting by firm sample</dd>
+
+        <dt>
+
           <code><a href="compute_predictors.html">compute_predictors()</a></code>
 
         </dt>
         <dd>Classify scalers by pre-period predictor quartile and regress scaling on them</dd>
+      </dl></div><div class="section level2">
+      <h2 id="scaler-analysis">Scaler analysis<a class="anchor" aria-label="anchor" href="#scaler-analysis"></a></h2>
+
+      <div class="section-desc"><p>The fastest-growing scalers and scalers growing into mid-caps.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="run_scaler_analysis.html">run_scaler_analysis()</a></code>
+
+        </dt>
+        <dd>Run the scaler analysis (top scalers, scalers to mid-caps) from files</dd>
 
         <dt>
 
@@ -122,131 +140,21 @@
 
         <dt>
 
-          <code><a href="compute_trade_characteristics.html">compute_trade_characteristics()</a></code>
+          <code><a href="compute_midcap_transitions.html">compute_midcap_transitions()</a></code>
 
         </dt>
-        <dd>Characteristics of exporting and non-exporting scalers (trade package)</dd>
+        <dd>Scalers to mid-caps: crossings into mid-cap status</dd>
+      </dl></div><div class="section level2">
+      <h2 id="trade-optional-">Trade (optional)<a class="anchor" aria-label="anchor" href="#trade-optional-"></a></h2>
 
-        <dt>
+      <div class="section-desc"><p>Firm-level international trade in goods.</p></div>
 
-          <code><a href="config_scaleup.html">config_scaleup()</a></code>
+      <dl></dl></div><div class="section level2">
 
-        </dt>
-        <dd>Build a Scale-Up pipeline configuration</dd>
 
-        <dt>
 
-          <code><a href="country_patches.html">country_patches</a></code>
 
-        </dt>
-        <dd>Country-specific data patches</dd>
-
-        <dt>
-
-          <code><a href="cut_stata.html">cut_stata()</a></code>
-
-        </dt>
-        <dd>Bin a numeric variable into intervals (Stata's <code>egen ... = cut(x), at(...)</code>)</dd>
-
-        <dt>
-
-          <code><a href="decode_category.html">decode_category()</a></code>
-
-        </dt>
-        <dd>Decode a category column to its readable string label</dd>
-
-        <dt>
-
-          <code><a href="dominance_share.html">dominance_share()</a></code>
-
-        </dt>
-        <dd>Dominance-rule concentration share (disclosure-control statistic)</dd>
-
-        <dt>
-
-          <code><a href="exchange_rates.html">exchange_rates</a></code>
-
-        </dt>
-        <dd>Annual average Eurostat exchange rates</dd>
-
-        <dt>
-
-          <code><a href="first_occurrence_flag.html">first_occurrence_flag()</a></code>
-
-        </dt>
-        <dd>Flag a firm's chronologically first occurrence of a 0/1 event</dd>
-
-        <dt>
-
-          <code><a href="has_column.html">has_column()</a></code>
-
-        </dt>
-        <dd>Check whether a column exists and is non-empty in a data frame</dd>
-
-        <dt>
-
-          <code><a href="panel_diff1.html">panel_diff1()</a></code>
-
-        </dt>
-        <dd>First-difference panel operator (Stata's <code>D1.var</code>)</dd>
-
-        <dt>
-
-          <code><a href="panel_lag.html">panel_lag()</a></code>
-
-        </dt>
-        <dd>Gap-aware panel lag (Stata's <code>Ln.var</code>, e.g. <code>l3.employment</code>)</dd>
-
-        <dt>
-
-          <code><a href="panel_lead.html">panel_lead()</a></code>
-
-        </dt>
-        <dd>Gap-aware panel lead (Stata's <code>Fn.var</code>, e.g. <code>f3.employment</code>)</dd>
-
-        <dt>
-
-          <code><a href="panel_sdiff.html">panel_sdiff()</a></code>
-
-        </dt>
-        <dd>n-period difference panel operator (Stata's <code>Sn.var</code>, e.g. <code>S3.employment</code>)</dd>
-
-        <dt>
-
-          <code><a href="percentile_stata.html">percentile_stata()</a></code>
-
-        </dt>
-        <dd>Percentile, using Stata's algorithm (Hyndman &amp; Fan "Type 2")</dd>
-
-        <dt>
-
-          <code><a href="quartile_bin.html">quartile_bin()</a></code>
-
-        </dt>
-        <dd>Grouped equal-frequency quartile bins (Stata's <code>xtile ..., nq(4)</code>)</dd>
-
-        <dt>
-
-          <code><a href="round_half_up.html">round_half_up()</a></code>
-
-        </dt>
-        <dd>Round half away from zero (Stata's <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> convention)</dd>
-
-        <dt>
-
-          <code><a href="run_scaler_analysis.html">run_scaler_analysis()</a></code>
-
-        </dt>
-        <dd>Run the scaler analysis (top scalers, scalers to mid-caps) from files</dd>
-
-        <dt>
-
-          <code><a href="run_scaleup_pipeline.html">run_scaleup_pipeline()</a></code>
-
-        </dt>
-        <dd>Run the full Scale-Up pipeline, reading and writing files on disk</dd>
-
-        <dt>
+      <dl><dt>
 
           <code><a href="run_trade_pipeline.html">run_trade_pipeline()</a></code>
 
@@ -255,17 +163,70 @@
 
         <dt>
 
-          <code><a href="stata_num.html">stata_num()</a></code>
+          <code><a href="build_trade_panel.html">build_trade_panel()</a></code>
 
         </dt>
-        <dd>Prepare a numeric vector for Stata-style comparison against a constant</dd>
+        <dd>Collapse transaction-level trade data to a firm-year panel</dd>
 
         <dt>
 
-          <code><a href="stata_replace.html">stata_replace()</a></code>
+          <code><a href="build_trade_accounts_indicators.html">build_trade_accounts_indicators()</a></code>
 
         </dt>
-        <dd>Stata-style conditional replace, preserving the existing value on <code>NA</code></dd>
+        <dd>Build the trade package's firm-year panel (<code>trade_accounts_indicators</code>)</dd>
+
+        <dt>
+
+          <code><a href="compute_trade_characteristics.html">compute_trade_characteristics()</a></code>
+
+        </dt>
+        <dd>Characteristics of exporting and non-exporting scalers (trade package)</dd>
+      </dl></div><div class="section level2">
+      <h2 id="confidentiality-statistics">Confidentiality statistics<a class="anchor" aria-label="anchor" href="#confidentiality-statistics"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="dominance_share.html">dominance_share()</a></code>
+
+        </dt>
+        <dd>Dominance-rule concentration share (disclosure-control statistic)</dd>
+
+        <dt>
+
+          <code><a href="approx_median.html">approx_median()</a></code>
+
+        </dt>
+        <dd>Disclosure-safe "approximate median" (average of 5 central sorted values)</dd>
+      </dl></div><div class="section level2">
+      <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="variable_dictionary.html">variable_dictionary</a></code>
+
+        </dt>
+        <dd>Variable dictionary of the input data</dd>
+
+        <dt>
+
+          <code><a href="example_scaleup_data.html">example_scaleup_data()</a></code>
+
+        </dt>
+        <dd>Simulate example input data</dd>
 
         <dt>
 
@@ -276,26 +237,13 @@
 
         <dt>
 
-          <code><a href="variable_dictionary.html">variable_dictionary</a></code>
+          <code><a href="exchange_rates.html">exchange_rates</a></code>
 
         </dt>
-        <dd>Variable dictionary of the input data</dd>
-
-        <dt>
-
-          <code><a href="winsorize_both.html">winsorize_both()</a></code>
-
-        </dt>
-        <dd>Winsorize both tails to <code>NA</code></dd>
-
-        <dt>
-
-          <code><a href="winsorize_upper.html">winsorize_upper()</a></code>
-
-        </dt>
-        <dd>Winsorize the upper tail to <code>NA</code></dd>
+        <dd>Annual average Eurostat exchange rates</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

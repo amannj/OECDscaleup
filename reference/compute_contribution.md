@@ -1,9 +1,9 @@
 # Job/turnover creation-destruction accounting by firm sample
 
-Translates `n1_3_contribution.do`. For 5 selected years and 16 firm
-samples, computes total employment/turnover created vs. destroyed over
-the prior 3-year window, treating entrants as creating their full
-current value and exits as destroying their full 3-years-ago value.
+For 5 selected years and 16 firm samples, computes total
+employment/turnover created vs. destroyed over the prior 3-year window,
+treating entrants as creating their full current value and exits as
+destroying their full 3-years-ago value.
 
 ## Usage
 

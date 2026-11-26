@@ -1,7 +1,7 @@
 # Classify scalers by pre-period predictor quartile and regress scaling on them
 
-Translates `n1_3_predictors.do`. The entire procedure is a no-op unless
-`added_value`, `tangible_fixed_assets`, and `labour_costs` all exist in
+The entire procedure is a no-op unless `added_value`,
+`tangible_fixed_assets`, and `labour_costs` all exist in
 `accounts_indicators`. First classifies first-time-eligible scalers into
 6 "driver" types based on which pre-period predictor(s) (productivity,
 capital intensity, wages) sit in the top sector-year quartile, then fits
@@ -34,8 +34,6 @@ A named list with `desc_predictors` and `regs_predictors` data frames
 ## Details
 
 The strategic types use *levels* at t-3: MFP (the "productivity" type),
-tangible fixed assets over turnover and the average wage. The Stata
-documentation calls the productivity type "productivity growth in 4th
-quartile at t-3", but the code uses the MFP level, like the other two
-types (S11). MFP growth enters the regressions (model 2) and the
-Transformational / Expansionist types.
+tangible fixed assets over turnover and the average wage. MFP growth
+enters the regressions (model 2) and the Transformational / Expansionist
+types.

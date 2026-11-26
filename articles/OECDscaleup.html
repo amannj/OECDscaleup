@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Getting Started with OECDscaleup • OECDscaleup</title>
+<title>Get started • OECDscaleup</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting Started with OECDscaleup">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get started">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -19,7 +19,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">OECDscaleup</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Getting Started with OECDscaleup</h1>
+      <h1>Get started</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/amannj/OECDscaleup/blob/ScalerAnalysis/vignettes/OECDscaleup.Rmd" class="external-link"><code>vignettes/OECDscaleup.Rmd</code></a></small>
@@ -60,259 +60,898 @@
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/amannj/OECDscaleup" class="external-link">OECDscaleup</a></span><span class="op">)</span></span></code></pre></div>
+<blockquote>
+<p><strong>Development version.</strong> OECDscaleup is under active
+development, so functions and outputs may still change. Please report
+problems and suggestions as an <a href="https://github.com/amannj/OECDscaleup/issues" class="external-link">issue on GitHub</a>
+or to <a href="mailto:scaleup@oecd.org" class="email">scaleup@oecd.org</a>. Use synthetic data in a report (for
+example from <code><a href="../reference/example_scaleup_data.html">example_scaleup_data()</a></code>), never confidential
+firm data.</p>
+</blockquote>
+<div class="section level2">
+<h2 id="what-oecdscaleup-does">What OECDscaleup does<a class="anchor" aria-label="anchor" href="#what-oecdscaleup-does"></a>
+</h2>
+<p>OECDscaleup computes indicators on high-growth firms (“scalers”) from
+national firm-level microdata, for the OECD Scale Up project. It builds
+on previous OECD routines written in Stata. The firm-level data never
+leave the national statistical institute that holds them: the package
+produces aggregate tables, with the statistics needed to check them for
+confidentiality before they are shared.</p>
+<p>It has three parts:</p>
+<ul>
+<li>
+<strong>the baseline</strong>: a firm-year panel of indicators, and
+from it tables on the characteristics of scalers, what happens before
+and after scaling, their contribution to job and turnover creation, and
+the predictors of scaling;</li>
+<li>
+<strong>the scaler analysis</strong>: the fastest-growing scalers,
+and scalers that grow into mid-caps;</li>
+<li>
+<strong>trade</strong> (optional): exporters, importers and
+exporting scalers, from firm-level trade in goods.</li>
+</ul>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>The package is not on CRAN. Install it from GitHub with
 <code>devtools</code>:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"amannj/OECDscaleup"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>This installs the default branch of the repository (<a href="https://github.com/amannj/OECDscaleup" class="external-link uri">https://github.com/amannj/OECDscaleup</a>);
-<code>ref = "&lt;branch or tag&gt;"</code> installs another version, for
-example <code>ref = "stata-parity-v1_3-1"</code> for the version that
-reproduces the Stata code bug for bug.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/amannj/OECDscaleup" class="external-link">OECDscaleup</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="what-this-package-does">What this package does<a class="anchor" aria-label="anchor" href="#what-this-package-does"></a>
+<h2 id="the-workflow-at-a-glance">The workflow at a glance<a class="anchor" aria-label="anchor" href="#the-workflow-at-a-glance"></a>
 </h2>
-<p>This package builds the firm-level “high-growth firm” (HGF) /
-scale-up indicators used in the OECD Scale Up project, and produces the
-disclosure-checked aggregate tables shared back with the OECD. It
-translates the OECD’s original Stata packages: the “Second Package”
-(<code>MASTER_OECD_p2.do</code> and 5 worker <code>.do</code> files,
-version 1.3) and the trade package (<code>MASTER_OECD_trade.do</code>,
-version 1.0). The translation was verified table by table against the
-Stata code; the <a href="https://amannj.github.io/OECDscaleup/news/index.html">changelog</a>
-lists every departure from the Stata code since then (bug fixes, the
-declared NACE revision and money unit) and why.</p>
-<p>Firm-level microdata is confidential and never leaves the country
-whose national statistical institute holds it, so <strong>no real data
-ships with this package</strong>. Every example below uses small,
-fabricated data purely to demonstrate the interface — the actual numbers
-are meaningless. The input data are described in
+<p>This article goes through the whole analysis on fabricated data:</p>
+<ol style="list-style-type: decimal">
+<li><a href="#step-1-example-data">Example data</a></li>
+<li><a href="#step-2-configuration">Configuration</a></li>
+<li><a href="#step-3-check-the-inputs">Check the inputs</a></li>
+<li><a href="#step-4-the-indicator-panel">The indicator panel</a></li>
+<li><a href="#step-5-characteristics-of-scalers">Characteristics of
+scalers</a></li>
+<li><a href="#step-6-before-and-after-scaling">Before and after
+scaling</a></li>
+<li><a href="#step-7-contribution-to-job-and-turnover-creation">Contribution to
+job and turnover creation</a></li>
+<li><a href="#step-8-predictors-of-scaling">Predictors of
+scaling</a></li>
+<li><a href="#step-9-the-scaler-analysis">The scaler analysis</a></li>
+<li><a href="#step-10-confidentiality">Confidentiality</a></li>
+<li><a href="#step-11-running-everything-from-files">Running everything
+from files</a></li>
+<li><a href="#optional-trade">Optional: trade</a></li>
+</ol>
+<p>Steps 4 to 9 are functions that take data frames and return data
+frames. In production a country runs them from its files in one go (step
+11). The input variables are described in
 <code><a href="../articles/input-data.html">vignette("input-data")</a></code> and
 <code><a href="../articles/input-trade-data.html">vignette("input-trade-data")</a></code>.</p>
 </div>
 <div class="section level2">
-<h2 id="the-pipeline-at-a-glance">The pipeline at a glance<a class="anchor" aria-label="anchor" href="#the-pipeline-at-a-glance"></a>
+<h2 id="step-1-example-data">Step 1: Example data<a class="anchor" aria-label="anchor" href="#step-1-example-data"></a>
 </h2>
-<p>Five pipeline functions, matching the five original <code>.do</code>
-files one-to-one:</p>
-<ol style="list-style-type: decimal">
-<li>
-<code><a href="../reference/build_accounts_indicators.html">build_accounts_indicators()</a></code> — cleans raw firm-level
-data and constructs every derived indicator (growth rates, HGF flags,
-categories, multi-factor productivity, …). Every other stage depends on
-its output.</li>
-<li>
-<code><a href="../reference/compute_characteristics.html">compute_characteristics()</a></code> — descriptive statistics of
-scaler populations.</li>
-<li>
-<code><a href="../reference/compute_persistence.html">compute_persistence()</a></code> — growth trajectories
-before/after a scaling event (“transitions” and “evolutions”).</li>
-<li>
-<code><a href="../reference/compute_contribution.html">compute_contribution()</a></code> — job/turnover
-creation-vs-destruction accounting.</li>
-<li>
-<code><a href="../reference/compute_predictors.html">compute_predictors()</a></code> — classifies scalers by pre-period
-predictor quartile and regresses scaling on those predictors.</li>
-</ol>
-<p>Stages 2-5 are independent of each other and only depend on stage 1’s
-output. All five are <strong>pure functions</strong> — data frames in,
-data frames out — so they can be tested and used without touching the
-filesystem.</p>
-<p><code><a href="../reference/run_scaleup_pipeline.html">run_scaleup_pipeline()</a></code> performs the file I/O: it reads
-the raw <code>.dta</code> inputs, calls the five functions above in
-order, and writes every output as a CSV — mirroring
-<code>MASTER_OECD_p2.do</code>’s role in the original package.</p>
-<p>The trade package works the same way:
-<code><a href="../reference/build_trade_accounts_indicators.html">build_trade_accounts_indicators()</a></code> (the panel with the
-firm-year trade variables merged in) and
-<code><a href="../reference/compute_trade_characteristics.html">compute_trade_characteristics()</a></code>, run from files by
-<code><a href="../reference/run_trade_pipeline.html">run_trade_pipeline()</a></code>. <code><a href="../reference/check_inputs.html">check_inputs()</a></code> checks
-the input files of both before a run.</p>
-<p>The scaler analysis is new, not part of the Stata packages. It works
-on the indicators panel these pipelines write:
-<code><a href="../reference/compute_top_scalers.html">compute_top_scalers()</a></code> ranks the fastest growers among the
-scalers (top 50, top 1, 5, 10 and 25 %, on three growth indices), and
-<code><a href="../reference/compute_midcap_transitions.html">compute_midcap_transitions()</a></code> follows scalers and
-non-scalers into mid-cap status under three definitions (EU small
-mid-cap, leaving the EU SME category, 250+ employees), with exit as a
-competing outcome and coverage diagnostics.
-<code><a href="../reference/run_scaler_analysis.html">run_scaler_analysis()</a></code> runs both from files. Every variant
-is written, so the choice among them is left to the analysis.</p>
+<p><code><a href="../reference/example_scaleup_data.html">example_scaleup_data()</a></code> simulates the input files: a
+panel of firms with entries, exits, high-growth episodes and a few firms
+that grow past 250 employees, plus plants and trade flows. <strong>The
+data are random: none of the numbers below mean anything.</strong></p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/example_scaleup_data.html">example_scaleup_data</a></span><span class="op">(</span>n_firms <span class="op">=</span> <span class="fl">3000</span>, years <span class="op">=</span> <span class="fl">2010</span><span class="op">:</span><span class="fl">2022</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">ex</span>, <span class="va">nrow</span><span class="op">)</span></span>
+<span><span class="co">#&gt; base_financials      plants_raw       trade_raw </span></span>
+<span><span class="co">#&gt;           25182           34335           43198</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   idf year birth_year sector_1d sector_2d sector_3d region_2d region_3d employment turnover</span></span>
+<span><span class="co">#&gt; 1   1 2010       2009         C        26       261      FRB0     FRB06        2.7    250.6</span></span>
+<span><span class="co">#&gt; 2   1 2011       2009         C        26       261      FRB0     FRB06        2.6    254.4</span></span>
+<span><span class="co">#&gt; 3   2 2010       2007         C        25       251      FRB0     FRB04       10.2   1497.5</span></span>
+<span><span class="co">#&gt; 4   2 2011       2007         C        25       251      FRB0     FRB04       10.4   1664.6</span></span>
+<span><span class="co">#&gt; 5   2 2012       2007         C        25       251      FRB0     FRB04       10.7   1824.6</span></span>
+<span><span class="co">#&gt; 6   2 2013       2007         C        25       251      FRB0     FRB04       10.7   1649.4</span></span></code></pre></div>
+<p><code>base_financials</code> is the firm-level panel (one row per
+firm and year); <code>plants_raw</code> lists each firm’s plants, and
+<code>trade_raw</code> its trade flows (used in the optional trade
+part). Money is in EUR thousand.</p>
 </div>
 <div class="section level2">
-<h2 id="configuration">Configuration<a class="anchor" aria-label="anchor" href="#configuration"></a>
+<h2 id="step-2-configuration">Step 2: Configuration<a class="anchor" aria-label="anchor" href="#step-2-configuration"></a>
 </h2>
-<p>Every stage takes a <code>scaleup_config</code>, built with
-<code><a href="../reference/config_scaleup.html">config_scaleup()</a></code>. This replaces the Stata global macros
-(<code>$country</code>, <code>$inputdir</code>, …) set once in
-<code>MASTER_OECD_p2.do</code>:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>Every function takes a configuration from
+<code><a href="../reference/config_scaleup.html">config_scaleup()</a></code>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span></span>
 <span>  country <span class="op">=</span> <span class="st">"FR"</span>,</span>
-<span>  input_dir <span class="op">=</span> <span class="st">"V:/SCALE_UP/DTA/"</span>,</span>
-<span>  output_dir <span class="op">=</span> <span class="st">"V:/SCALE_UP/TMP/"</span>,</span>
-<span>  nace_revision <span class="op">=</span> <span class="st">"2"</span>, <span class="co"># the NACE revision of the sector codes: "2" or "2.1"</span></span>
-<span>  <span class="co"># nace_rev21_from = 2025, # for a panel in Rev. 2 up to 2024 and Rev. 2.1 after</span></span>
-<span>  <span class="co"># financials_unit = "EUR", # if the money variables are in euros, not EUR thousand</span></span>
-<span>  dominance <span class="op">=</span> <span class="cn">FALSE</span> <span class="co"># set TRUE (with dom_vars/dom_num) if your country</span></span>
-<span>  <span class="co"># requires dominance-rule confidentiality statistics</span></span>
+<span>  input_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,  <span class="co"># where the input files are (used in step 11)</span></span>
+<span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="co"># where the output tables go</span></span>
+<span>  nace_revision <span class="op">=</span> <span class="st">"2"</span>     <span class="co"># NACE revision of the sector codes: "2" or "2.1"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><code>nace_revision</code> is required: the pipeline’s sector rules
-are written for NACE Rev. 2, and Rev. 2.1 codes (used from reference
-year 2025) are converted to Rev. 2 first. The build stops if the codes
-do not match the declared revision, and if turnover per employee does
-not fit EUR thousand after <code>financials_unit</code> is applied.</p>
+<ul>
+<li>
+<code>nace_revision</code> is required. A panel that switches from
+NACE Rev. 2 to Rev. 2.1 also gives <code>nace_rev21_from</code>, the
+first Rev. 2.1 year.</li>
+<li>
+<code>financials_unit = "EUR"</code> declares money variables in
+euros instead of EUR thousand; the build then divides them by 1000.</li>
+<li>
+<code>dominance = TRUE</code> adds the dominance statistics for the
+confidentiality checks (step 10).</li>
+</ul>
 </div>
 <div class="section level2">
-<h2 id="running-the-full-pipeline-from-files">Running the full pipeline from files<a class="anchor" aria-label="anchor" href="#running-the-full-pipeline-from-files"></a>
+<h2 id="step-3-check-the-inputs">Step 3: Check the inputs<a class="anchor" aria-label="anchor" href="#step-3-check-the-inputs"></a>
 </h2>
-<p>If you have <code>base_financials_&lt;CT&gt;.dta</code> (and
-optionally <code>plants_RAW_&lt;CT&gt;.dta</code>) prepared as described
-in <code><a href="../articles/input-data.html">vignette("input-data")</a></code>, alongside this package’s own
-<code>tl3_typology</code>/<code>exchange_rates</code> reference data
-saved as <code>.dta</code> files in the same input folder (exactly as
-the original PDF instructions describe):</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span>nace_revision <span class="op">=</span> <span class="st">"2"</span>,</span>
-<span>  country <span class="op">=</span> <span class="st">"FR"</span>,</span>
-<span>  input_dir <span class="op">=</span> <span class="st">"path/to/input"</span>,</span>
-<span>  output_dir <span class="op">=</span> <span class="st">"path/to/output"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/check_inputs.html">check_inputs</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span> <span class="co"># errors, warnings and notes on the input files (counts only)</span></span>
-<span><span class="va">outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_scaleup_pipeline.html">run_scaleup_pipeline</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></span></code></pre></div>
-<p>This writes <code>n13_characteristics_FR.csv</code>,
-<code>n13_transitions_FR.csv</code>, and so on to
-<code>output_dir</code>, plus the intermediate
-<code>accounts_indicators_FR.dta</code> back to <code>input_dir</code>
-(used for the manual confidentiality-check procedure described below).
-It also returns every output table as an R list, for programmatic
-use.</p>
-</div>
-<div class="section level2">
-<h2 id="running-the-pure-functions-directly">Running the pure functions directly<a class="anchor" aria-label="anchor" href="#running-the-pure-functions-directly"></a>
-</h2>
-<p>If you already have data loaded in R — for instance because you’re
-testing, or piping in data from elsewhere in an R workflow — call the
-five functions directly instead. Here’s a small synthetic example:</p>
+<p><code><a href="../reference/check_inputs.html">check_inputs()</a></code> compares the data with the variable
+dictionary before anything is computed. It lists errors (what would stop
+the build), warnings (what looks wrong or will be lost) and notes (what
+the build will do to the data). The report holds counts and shares only,
+so it can be shared.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">2010</span><span class="op">:</span><span class="fl">2018</span></span>
-<span><span class="va">base_financials</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  idf <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">years</span>, times <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
-<span>  sector_1d <span class="op">=</span> <span class="st">"C"</span>,</span>
-<span>  sector_2d <span class="op">=</span> <span class="fl">26</span>,</span>
-<span>  sector_3d <span class="op">=</span> <span class="fl">262</span>,</span>
-<span>  region_2d <span class="op">=</span> <span class="st">"FR10"</span>,</span>
-<span>  birth_year <span class="op">=</span> <span class="fl">2000</span>,</span>
-<span>  employment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Lognormal.html" class="external-link">rlnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span>, <span class="fl">0.3</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.02</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">base_financials</span><span class="op">$</span><span class="va">turnover</span> <span class="op">&lt;-</span> <span class="va">base_financials</span><span class="op">$</span><span class="va">employment</span> <span class="op">*</span> <span class="fl">100</span></span>
-<span></span>
-<span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span>nace_revision <span class="op">=</span> <span class="st">"2"</span>,</span>
-<span>  country <span class="op">=</span> <span class="st">"FR"</span>,</span>
-<span>  input_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="co"># unused by the pure functions themselves</span></span>
-<span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">accounts_indicators</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_accounts_indicators.html">build_accounts_indicators</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">base_financials</span><span class="op">)</span></span>
-<span><span class="va">characteristics</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_characteristics.html">compute_characteristics</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">accounts_indicators</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">characteristics</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 20</span></span></span>
-<span><span class="co">#&gt;    year sample category group       firm_count median_L3age median_L3employment</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">2</span>013 HGE10  ALL      full sample          2           10                26.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  <span style="text-decoration: underline;">2</span>014 HGE10  ALL      full sample          2           11                30.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  <span style="text-decoration: underline;">2</span>015 HGE10  ALL      full sample          2           12                34.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  <span style="text-decoration: underline;">2</span>016 HGE10  ALL      full sample          2           13                39.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  <span style="text-decoration: underline;">2</span>017 HGE10  ALL      full sample          3           14                49.3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>  <span style="text-decoration: underline;">2</span>018 HGE10  ALL      full sample          3           15                55.7</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 13 more variables: median_L3turnover &lt;dbl&gt;, median_employment &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   median_turnover &lt;dbl&gt;, median_employment_growth3y &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   median_turnover_growth3y &lt;dbl&gt;, median_employment_futgrowth &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   median_turnover_futgrowth &lt;dbl&gt;, mean_employment_growth3y &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   mean_turnover_growth3y &lt;dbl&gt;, mean_employment_futgrowth &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   mean_turnover_futgrowth &lt;dbl&gt;, share_acquisition &lt;dbl&gt;, L3share_young &lt;dbl&gt;</span></span></span></code></pre></div>
-<p><code><a href="../reference/compute_persistence.html">compute_persistence()</a></code> returns a named list
-(<code>transitions</code>, <code>evolutions_p1</code>,
-<code>evolutions_p2</code>) since a country’s panel may be too short to
-produce all three; <code><a href="../reference/compute_predictors.html">compute_predictors()</a></code> similarly returns
-<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> entirely if <code>added_value</code>,
-<code>tangible_fixed_assets</code>, or <code>labour_costs</code> aren’t
-present in the input data.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">persistence</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_persistence.html">compute_persistence</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">accounts_indicators</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">persistence</span><span class="op">)</span></span>
-<span><span class="co">#&gt; NULL</span></span></code></pre></div>
-<p><code>persistence</code> has no elements here — this random 9-year
-panel doesn’t happen to contain a firm that scales specifically within
-the 2014-2016 window (<code>transitions</code>) or a panel reaching 2020
-(<code>evolutions</code>), and neither is an error. Real country panels
-spanning more years, with genuine scaling firms, will populate one or
-more of <code>transitions</code>, <code>evolutions_p1</code>,
-<code>evolutions_p2</code>.</p>
+<code class="sourceCode R"><span><span class="va">chk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/check_inputs.html">check_inputs</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span>, <span class="va">ex</span><span class="op">$</span><span class="va">trade_raw</span>,</span>
+<span>                    tl3_typology <span class="op">=</span> <span class="va">tl3_typology</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Input check for FR: 0 error(s), 0 warning(s), 24 note(s); 31 check(s) ok.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Notes:</span></span>
+<span><span class="co">#&gt;   base_financials$age                      absent (nice-to-have, second order; package: optional).</span></span>
+<span><span class="co">#&gt;   base_financials$exit                     absent (nice-to-have, second order; package: optional).</span></span>
+<span><span class="co">#&gt;   base_financials$exit_close               absent (nice-to-have, first order; package: not used).</span></span>
+<span><span class="co">#&gt;   base_financials$exp_revenues_goods       absent (nice-to-have, second order; package: not used).</span></span>
+<span><span class="co">#&gt;   base_financials$exp_revenues_services    absent (nice-to-have, second order; package: not used).</span></span>
+<span><span class="co">#&gt;   base_financials$labour_costs             missing in 1,250 of 25,182 (5.0 %) rows.</span></span>
+<span><span class="co">#&gt;   base_financials$operating_costs          absent (nice-to-have, second order; package: not used).</span></span>
+<span><span class="co">#&gt;   base_financials$services_costs           absent (nice-to-have, first order; package: not used).</span></span>
+<span><span class="co">#&gt;   base_financials$depr_amort               missing in 1,312 of 25,182 (5.2 %) rows.</span></span>
+<span><span class="co">#&gt;   base_financials$intangible_fixed_assets  absent (nice-to-have, second order; package: not used).</span></span>
+<span><span class="co">#&gt;   base_financials$tangible_fixed_assets    missing in 1,301 of 25,182 (5.2 %) rows.</span></span>
+<span><span class="co">#&gt;   base_financials$fixed_assets             absent (nice-to-have, second order; package: not used).</span></span>
+<span><span class="co">#&gt;   base_financials$total_assets             missing in 1,287 of 25,182 (5.1 %) rows.</span></span>
+<span><span class="co">#&gt;   base_financials$loans                    absent (nice-to-have, first order; package: not used).</span></span>
+<span><span class="co">#&gt;   base_financials$gross_profit             absent (nice-to-have, second order; package: not used).</span></span>
+<span><span class="co">#&gt;   base_financials$profit_after_tax         absent (nice-to-have, second order; package: not used).</span></span>
+<span><span class="co">#&gt;   base_financials$added_value              missing in 1,268 of 25,182 (5.0 %) rows.</span></span>
+<span><span class="co">#&gt;   base_financials$cash_flow                missing in 1,300 of 25,182 (5.2 %) rows.</span></span>
+<span><span class="co">#&gt;   base_financials$uco                      missing in 459 of 25,182 (1.8 %) rows.</span></span>
+<span><span class="co">#&gt;   base_financials                          25,182 firm-years of 3,000 firms, years 2010 to 2022.</span></span>
+<span><span class="co">#&gt;   base_financials                          569 of 25,182 (2.3 %) firm-years in sectors the analysis leaves out (agriculture, finance, public administration, households, extraterritorial).</span></span>
+<span><span class="co">#&gt;   plants_RAW$p_region_2d                   absent (nice-to-have, second order; package: not used).</span></span>
+<span><span class="co">#&gt;   plants_RAW$p_region_3d                   absent (nice-to-have, second order; package: not used).</span></span>
+<span><span class="co">#&gt;   plants_RAW$hq                            absent (nice-to-have, second order; package: not used).</span></span></code></pre></div>
+<p>No errors or warnings here. The notes list the optional variables the
+example does not have, and the firms in agriculture and finance, which
+the analysis leaves out.</p>
 </div>
 <div class="section level2">
-<h2 id="disclosure-control">Disclosure control<a class="anchor" aria-label="anchor" href="#disclosure-control"></a>
+<h2 id="step-4-the-indicator-panel">Step 4: The indicator panel<a class="anchor" aria-label="anchor" href="#step-4-the-indicator-panel"></a>
 </h2>
-<p>Every output table can include <code>dom_&lt;var&gt;</code>
-dominance-concentration columns — the share of a group’s total held by
-its largest <code>dom_num</code> firms — when
-<code>config$dominance</code> is <code>TRUE</code>. This package’s own
-<code><a href="../reference/dominance_share.html">dominance_share()</a></code> function implements that statistic and is
-directly usable to independently verify a value, the same way the
-original PDF’s confidentiality-check worked example describes doing by
-hand in Stata:</p>
+<p><code><a href="../reference/build_accounts_indicators.html">build_accounts_indicators()</a></code> cleans the panel and derives
+every indicator the tables use: growth rates, the scaler flags, size,
+age and sector classes, productivity and financial ratios.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ai</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_accounts_indicators.html">build_accounts_indicators</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span>,</span>
+<span>                                tl3_typology <span class="op">=</span> <span class="va">tl3_typology</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">ai</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 24613    98</span></span></code></pre></div>
+<p>The scaler flags compare year <em>t</em> with year <em>t-3</em>:</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Flag</th>
+<th>A firm with at least 10 employees at t-3 whose …</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<code>HGE20</code>, <code>HGE10</code>
+</td>
+<td>employment grew by more than 20 % (10 %) a year on average from t-3
+to t</td>
+</tr>
+<tr class="even">
+<td>
+<code>HGT20</code>, <code>HGT10</code>
+</td>
+<td>turnover grew by more than 20 % (10 %) a year on average</td>
+</tr>
+<tr class="odd">
+<td>
+<code>HGB20</code>, <code>HGB10</code>
+</td>
+<td>employment and turnover both did</td>
+</tr>
+<tr class="even">
+<td>
+<code>HGET20</code>, <code>HGET10</code>
+</td>
+<td>employment or turnover did</td>
+</tr>
+<tr class="odd">
+<td>
+<code>MHGE20</code>, <code>MHGT20</code>
+</td>
+<td>the same, for micro firms (fewer than 10 employees at t-3)</td>
+</tr>
+</tbody>
+</table>
+<p>Each flag is compared with its pool (<code>HGE_pool</code>,
+<code>HGT_pool</code>, …): the firms with at least 10 employees at t-3
+whose growth is known. Breakdowns use the firm’s situation at t-3
+(variables starting with <code>L3</code>): size class, age class, sector
+group, region, urban or rural region, independence, multi-plant and
+foreign ownership.</p>
+<p>The share of employment scalers among the firms that could have
+scaled:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cfg_dom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span>nace_revision <span class="op">=</span> <span class="st">"2"</span>,</span>
-<span>  country <span class="op">=</span> <span class="st">"FR"</span>, input_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  dominance <span class="op">=</span> <span class="cn">TRUE</span>, dom_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"employment"</span>, <span class="st">"turnover"</span><span class="op">)</span>, dom_num <span class="op">=</span> <span class="fl">2</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">characteristics_dom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_characteristics.html">compute_characteristics</a></span><span class="op">(</span><span class="va">cfg_dom</span>, <span class="va">accounts_indicators</span><span class="op">)</span></span>
-<span><span class="va">characteristics_dom</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"category"</span>, <span class="st">"group"</span>, <span class="st">"sample"</span>, <span class="st">"dom_employment"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 4</span></span></span>
-<span><span class="co">#&gt;   category group       sample dom_employment</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ALL      full sample HGE10               1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ALL      full sample HGE10               1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> ALL      full sample HGE10               1</span></span></code></pre></div>
-<p><strong>Cells are not automatically blanked.</strong> As with the
-original Stata pipeline, the decision on which cells to suppress before
-sharing results externally rests with the analyst / national statistical
-institute — this package reports the statistics needed to make that
-decision, it does not make it for you.</p>
+<code class="sourceCode R"><span><span class="va">pool</span> <span class="op">&lt;-</span> <span class="va">ai</span><span class="op">[</span><span class="va">ai</span><span class="op">$</span><span class="va">HGE_pool</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span>, <span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">pool</span><span class="op">$</span><span class="va">HGE20</span>, <span class="va">pool</span><span class="op">$</span><span class="va">year</span>, <span class="va">mean</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 </span></span>
+<span><span class="co">#&gt;  2.3  4.3  4.1  3.7  3.6  3.7  4.7  4.8  4.5  4.4</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="step-5-characteristics-of-scalers">Step 5: Characteristics of scalers<a class="anchor" aria-label="anchor" href="#step-5-characteristics-of-scalers"></a>
+</h2>
+<p><code><a href="../reference/compute_characteristics.html">compute_characteristics()</a></code> describes the scalers and the
+non-scalers of their pool, by year and breakdown: the number of firms,
+medians and means of size, growth, productivity and financial ratios at
+t-3 and at t, and shares (young, independent, multi-plant,
+foreign-owned).</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ch</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_characteristics.html">compute_characteristics</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ai</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">ch</span><span class="op">[</span><span class="va">ch</span><span class="op">$</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2019</span> <span class="op">&amp;</span> <span class="va">ch</span><span class="op">$</span><span class="va">category</span> <span class="op">==</span> <span class="st">"ALL"</span> <span class="op">&amp;</span></span>
+<span>          <span class="va">ch</span><span class="op">$</span><span class="va">sample</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"HGE20"</span>, <span class="st">"HGE20_nonscaler_pool"</span><span class="op">)</span>,</span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"firm_count"</span>, <span class="st">"median_L3employment"</span>, <span class="st">"median_employment"</span>,</span>
+<span>          <span class="st">"median_employment_growth3y"</span>, <span class="st">"L3share_young"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">x</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="18%">
+<col width="9%">
+<col width="18%">
+<col width="16%">
+<col width="24%">
+<col width="12%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">sample</th>
+<th align="right">firm_count</th>
+<th align="right">median_L3employment</th>
+<th align="right">median_employment</th>
+<th align="right">median_employment_growth3y</th>
+<th align="right">L3share_young</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">HGE20</td>
+<td align="right">39</td>
+<td align="right">28.88</td>
+<td align="right">58.74</td>
+<td align="right">0.97</td>
+<td align="right">0.08</td>
+</tr>
+<tr class="even">
+<td align="left">HGE20_nonscaler_pool</td>
+<td align="right">785</td>
+<td align="right">23.68</td>
+<td align="right">24.14</td>
+<td align="right">0.03</td>
+<td align="right">0.09</td>
+</tr>
+</tbody>
+</table>
+<p>Rows are cells: <code>sample</code> is the group of firms,
+<code>category</code> and <code>group</code> the breakdown
+(<code>ALL</code> for all firms; for example <code>L3size_cat</code> and
+a size class). The medians are approximate medians, the average of the
+five central values, so that no single firm’s value is published.</p>
+</div>
+<div class="section level2">
+<h2 id="step-6-before-and-after-scaling">Step 6: Before and after scaling<a class="anchor" aria-label="anchor" href="#step-6-before-and-after-scaling"></a>
+</h2>
+<p><code><a href="../reference/compute_persistence.html">compute_persistence()</a></code> follows scalers over time:</p>
+<ul>
+<li>
+<strong>transitions</strong>: firms that scaled in 2014-2016,
+classified by what happened in the three years after
+(<code>FOLLOW</code>: high growth again, growing, stable, partial or
+full reversal, acquisition, missing information);</li>
+<li>
+<strong>evolutions</strong>: firms that scaled in 2017, classified
+by the three years before (<code>LEAD</code>) and after.</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pe</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_persistence.html">compute_persistence</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ai</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">pe</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "transitions"   "evolutions_p1" "evolutions_p2"</span></span>
+<span><span class="va">tr</span> <span class="op">&lt;-</span> <span class="va">pe</span><span class="op">$</span><span class="va">transitions</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">tr</span><span class="op">[</span><span class="va">tr</span><span class="op">$</span><span class="va">hg</span> <span class="op">==</span> <span class="st">"HGE20"</span> <span class="op">&amp;</span> <span class="va">tr</span><span class="op">$</span><span class="va">category</span> <span class="op">==</span> <span class="st">"ALL"</span> <span class="op">&amp;</span> <span class="va">tr</span><span class="op">$</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2014</span> <span class="op">&amp;</span></span>
+<span>          <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">tr</span><span class="op">$</span><span class="va">FOLLOW</span><span class="op">)</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">tr</span><span class="op">$</span><span class="va">FOLLOW_othvar</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"FOLLOW"</span>, <span class="st">"N_scalers"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">year</th>
+<th align="left">FOLLOW</th>
+<th align="right">N_scalers</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">2014</td>
+<td align="left">Missing info</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td align="right">2014</td>
+<td align="left">Partial reversal</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="right">2014</td>
+<td align="left">Stable</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="right">2014</td>
+<td align="left">Growing</td>
+<td align="right">13</td>
+</tr>
+<tr class="odd">
+<td align="right">2014</td>
+<td align="left">HG again</td>
+<td align="right">5</td>
+</tr>
+</tbody>
+</table>
+<p><code>FOLLOW_othvar</code> classifies the same firms by the other
+variable (turnover for employment scalers).</p>
+</div>
+<div class="section level2">
+<h2 id="step-7-contribution-to-job-and-turnover-creation">Step 7: Contribution to job and turnover creation<a class="anchor" aria-label="anchor" href="#step-7-contribution-to-job-and-turnover-creation"></a>
+</h2>
+<p><code><a href="../reference/compute_contribution.html">compute_contribution()</a></code> splits the change in employment
+and turnover from t-3 to t into creation (firms that grew) and
+destruction (firms that shrank), by group of firms, for the years 2014,
+2017 and 2019-2021.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">co</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_contribution.html">compute_contribution</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ai</span><span class="op">)</span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">co</span><span class="op">$</span><span class="va">contribution_p1</span></span>
+<span><span class="va">jobs</span> <span class="op">&lt;-</span> <span class="va">p1</span><span class="op">[</span><span class="va">p1</span><span class="op">$</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2019</span> <span class="op">&amp;</span> <span class="va">p1</span><span class="op">$</span><span class="va">category</span> <span class="op">==</span> <span class="st">"ALL"</span> <span class="op">&amp;</span> <span class="va">p1</span><span class="op">$</span><span class="va">type</span> <span class="op">==</span> <span class="st">"creation"</span> <span class="op">&amp;</span></span>
+<span>             <span class="va">p1</span><span class="op">$</span><span class="va">variable</span> <span class="op">==</span> <span class="st">"employment"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"N_firms"</span>, <span class="st">"S3sum"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">jobs</span><span class="op">$</span><span class="va">share_of_creation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">jobs</span><span class="op">$</span><span class="va">S3sum</span> <span class="op">/</span> <span class="va">jobs</span><span class="op">$</span><span class="va">S3sum</span><span class="op">[</span><span class="va">jobs</span><span class="op">$</span><span class="va">sample</span> <span class="op">==</span> <span class="st">"ALL"</span><span class="op">]</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">jobs</span><span class="op">[</span><span class="va">jobs</span><span class="op">$</span><span class="va">sample</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ALL"</span>, <span class="st">"HGE20"</span>, <span class="st">"nonHGE20"</span>, <span class="st">"entrants"</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">sample</th>
+<th align="right">N_firms</th>
+<th align="right">S3sum</th>
+<th align="right">share_of_creation</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">ALL</td>
+<td align="right">1114</td>
+<td align="right">8932.0</td>
+<td align="right">100.0</td>
+</tr>
+<tr class="even">
+<td align="left">HGE20</td>
+<td align="right">39</td>
+<td align="right">2047.0</td>
+<td align="right">22.9</td>
+</tr>
+<tr class="odd">
+<td align="left">nonHGE20</td>
+<td align="right">449</td>
+<td align="right">3703.7</td>
+<td align="right">41.5</td>
+</tr>
+<tr class="even">
+<td align="left">entrants</td>
+<td align="right">238</td>
+<td align="right">1813.7</td>
+<td align="right">20.3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="step-8-predictors-of-scaling">Step 8: Predictors of scaling<a class="anchor" aria-label="anchor" href="#step-8-predictors-of-scaling"></a>
+</h2>
+<p><code><a href="../reference/compute_predictors.html">compute_predictors()</a></code> classifies scalers by their
+position at t-3 among the firms of their sector and year (top quartile
+of productivity, capital intensity or wages, …) and estimates linear
+probability models of scaling on these predictors. It needs
+<code>added_value</code>, <code>tangible_fixed_assets</code> and
+<code>labour_costs</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_predictors.html">compute_predictors</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ai</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">pr</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "desc_predictors" "regs_predictors"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">pr</span><span class="op">$</span><span class="va">desc_predictors</span><span class="op">$</span><span class="va">type</span><span class="op">[</span><span class="va">pr</span><span class="op">$</span><span class="va">desc_predictors</span><span class="op">$</span><span class="va">category</span> <span class="op">==</span> <span class="st">"ALL"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;        &lt;50 year-sector N             Expansionist             Missing info      Strategic (capital) </span></span>
+<span><span class="co">#&gt;                      120                        4                      109                      116 </span></span>
+<span><span class="co">#&gt;       Strategic (labour)        Strategic (mixed) Strategic (productivity)         Transformational </span></span>
+<span><span class="co">#&gt;                      116                      117                      116                      120</span></span>
+<span><span class="va">reg</span> <span class="op">&lt;-</span> <span class="va">pr</span><span class="op">$</span><span class="va">regs_predictors</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">reg</span><span class="op">[</span><span class="va">reg</span><span class="op">$</span><span class="va">sample</span> <span class="op">==</span> <span class="st">"ALL"</span> <span class="op">&amp;</span> <span class="va">reg</span><span class="op">$</span><span class="va">depvar</span> <span class="op">==</span> <span class="st">"HGE20"</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^L3q4"</span>, <span class="va">reg</span><span class="op">$</span><span class="va">indepvar</span><span class="op">)</span>,</span>
+<span>                 <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"model"</span>, <span class="st">"controls"</span>, <span class="st">"indepvar"</span>, <span class="st">"b"</span>, <span class="st">"se"</span>, <span class="st">"obs"</span><span class="op">)</span><span class="op">]</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">model</th>
+<th align="left">controls</th>
+<th align="left">indepvar</th>
+<th align="right">b</th>
+<th align="right">se</th>
+<th align="right">obs</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">no</td>
+<td align="left">L3q4_MFP_d</td>
+<td align="right">0.001</td>
+<td align="right">0.019</td>
+<td align="right">641</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="left">yes</td>
+<td align="left">L3q4_MFP_d</td>
+<td align="right">-0.006</td>
+<td align="right">0.019</td>
+<td align="right">641</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">no</td>
+<td align="left">L3q4_avg_wage_d</td>
+<td align="right">-0.009</td>
+<td align="right">0.017</td>
+<td align="right">738</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="left">no</td>
+<td align="left">L3q4_phys_assets_d</td>
+<td align="right">-0.007</td>
+<td align="right">0.017</td>
+<td align="right">738</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">yes</td>
+<td align="left">L3q4_avg_wage_d</td>
+<td align="right">-0.010</td>
+<td align="right">0.017</td>
+<td align="right">738</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="left">yes</td>
+<td align="left">L3q4_phys_assets_d</td>
+<td align="right">-0.010</td>
+<td align="right">0.017</td>
+<td align="right">738</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">no</td>
+<td align="left">L3q4_MFP_d</td>
+<td align="right">-0.011</td>
+<td align="right">0.020</td>
+<td align="right">430</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="left">yes</td>
+<td align="left">L3q4_MFP_d</td>
+<td align="right">-0.013</td>
+<td align="right">0.020</td>
+<td align="right">430</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">no</td>
+<td align="left">L3q4_avg_wage_d</td>
+<td align="right">0.000</td>
+<td align="right">0.017</td>
+<td align="right">600</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="left">no</td>
+<td align="left">L3q4_phys_assets_d</td>
+<td align="right">-0.008</td>
+<td align="right">0.016</td>
+<td align="right">600</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">yes</td>
+<td align="left">L3q4_avg_wage_d</td>
+<td align="right">0.001</td>
+<td align="right">0.018</td>
+<td align="right">600</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="left">yes</td>
+<td align="left">L3q4_phys_assets_d</td>
+<td align="right">-0.006</td>
+<td align="right">0.017</td>
+<td align="right">600</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">no</td>
+<td align="left">L3q4_MFP_d</td>
+<td align="right">-0.019</td>
+<td align="right">0.024</td>
+<td align="right">362</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="left">yes</td>
+<td align="left">L3q4_MFP_d</td>
+<td align="right">-0.014</td>
+<td align="right">0.024</td>
+<td align="right">362</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">no</td>
+<td align="left">L3q4_avg_wage_d</td>
+<td align="right">-0.006</td>
+<td align="right">0.025</td>
+<td align="right">420</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="left">no</td>
+<td align="left">L3q4_phys_assets_d</td>
+<td align="right">-0.023</td>
+<td align="right">0.023</td>
+<td align="right">420</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">yes</td>
+<td align="left">L3q4_avg_wage_d</td>
+<td align="right">-0.011</td>
+<td align="right">0.026</td>
+<td align="right">420</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="left">yes</td>
+<td align="left">L3q4_phys_assets_d</td>
+<td align="right">-0.023</td>
+<td align="right">0.024</td>
+<td align="right">420</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>L3q4_*</code> terms are dummies for the top quartile at
+t-3; <code>desc_predictors</code> describes the scalers of each type,
+<code>regs_predictors</code> holds every coefficient of every model.</p>
+</div>
+<div class="section level2">
+<h2 id="step-9-the-scaler-analysis">Step 9: The scaler analysis<a class="anchor" aria-label="anchor" href="#step-9-the-scaler-analysis"></a>
+</h2>
+<p>The scaler analysis looks more closely at the scalers of step 4.</p>
+<p><strong>Top scalers.</strong> <code><a href="../reference/compute_top_scalers.html">compute_top_scalers()</a></code>
+ranks the employment (<code>HGE20</code>) and turnover
+(<code>HGT20</code>) scalers of each year on three measures of growth
+from t-3 to t: relative growth (<code>rel</code>), absolute growth
+(<code>abs</code>) and the Birch-Schreyer index (<code>bs</code>, a mix
+of both). It keeps the top 50 and the top 1, 5, 10 and 25 % and
+describes each group in the format of step 5, with its share in job and
+turnover creation.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">top</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_top_scalers.html">compute_top_scalers</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ai</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">top</span><span class="op">[</span><span class="va">top</span><span class="op">$</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2019</span> <span class="op">&amp;</span> <span class="va">top</span><span class="op">$</span><span class="va">category</span> <span class="op">==</span> <span class="st">"ALL"</span> <span class="op">&amp;</span></span>
+<span>           <span class="va">top</span><span class="op">$</span><span class="va">sample</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"HGE20_ranked"</span>, <span class="st">"HGE20_abs_p25"</span>, <span class="st">"HGE20_abs_p10"</span><span class="op">)</span>,</span>
+<span>         <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"firm_count"</span>, <span class="st">"median_L3employment"</span>, <span class="st">"median_employment"</span>,</span>
+<span>           <span class="st">"share_creation_employment"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">x</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="15%">
+<col width="12%">
+<col width="22%">
+<col width="20%">
+<col width="29%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">sample</th>
+<th align="right">firm_count</th>
+<th align="right">median_L3employment</th>
+<th align="right">median_employment</th>
+<th align="right">share_creation_employment</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">HGE20_ranked</td>
+<td align="right">39</td>
+<td align="right">28.88</td>
+<td align="right">58.74</td>
+<td align="right">0.23</td>
+</tr>
+<tr class="even">
+<td align="left">HGE20_abs_p10</td>
+<td align="right">4</td>
+<td align="right">128.05</td>
+<td align="right">314.25</td>
+<td align="right">0.08</td>
+</tr>
+<tr class="odd">
+<td align="left">HGE20_abs_p25</td>
+<td align="right">10</td>
+<td align="right">85.16</td>
+<td align="right">186.42</td>
+<td align="right">0.14</td>
+</tr>
+</tbody>
+</table>
+<p><code>HGE20_ranked</code> are all the ranked scalers,
+<code>HGE20_abs_p10</code> the top 10 % by absolute growth.
+<code>joint_growth = TRUE</code> also requires the other variable
+(turnover for employment scalers) to grow.</p>
+<p><strong>Scalers to mid-caps.</strong>
+<code><a href="../reference/compute_midcap_transitions.html">compute_midcap_transitions()</a></code> follows scalers, the
+non-scalers of their pool and the top scalers from the start of their
+growth period (t-3), and records when they cross out of the SME
+category, with exit as a competing outcome. Three definitions are
+reported side by side:</p>
+<ul>
+<li>
+<code>small_midcap</code>: EU small mid-cap (Recommendation (EU)
+2025/1099: under 750 persons and turnover up to EUR 150 m or balance
+sheet up to EUR 129 m); firms that jump past these ceilings are counted
+separately as “to large”;</li>
+<li>
+<code>sme_exit</code>: leaving the EU SME category, up to 3,000
+employees;</li>
+<li>
+<code>employment_250</code>: reaching 250 employees, the definition
+that does not need financial data.</li>
+</ul>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_midcap_transitions.html">compute_midcap_transitions</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ai</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">mc</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "incidence" "entry"     "by_year"   "coverage"  "hazard"</span></span>
+<span><span class="va">inc</span> <span class="op">&lt;-</span> <span class="va">mc</span><span class="op">$</span><span class="va">incidence</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">inc</span><span class="op">[</span><span class="va">inc</span><span class="op">$</span><span class="va">definition</span> <span class="op">==</span> <span class="st">"employment_250"</span> <span class="op">&amp;</span> <span class="va">inc</span><span class="op">$</span><span class="va">category</span> <span class="op">==</span> <span class="st">"ALL"</span> <span class="op">&amp;</span> <span class="va">inc</span><span class="op">$</span><span class="va">step</span> <span class="op">==</span> <span class="fl">5</span> <span class="op">&amp;</span></span>
+<span>           <span class="va">inc</span><span class="op">$</span><span class="va">sample</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"HGE20"</span>, <span class="st">"HGE20_nonscaler_pool"</span><span class="op">)</span>,</span>
+<span>         <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"step"</span>, <span class="st">"at_risk"</span>, <span class="st">"cif_mid"</span>, <span class="st">"cif_exit"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">x</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">sample</th>
+<th align="right">step</th>
+<th align="right">at_risk</th>
+<th align="right">cif_mid</th>
+<th align="right">cif_exit</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">HGE20</td>
+<td align="right">5</td>
+<td align="right">108</td>
+<td align="right">0.066</td>
+<td align="right">0.144</td>
+</tr>
+<tr class="even">
+<td align="left">HGE20_nonscaler_pool</td>
+<td align="right">5</td>
+<td align="right">1078</td>
+<td align="right">0.012</td>
+<td align="right">0.176</td>
+</tr>
+</tbody>
+</table>
+<p><code>cif_mid</code> is the cumulative share of firms that have
+crossed by that many years after entry, <code>cif_exit</code> the share
+that exited first. The other tables give the entries into the risk set
+(<code>entry</code>), crossings by calendar year (<code>by_year</code>),
+the coverage of the financial data (<code>coverage</code>), and a hazard
+model of crossing, with scalers compared with their pool
+(<code>hazard</code>):</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hz</span> <span class="op">&lt;-</span> <span class="va">mc</span><span class="op">$</span><span class="va">hazard</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">hz</span><span class="op">[</span><span class="va">hz</span><span class="op">$</span><span class="va">term</span> <span class="op">==</span> <span class="st">"scaler"</span> <span class="op">&amp;</span> <span class="va">hz</span><span class="op">$</span><span class="va">definition</span> <span class="op">==</span> <span class="st">"employment_250"</span>,</span>
+<span>                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"window"</span>, <span class="st">"odds_ratio"</span>, <span class="st">"pval"</span>, <span class="st">"firms"</span>, <span class="st">"events"</span><span class="op">)</span><span class="op">]</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="41%">
+<col width="17%">
+<col width="15%">
+<col width="8%">
+<col width="8%">
+<col width="9%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">sample</th>
+<th align="left">window</th>
+<th align="right">odds_ratio</th>
+<th align="right">pval</th>
+<th align="right">firms</th>
+<th align="right">events</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">HGE20 vs HGE20_nonscaler_pool</td>
+<td align="left">from_t-3</td>
+<td align="right">1.366</td>
+<td align="right">0.535</td>
+<td align="right">1339</td>
+<td align="right">32</td>
+</tr>
+<tr class="even">
+<td align="left">HGE20 vs HGE20_nonscaler_pool</td>
+<td align="left">after_window</td>
+<td align="right">0.587</td>
+<td align="right">0.399</td>
+<td align="right">1198</td>
+<td align="right">21</td>
+</tr>
+<tr class="odd">
+<td align="left">HGT20 vs HGT20_nonscaler_pool</td>
+<td align="left">from_t-3</td>
+<td align="right">2.786</td>
+<td align="right">0.008</td>
+<td align="right">1339</td>
+<td align="right">36</td>
+</tr>
+<tr class="even">
+<td align="left">HGT20 vs HGT20_nonscaler_pool</td>
+<td align="left">after_window</td>
+<td align="right">0.572</td>
+<td align="right">0.276</td>
+<td align="right">1198</td>
+<td align="right">21</td>
+</tr>
+</tbody>
+</table>
+<p>Every variant (cut-offs, growth measures, definitions, the hazard
+from t-3 and after the growth period) is written, so the choice among
+them is left to the analysis.</p>
+</div>
+<div class="section level2">
+<h2 id="step-10-confidentiality">Step 10: Confidentiality<a class="anchor" aria-label="anchor" href="#step-10-confidentiality"></a>
+</h2>
+<p>The tables hold aggregates only, and medians are approximate (step
+5). With <code>dominance = TRUE</code> in the configuration, each table
+also gets <code>dom_&lt;var&gt;</code> columns: the share of a cell’s
+total held by its largest <code>dom_num</code> firms, the statistic of
+the dominance rule. <code><a href="../reference/dominance_share.html">dominance_share()</a></code> computes it for one
+cell:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">emp_2019</span> <span class="op">&lt;-</span> <span class="va">ai</span><span class="op">$</span><span class="va">employment</span><span class="op">[</span><span class="va">ai</span><span class="op">$</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2019</span> <span class="op">&amp;</span> <span class="va">ai</span><span class="op">$</span><span class="va">HGE20</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">]</span></span>
+<span><span class="fu"><a href="../reference/dominance_share.html">dominance_share</a></span><span class="op">(</span><span class="va">emp_2019</span>, top_n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.198669</span></span></code></pre></div>
+<p><strong>Cells are not blanked automatically.</strong> Which cells to
+suppress before the tables leave the institute is the decision of the
+national statistical institute; the package reports the statistics
+needed for it.</p>
+</div>
+<div class="section level2">
+<h2 id="step-11-running-everything-from-files">Step 11: Running everything from files<a class="anchor" aria-label="anchor" href="#step-11-running-everything-from-files"></a>
+</h2>
+<p>In production, the input files are <code>.dta</code> files in
+<code>input_dir</code>, named as in <code><a href="../articles/input-data.html">vignette("input-data")</a></code>,
+together with the reference files <code>tl3_typology.dta</code> (for
+<code>region_3d</code>) and <code>exchange_rates.dta</code> (for
+non-euro countries). With the example data:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="st">"path/to/input"</span></span>
+<span><span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_dta.html" class="external-link">write_dta</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"base_financials_FR.dta"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_dta.html" class="external-link">write_dta</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"plants_RAW_FR.dta"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_dta.html" class="external-link">write_dta</a></span><span class="op">(</span><span class="va">tl3_typology</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"tl3_typology.dta"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"FR"</span>, input_dir <span class="op">=</span> <span class="va">dir</span>, output_dir <span class="op">=</span> <span class="st">"path/to/output"</span>,</span>
+<span>                      nace_revision <span class="op">=</span> <span class="st">"2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/check_inputs.html">check_inputs</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span>          <span class="co"># step 3</span></span>
+<span><span class="fu"><a href="../reference/run_scaleup_pipeline.html">run_scaleup_pipeline</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span>  <span class="co"># steps 4 to 8</span></span>
+<span><span class="fu"><a href="../reference/run_scaler_analysis.html">run_scaler_analysis</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span>   <span class="co"># step 9</span></span></code></pre></div>
+<p><code><a href="../reference/run_scaleup_pipeline.html">run_scaleup_pipeline()</a></code> writes the indicator panel
+<code>accounts_indicators_FR.dta</code> back to <code>input_dir</code>
+and the tables <code>n13_&lt;table&gt;_FR.csv</code> to
+<code>output_dir</code>; <code><a href="../reference/run_scaler_analysis.html">run_scaler_analysis()</a></code> reads the
+panel and writes <code>sa_&lt;table&gt;_FR.csv</code>.</p>
+</div>
+<div class="section level2">
+<h2 id="optional-trade">Optional: trade<a class="anchor" aria-label="anchor" href="#optional-trade"></a>
+</h2>
+<p>The trade part adds firm-level trade in goods: the transaction-level
+file <code>trade_RAW_&lt;CT&gt;.dta</code> (see
+<code><a href="../articles/input-trade-data.html">vignette("input-trade-data")</a></code>) is summed per firm and year
+and merged onto the panel.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tai</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_trade_accounts_indicators.html">build_trade_accounts_indicators</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="va">ex</span><span class="op">$</span><span class="va">trade_raw</span>, <span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span>,</span>
+<span>                                       tl3_typology <span class="op">=</span> <span class="va">tl3_typology</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">tai</span><span class="op">$</span><span class="va">exporter</span>, <span class="va">tai</span><span class="op">$</span><span class="va">year</span>, <span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 </span></span>
+<span><span class="co">#&gt; 20.9 21.4 21.3 21.2 21.0 21.0 21.0 21.8 21.6 22.1 21.1 21.0 21.0</span></span></code></pre></div>
+<p>Among the turnover scalers, <code>HGX20</code> marks the heavy
+exporting scalers, whose export growth is at least half of the turnover
+growth that makes a scaler, and <code>HGNX20</code> the light exporting
+ones. <code><a href="../reference/compute_trade_characteristics.html">compute_trade_characteristics()</a></code> describes them in the
+format of step 5:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_trade_characteristics.html">compute_trade_characteristics</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">tai</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">tc</span><span class="op">$</span><span class="va">p2</span><span class="op">[</span><span class="va">tc</span><span class="op">$</span><span class="va">p2</span><span class="op">$</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2019</span> <span class="op">&amp;</span> <span class="va">tc</span><span class="op">$</span><span class="va">p2</span><span class="op">$</span><span class="va">category</span> <span class="op">==</span> <span class="st">"ALL"</span>,</span>
+<span>           <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"firm_count"</span>, <span class="st">"median_exp_value"</span>, <span class="st">"share_HGX"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">x</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">sample</th>
+<th align="right">firm_count</th>
+<th align="right">median_exp_value</th>
+<th align="right">share_HGX</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">HGE10</td>
+<td align="right">30</td>
+<td align="right">1007.57</td>
+<td align="right">0.27</td>
+</tr>
+<tr class="even">
+<td align="left">HGT10</td>
+<td align="right">39</td>
+<td align="right">1110.61</td>
+<td align="right">0.31</td>
+</tr>
+<tr class="odd">
+<td align="left">HGET10</td>
+<td align="right">47</td>
+<td align="right">1161.66</td>
+<td align="right">0.26</td>
+</tr>
+<tr class="even">
+<td align="left">HGE20</td>
+<td align="right">4</td>
+<td align="right">1917.27</td>
+<td align="right">0.50</td>
+</tr>
+<tr class="odd">
+<td align="left">HGT20</td>
+<td align="right">7</td>
+<td align="right">1655.59</td>
+<td align="right">0.29</td>
+</tr>
+<tr class="even">
+<td align="left">HGET20</td>
+<td align="right">8</td>
+<td align="right">1233.26</td>
+<td align="right">0.25</td>
+</tr>
+</tbody>
+</table>
+<p>From files, <code>run_trade_pipeline(cfg)</code> does the same with
+<code>trade_RAW_FR.dta</code> in <code>input_dir</code> and writes
+<code>trade_accounts_indicators_FR.dta</code> and
+<code>n16_trade_characteristics_*.csv</code>. When that panel exists,
+<code><a href="../reference/run_scaler_analysis.html">run_scaler_analysis()</a></code> uses it and adds the exporter
+breakdown.</p>
 </div>
 <div class="section level2">
 <h2 id="where-to-look-next">Where to look next<a class="anchor" aria-label="anchor" href="#where-to-look-next"></a>
 </h2>
 <ul>
 <li>
-<code><a href="../reference/config_scaleup.html">?config_scaleup</a></code>,
-<code><a href="../reference/build_accounts_indicators.html">?build_accounts_indicators</a></code>,
-<code><a href="../reference/compute_characteristics.html">?compute_characteristics</a></code>,
-<code><a href="../reference/compute_persistence.html">?compute_persistence</a></code>, <code><a href="../reference/compute_contribution.html">?compute_contribution</a></code>,
-<code><a href="../reference/compute_predictors.html">?compute_predictors</a></code>, <code><a href="../reference/run_scaleup_pipeline.html">?run_scaleup_pipeline</a></code>,
-<code><a href="../reference/run_trade_pipeline.html">?run_trade_pipeline</a></code>, <code><a href="../reference/check_inputs.html">?check_inputs</a></code> for full
-argument/return documentation.</li>
-<li>
-<code><a href="../reference/country_patches.html">?country_patches</a></code> for the 3 country-specific data
-patches carried over from the original Stata source.</li>
-<li>
-<code><a href="../reference/tl3_typology.html">?tl3_typology</a></code>, <code><a href="../reference/exchange_rates.html">?exchange_rates</a></code> for the
-bundled OECD reference data.</li>
-<li>
 <code><a href="../articles/input-data.html">vignette("input-data")</a></code> and
-<code><a href="../articles/input-trade-data.html">vignette("input-trade-data")</a></code> for every input variable (also
-as the dataset <code>variable_dictionary</code>).</li>
+<code><a href="../articles/input-trade-data.html">vignette("input-trade-data")</a></code>: every input variable, also as
+the dataset <code>variable_dictionary</code>.</li>
+<li>The <a href="https://amannj.github.io/OECDscaleup/reference/index.html">function
+reference</a> for every argument and output column.</li>
+<li>The <a href="https://amannj.github.io/OECDscaleup/news/index.html">changelog</a>.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

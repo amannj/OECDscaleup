@@ -1,10 +1,9 @@
 # TL3/NUTS3 region urbanisation typology
 
 Classifies TL3 (NUTS3-equivalent) regions by their access to cities, per
-the OECD regional urban/rural typology. Supplied by the OECD alongside
-the original Stata package (`Stata/tl3_typology.dta`); bundled here
-as-is because it is small, non-confidential reference data (not firm
-microdata). Used by
+the OECD regional urban/rural typology. Supplied by the OECD
+(`tl3_typology.dta`); bundled here as-is because it is small,
+non-confidential reference data (not firm microdata). Used by
 [`build_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_accounts_indicators.md)
 to derive `typology_UR` when the raw input data has a `region_3d`
 column.
@@ -60,5 +59,4 @@ A data frame with 2,598 rows and 8 columns:
 
 ## Source
 
-OECD Scale Up project, `tl3_typology.dta` (`Stata/` in the original
-package).
+OECD Scale Up project, `tl3_typology.dta`.
