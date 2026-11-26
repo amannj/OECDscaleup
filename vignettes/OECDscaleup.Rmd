@@ -79,6 +79,16 @@ The trade package works the same way: `build_trade_accounts_indicators()`
 `run_trade_pipeline()`. `check_inputs()` checks the input files of both
 before a run.
 
+The scaler analysis is new, not part of the Stata packages. It works on the
+indicators panel these pipelines write: `compute_top_scalers()` ranks the
+fastest growers among the scalers (top 50, top 1, 5, 10 and 25 %, on three
+growth indices), and `compute_midcap_transitions()` follows scalers and
+non-scalers into mid-cap status under three definitions (EU small mid-cap,
+leaving the EU SME category, 250+ employees), with exit as a competing
+outcome and coverage diagnostics. `run_scaler_analysis()` runs both from
+files. Every variant is written, so the choice among them is left to the
+analysis.
+
 ## Configuration
 
 Every stage takes a `scaleup_config`, built with `config_scaleup()`. This

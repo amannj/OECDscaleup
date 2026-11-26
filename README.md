@@ -8,7 +8,9 @@ indicators used in the OECD Scale Up project from confidential national firm
 microdata, and produces the disclosure-checked aggregate tabulations
 (characteristics, transitions/evolutions, contribution, predictors) shared
 back with the OECD. It also runs the OECD trade package (firm-level trade in
-goods: exporters, importers, exporting scalers).
+goods: exporters, importers, exporting scalers) and a new analysis, not part
+of the Stata packages: the fastest-growing scalers, and scalers that grow
+into mid-caps.
 
 It is a translation of the OECD's original Stata packages: the "Second
 Package" (`MASTER_OECD_p2.do` and its 5 worker `.do` files, version 1.3) and
@@ -51,6 +53,9 @@ outputs <- run_scaleup_pipeline(cfg)
 
 # the trade package (needs trade_RAW_FR.dta as well)
 trade_outputs <- run_trade_pipeline(cfg)
+
+# the scaler analysis (top scalers, scalers to mid-caps), from the indicators panel
+scaler_outputs <- run_scaler_analysis(cfg)
 ```
 
 Every stage is also a pure function (data frames in, data frames out):
@@ -100,6 +105,11 @@ repository, alongside the original Stata code.
   `config_scaleup()`, the input checks, and a performance pass: a panel of
   8 million firm-years runs in about 15 minutes with under 20 GB of memory.
   Reducing the memory further is planned.
+* Branch `ScalerAnalysis` (the default branch): everything in
+  `FixStataBugs`, plus the scaler analysis (`compute_top_scalers()`,
+  `compute_midcap_transitions()`, `run_scaler_analysis()`). It outputs every
+  variant and fallback (cut-offs, indices, mid-cap definitions, coverage
+  diagnostics), so the choice among them is left to the analysis.
 
 ## Development
 

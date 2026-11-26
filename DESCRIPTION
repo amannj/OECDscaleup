@@ -10,7 +10,8 @@ Description: Builds the firm-level high-growth-firm (HGF) / scale-up
     contribution, predictors, trade) shared back with the OECD. A
     translation of the OECD "Second Package" and trade package Stata
     pipelines, verified table by table against the Stata code, with the
-    bugs of the Stata code fixed and documented.
+    bugs of the Stata code fixed and documented, and a new analysis of the
+    fastest scalers and of scalers growing into mid-caps.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

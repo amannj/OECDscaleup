@@ -115,7 +115,7 @@ compute_midcap_transitions <- function(config, accounts_indicators, money_unit =
   categories <- intersect(c("ALL", "L3size_cat", "L3age_cat", "L3tech_grad", "L3independent", "L3exporter"), names(data))
 
   definitions <- midcap_definitions(data)
-  status <- lapply(setNames(definitions, definitions), function(d) {
+  status <- lapply(stats::setNames(definitions, definitions), function(d) {
     s <- midcap_status(data$employment, data$turnover, data$total_assets, d)
     if (has_column(data, "consolidation_code")) s[!data$consolidation_code %in% c("U1", "U2")] <- NA
     s
