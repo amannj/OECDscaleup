@@ -30,6 +30,16 @@
   `financials_unit` (`"EUR thousand"` or `"EUR"`, default: that country
   list), and the build stops when the median turnover per employee of firms
   with 10-49 employees does not fit EUR thousand.
+- N3 `findep_rat4` (investment financed externally, (capex - cash flow) /
+  capex): a firm that does not invest has tangible fixed assets falling by
+  exactly its depreciation, so capex is zero and the ratio missing. Once
+  the values are divided by 1000 (and in Stata's float storage) the three
+  terms no longer cancel exactly, leaving a residue of about 1e-17 to 1e-7
+  of their size, so the ratio became +-1e16 instead of missing. This moved
+  the medians of `findep_rat4` in the characteristics tables for every
+  rescaled country (PT, ES, RO, SI, HU); on one real panel, a third of the
+  cells. A capex within 1e-6 of the size of its inputs now counts as zero,
+  and the ratio no longer depends on the unit.
 
 ## Faster, with less memory
 

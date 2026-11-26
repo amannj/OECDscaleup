@@ -63,6 +63,20 @@ test_that("the excluded sectors are found by division, and by letter only withou
   expect_false(any(ai$idf %in% 11:12))
 })
 
+test_that("N3: findep_rat4 does not depend on the unit (capex that cancels to zero stays zero)", {
+  d <- data.frame(idf = 1, year = 2010:2012,
+                  tangible_fixed_assets = c(1234567, 1200000, 1300000),
+                  depr_amort = c(0, 34567, 50000), cash_flow = c(100, 100, 30000))
+  k <- d
+  k[c("tangible_fixed_assets", "depr_amort", "cash_flow")] <- d[c("tangible_fixed_assets", "depr_amort", "cash_flow")] / 1000
+  expect_false((1200 - 1234.567 + 34.567) == 0) # the residue that made the ratio explode
+  r_eur <- add_findep_ratios(d)$findep_rat4
+  r_k <- add_findep_ratios(k)$findep_rat4
+  expect_true(is.na(r_eur[2]) && is.na(r_k[2])) # no investment: missing in both units
+  expect_equal(r_k[3], r_eur[3], tolerance = 1e-6) # capex 150,000: (150 - 30) / 150 in both
+  expect_equal(r_eur[3], (150000 - 30000) / 150000, tolerance = 1e-6)
+})
+
 test_that("financials_unit: euros are rescaled when declared, and stop the build when not", {
   bf <- make_base_financials_wide()
   ref <- build_accounts_indicators(cfg_n(nace_revision = "2"), bf)

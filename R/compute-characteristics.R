@@ -214,8 +214,17 @@ add_findep_ratios <- function(data) {
     findep_vars <- c(findep_vars, "findep_rat3")
   }
   if (has_column(data, "tangible_fixed_assets") && has_column(data, "depr_amort") && has_column(data, "cash_flow")) {
-    capex <- stata_float(data$tangible_fixed_assets -
-      panel_lag(data$tangible_fixed_assets, 1, data$idf, data$year) + data$depr_amort)
+    tfa <- as.double(data$tangible_fixed_assets)
+    l1_tfa <- as.double(panel_lag(data$tangible_fixed_assets, 1, data$idf, data$year))
+    dep <- as.double(data$depr_amort)
+    capex <- tfa - l1_tfa + dep
+    # Fix N3: a firm that does not invest has tfa falling by exactly its depreciation, so capex is 0 and the
+    # ratio missing (x/0). In EUR thousand (and in Stata's float storage) the three values no longer cancel
+    # exactly and leave a residue of ~1e-17 to 1e-7 of their size, which made the ratio +-1e16 instead of
+    # missing and moved its medians. A capex within 1e-6 of the size of its inputs is zero.
+    scale <- pmax(abs(tfa), abs(l1_tfa), abs(dep))
+    capex[!is.na(capex) & abs(capex) <= 1e-6 * scale] <- 0
+    capex <- stata_float(capex)
     data$findep_rat4 <- stata_float((capex - data$cash_flow) / capex)
     data$L3findep_rat4 <- panel_lag(data$findep_rat4, 3, data$idf, data$year)
     findep_vars <- c(findep_vars, "findep_rat4")
