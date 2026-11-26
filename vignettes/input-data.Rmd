@@ -44,6 +44,12 @@ package does with it. The trade package's extra input is described in
 `vignette("input-trade-data")`. The same information is in the package
 dataset `variable_dictionary` (`?variable_dictionary`), for use in code.
 
+Before a run, `check_inputs(cfg)` checks the files in `input_dir` against
+this dictionary: what would stop the build, what looks wrong or will be
+lost, and what the build will do to the data. Its report holds counts,
+shares and years only, never firm records, so it can be shared with the
+OECD team.
+
 ## Files
 
 The pipeline reads its inputs from `config$input_dir`, as Stata `.dta`

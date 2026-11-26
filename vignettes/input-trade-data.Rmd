@@ -24,7 +24,8 @@ reads the same `base_financials_<CT>.dta` (and, if present,
 `plants_RAW_<CT>.dta`, `tl3_typology.dta`, `exchange_rates.dta`) as the
 scale-up pipeline, described in `vignette("input-data")`, plus one trade
 file. The same information is in the package dataset `variable_dictionary`
-(`?variable_dictionary`).
+(`?variable_dictionary`). `check_inputs(cfg)` also checks `trade_RAW_<CT>.dta`
+when it is in `input_dir`.
 
 ## File
 

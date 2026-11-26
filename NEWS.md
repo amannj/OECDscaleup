@@ -16,6 +16,17 @@
   to missing. A test keeps these columns in line with the build.
 - The error for a missing required column points to the articles instead
   of `variable_dictionary_v1.xlsx` / `variable_dictionary_v2.xlsx`.
+- `check_inputs()` checks a country's input files (or data frames) against
+  the dictionary before a run: what would stop the build (missing or
+  mistyped required columns, duplicate firm-years, section letters that do
+  not match the declared NACE revision, a money unit that does not fit EUR
+  thousand, missing reference data), what looks wrong or will be lost
+  (codings, code forms, groups outside their division, regions without a
+  TL3 type, years without an exchange rate, trade values that look like
+  euros) and what the build will do (missing shares, negative values set to
+  missing, sectors left out, records that do not link to
+  `base_financials`). The report holds counts, shares and years only, so it
+  can be shared. It reads only the columns it checks.
 
 ## NACE revision and money unit are declared (breaking: `nace_revision` is required)
 

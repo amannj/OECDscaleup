@@ -93,6 +93,7 @@ cfg <- config_scaleup(nace_revision = "2",
   input_dir = "path/to/input",
   output_dir = "path/to/output"
 )
+check_inputs(cfg) # errors, warnings and notes on the input files (counts only)
 outputs <- run_scaleup_pipeline(cfg)
 ```
 

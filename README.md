@@ -68,6 +68,9 @@ cfg <- config_scaleup(nace_revision = "2",
   output_dir = "path/to/output"
 )
 
+# checks the input files against the variable dictionary (counts only)
+check_inputs(cfg)
+
 # reads the raw .dta inputs, runs the full pipeline, writes every output CSV
 outputs <- run_scaleup_pipeline(cfg)
 ```
