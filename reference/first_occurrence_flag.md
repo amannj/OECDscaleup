@@ -5,8 +5,7 @@ Returns `1` only on the earliest `time` value (per `id`) at which
 first occurrence ever. `NA` values in `x` are treated as "not an event"
 and do not break the chain (matching Stata's
 [`sum()`](https://rdrr.io/r/base/sum.html) treating missing as `0` in
-the cumulative-sum idiom the source uses for this same purpose — see
-`Pseudocode/00_conventions.md`, `FIRST_OCCURRENCE_FLAG`).
+the cumulative-sum idiom the source uses for this same purpose).
 
 ## Usage
 

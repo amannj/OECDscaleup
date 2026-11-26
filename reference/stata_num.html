@@ -27,6 +27,7 @@ age_cat is missing; age &amp;lt; 2 is FALSE; age &amp;gt;= 2 is TRUE. R's ==/
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/OECDscaleup.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -40,7 +41,7 @@ age_cat is missing; age &amp;lt; 2 is FALSE; age &amp;gt;= 2 is TRUE. R's ==/
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Prepare a numeric vector for Stata-style comparison against a constant</h1>
-      <small class="dont-index">Source: <a href="https://github.com/amannj/OECDscaleup/blob/master/R/utils-panel.R" class="external-link"><code>R/utils-panel.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/amannj/OECDscaleup/blob/ScalerAnalysis/R/utils-panel.R" class="external-link"><code>R/utils-panel.R</code></a></small>
       <div class="d-none name"><code>stata_num.Rd</code></div>
     </div>
 
@@ -79,8 +80,7 @@ same way Stata's missing-as-largest-value convention would. Only use this
 at the exact point of comparison (it must not replace the vector's stored
 value elsewhere); only valid when comparing against a literal, itself
 never-missing, constant — for comparisons between two possibly-missing
-variables, resolve missingness explicitly instead (see
-<code>Pseudocode/00_conventions.md</code>'s <code>MISSING</code> note).</p>
+variables, resolve missingness explicitly instead.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

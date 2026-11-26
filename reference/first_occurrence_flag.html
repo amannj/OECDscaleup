@@ -3,13 +3,11 @@
 — not the first row of each subsequent episode, the single first
 occurrence ever. NA values in x are treated as &quot;not an event&quot; and do
 not break the chain (matching Stata's sum() treating missing as 0 in
-the cumulative-sum idiom the source uses for this same purpose — see
-Pseudocode/00_conventions.md, FIRST_OCCURRENCE_FLAG)."><meta property="og:description" content="Returns 1 only on the earliest time value (per id) at which x == 1
+the cumulative-sum idiom the source uses for this same purpose)."><meta property="og:description" content="Returns 1 only on the earliest time value (per id) at which x == 1
 — not the first row of each subsequent episode, the single first
 occurrence ever. NA values in x are treated as &quot;not an event&quot; and do
 not break the chain (matching Stata's sum() treating missing as 0 in
-the cumulative-sum idiom the source uses for this same purpose — see
-Pseudocode/00_conventions.md, FIRST_OCCURRENCE_FLAG)."></head><body>
+the cumulative-sum idiom the source uses for this same purpose)."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -27,6 +25,7 @@ Pseudocode/00_conventions.md, FIRST_OCCURRENCE_FLAG)."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/OECDscaleup.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -40,7 +39,7 @@ Pseudocode/00_conventions.md, FIRST_OCCURRENCE_FLAG)."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Flag a firm's chronologically first occurrence of a 0/1 event</h1>
-      <small class="dont-index">Source: <a href="https://github.com/amannj/OECDscaleup/blob/master/R/utils-panel.R" class="external-link"><code>R/utils-panel.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/amannj/OECDscaleup/blob/ScalerAnalysis/R/utils-panel.R" class="external-link"><code>R/utils-panel.R</code></a></small>
       <div class="d-none name"><code>first_occurrence_flag.Rd</code></div>
     </div>
 
@@ -49,8 +48,7 @@ Pseudocode/00_conventions.md, FIRST_OCCURRENCE_FLAG)."></head><body>
 — not the first row of each subsequent episode, the single first
 occurrence ever. <code>NA</code> values in <code>x</code> are treated as "not an event" and do
 not break the chain (matching Stata's <code><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum()</a></code> treating missing as <code>0</code> in
-the cumulative-sum idiom the source uses for this same purpose — see
-<code>Pseudocode/00_conventions.md</code>, <code>FIRST_OCCURRENCE_FLAG</code>).</p>
+the cumulative-sum idiom the source uses for this same purpose).</p>
     </div>
 
     <div class="section level2">

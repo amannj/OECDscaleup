@@ -3,9 +3,12 @@
 Builds the firm-level high-growth-firm (HGF) / scale-up indicators used
 in the OECD Scale Up project from confidential national firm microdata,
 and produces the disclosure-checked aggregate tabulations
-(characteristics, transitions/evolutions, contribution, predictors)
-shared back with the OECD. A behaviour- preserving translation of the
-OECD "Second Package" Stata pipeline (see 'data-raw/' for provenance).
+(characteristics, transitions/evolutions, contribution, predictors,
+trade) shared back with the OECD. A translation of the OECD "Second
+Package" and trade package Stata pipelines, verified table by table
+against the Stata code, with the bugs of the Stata code fixed and
+documented, and a new analysis of the fastest scalers and of scalers
+growing into mid-caps.
 
 ## See also
 

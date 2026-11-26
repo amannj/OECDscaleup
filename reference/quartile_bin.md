@@ -4,8 +4,7 @@ Thin wrapper around
 [`statar::xtile()`](https://rdrr.io/pkg/statar/man/xtile.html)
 documenting the contract this package relies on: `NA` in, `NA` out;
 non-missing values split into `n` groups of (approximately) equal size,
-numbered `1..n`. See `Pseudocode/00_conventions.md`'s `QUARTILE`
-primitive. Callers are responsible for applying this only within
+numbered `1..n`. Callers are responsible for applying this only within
 already-grouped data (this package additionally imposes a minimum group
 size of 50 before calling this at all — see
 [`compute_predictors()`](https://amannj.github.io/OECDscaleup/reference/compute_predictors.md)).

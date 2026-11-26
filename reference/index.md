@@ -9,11 +9,26 @@
 - [`build_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_accounts_indicators.md)
   : Build the firm-year analytical panel and its derived indicators
 
+- [`build_trade_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_trade_accounts_indicators.md)
+  :
+
+  Build the trade package's firm-year panel
+  (`trade_accounts_indicators`)
+
+- [`build_trade_panel()`](https://amannj.github.io/OECDscaleup/reference/build_trade_panel.md)
+  : Collapse transaction-level trade data to a firm-year panel
+
+- [`check_inputs()`](https://amannj.github.io/OECDscaleup/reference/check_inputs.md)
+  : Check the input data against the variable dictionary
+
 - [`compute_characteristics()`](https://amannj.github.io/OECDscaleup/reference/compute_characteristics.md)
   : Descriptive characteristics of scaler and non-scaler populations
 
 - [`compute_contribution()`](https://amannj.github.io/OECDscaleup/reference/compute_contribution.md)
   : Job/turnover creation-destruction accounting by firm sample
+
+- [`compute_midcap_transitions()`](https://amannj.github.io/OECDscaleup/reference/compute_midcap_transitions.md)
+  : Scalers to mid-caps: crossings into mid-cap status
 
 - [`compute_persistence()`](https://amannj.github.io/OECDscaleup/reference/compute_persistence.md)
   : Growth trajectories before/after a scaling event ("transitions" and
@@ -22,6 +37,13 @@
 - [`compute_predictors()`](https://amannj.github.io/OECDscaleup/reference/compute_predictors.md)
   : Classify scalers by pre-period predictor quartile and regress
   scaling on them
+
+- [`compute_top_scalers()`](https://amannj.github.io/OECDscaleup/reference/compute_top_scalers.md)
+  : Top scalers: the fastest-growing high-growth firms
+
+- [`compute_trade_characteristics()`](https://amannj.github.io/OECDscaleup/reference/compute_trade_characteristics.md)
+  : Characteristics of exporting and non-exporting scalers (trade
+  package)
 
 - [`config_scaleup()`](https://amannj.github.io/OECDscaleup/reference/config_scaleup.md)
   : Build a Scale-Up pipeline configuration
@@ -85,8 +107,15 @@
   Round half away from zero (Stata's
   [`round()`](https://rdrr.io/r/base/Round.html) convention)
 
+- [`run_scaler_analysis()`](https://amannj.github.io/OECDscaleup/reference/run_scaler_analysis.md)
+  : Run the scaler analysis (top scalers, scalers to mid-caps) from
+  files
+
 - [`run_scaleup_pipeline()`](https://amannj.github.io/OECDscaleup/reference/run_scaleup_pipeline.md)
   : Run the full Scale-Up pipeline, reading and writing files on disk
+
+- [`run_trade_pipeline()`](https://amannj.github.io/OECDscaleup/reference/run_trade_pipeline.md)
+  : Run the trade package, reading and writing files on disk
 
 - [`stata_num()`](https://amannj.github.io/OECDscaleup/reference/stata_num.md)
   : Prepare a numeric vector for Stata-style comparison against a
@@ -99,6 +128,9 @@
 
 - [`tl3_typology`](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md)
   : TL3/NUTS3 region urbanisation typology
+
+- [`variable_dictionary`](https://amannj.github.io/OECDscaleup/reference/variable_dictionary.md)
+  : Variable dictionary of the input data
 
 - [`winsorize_both()`](https://amannj.github.io/OECDscaleup/reference/winsorize_both.md)
   :

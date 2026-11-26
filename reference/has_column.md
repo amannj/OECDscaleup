@@ -2,8 +2,9 @@
 
 Mirrors the source's pervasive `cap confirm v <var>` / `cap summ <var>`
 guards: many financial and category variables are optional per
-`variable_dictionary_v1.xlsx`, and whole blocks of logic are silently
-skipped (not errored) when a given country's raw data lacks them.
+[variable_dictionary](https://amannj.github.io/OECDscaleup/reference/variable_dictionary.md),
+and whole blocks of logic are silently skipped (not errored) when a
+given country's raw data lacks them.
 
 ## Usage
 

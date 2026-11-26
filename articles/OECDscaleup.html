@@ -30,6 +30,7 @@
       <ul class="navbar-nav me-auto">
 <li class="active nav-item"><a class="nav-link" href="../articles/OECDscaleup.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -53,7 +54,7 @@
       <h1>Getting Started with OECDscaleup</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/amannj/OECDscaleup/blob/master/vignettes/OECDscaleup.Rmd" class="external-link"><code>vignettes/OECDscaleup.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/amannj/OECDscaleup/blob/ScalerAnalysis/vignettes/OECDscaleup.Rmd" class="external-link"><code>vignettes/OECDscaleup.Rmd</code></a></small>
       <div class="d-none name"><code>OECDscaleup.Rmd</code></div>
     </div>
 
@@ -62,21 +63,38 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/amannj/OECDscaleup" class="external-link">OECDscaleup</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>The package is not on CRAN. Install it from GitHub with
+<code>devtools</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"amannj/OECDscaleup"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>This installs the default branch of the repository (<a href="https://github.com/amannj/OECDscaleup" class="external-link uri">https://github.com/amannj/OECDscaleup</a>);
+<code>ref = "&lt;branch or tag&gt;"</code> installs another version, for
+example <code>ref = "stata-parity-v1_3-1"</code> for the version that
+reproduces the Stata code bug for bug.</p>
+</div>
+<div class="section level2">
 <h2 id="what-this-package-does">What this package does<a class="anchor" aria-label="anchor" href="#what-this-package-does"></a>
 </h2>
 <p>This package builds the firm-level “high-growth firm” (HGF) /
 scale-up indicators used in the OECD Scale Up project, and produces the
-disclosure-checked aggregate tables shared back with the OECD. It is a
-behaviour-preserving translation of the OECD’s original Stata pipeline
-(<code>MASTER_OECD_p2.do</code> and 5 worker <code>.do</code> files) —
-see <code>Analysis/stata.md</code> and <code>Pseudocode/*.md</code> in
-the package source repository for the full analysis this translation was
-built from.</p>
+disclosure-checked aggregate tables shared back with the OECD. It
+translates the OECD’s original Stata packages: the “Second Package”
+(<code>MASTER_OECD_p2.do</code> and 5 worker <code>.do</code> files,
+version 1.3) and the trade package (<code>MASTER_OECD_trade.do</code>,
+version 1.0). The translation was verified table by table against the
+Stata code; the <a href="https://amannj.github.io/OECDscaleup/news/index.html">changelog</a>
+lists every departure from the Stata code since then (bug fixes, the
+declared NACE revision and money unit) and why.</p>
 <p>Firm-level microdata is confidential and never leaves the country
 whose national statistical institute holds it, so <strong>no real data
 ships with this package</strong>. Every example below uses small,
 fabricated data purely to demonstrate the interface — the actual numbers
-are meaningless.</p>
+are meaningless. The input data are described in
+<code><a href="../articles/input-data.html">vignette("input-data")</a></code> and
+<code><a href="../articles/input-trade-data.html">vignette("input-trade-data")</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="the-pipeline-at-a-glance">The pipeline at a glance<a class="anchor" aria-label="anchor" href="#the-pipeline-at-a-glance"></a>
@@ -106,11 +124,26 @@ predictor quartile and regresses scaling on those predictors.</li>
 output. All five are <strong>pure functions</strong> — data frames in,
 data frames out — so they can be tested and used without touching the
 filesystem.</p>
-<p><code><a href="../reference/run_scaleup_pipeline.html">run_scaleup_pipeline()</a></code> is the only function that
-performs file I/O: it reads the raw <code>.dta</code> inputs, calls the
-five functions above in order, and writes every output as a CSV —
-mirroring <code>MASTER_OECD_p2.do</code>’s role in the original
-package.</p>
+<p><code><a href="../reference/run_scaleup_pipeline.html">run_scaleup_pipeline()</a></code> performs the file I/O: it reads
+the raw <code>.dta</code> inputs, calls the five functions above in
+order, and writes every output as a CSV — mirroring
+<code>MASTER_OECD_p2.do</code>’s role in the original package.</p>
+<p>The trade package works the same way:
+<code><a href="../reference/build_trade_accounts_indicators.html">build_trade_accounts_indicators()</a></code> (the panel with the
+firm-year trade variables merged in) and
+<code><a href="../reference/compute_trade_characteristics.html">compute_trade_characteristics()</a></code>, run from files by
+<code><a href="../reference/run_trade_pipeline.html">run_trade_pipeline()</a></code>. <code><a href="../reference/check_inputs.html">check_inputs()</a></code> checks
+the input files of both before a run.</p>
+<p>The scaler analysis is new, not part of the Stata packages. It works
+on the indicators panel these pipelines write:
+<code><a href="../reference/compute_top_scalers.html">compute_top_scalers()</a></code> ranks the fastest growers among the
+scalers (top 50, top 1, 5, 10 and 25 %, on three growth indices), and
+<code><a href="../reference/compute_midcap_transitions.html">compute_midcap_transitions()</a></code> follows scalers and
+non-scalers into mid-cap status under three definitions (EU small
+mid-cap, leaving the EU SME category, 250+ employees), with exit as a
+competing outcome and coverage diagnostics.
+<code><a href="../reference/run_scaler_analysis.html">run_scaler_analysis()</a></code> runs both from files. Every variant
+is written, so the choice among them is left to the analysis.</p>
 </div>
 <div class="section level2">
 <h2 id="configuration">Configuration<a class="anchor" aria-label="anchor" href="#configuration"></a>
@@ -119,30 +152,39 @@ package.</p>
 <code><a href="../reference/config_scaleup.html">config_scaleup()</a></code>. This replaces the Stata global macros
 (<code>$country</code>, <code>$inputdir</code>, …) set once in
 <code>MASTER_OECD_p2.do</code>:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span></span>
 <span>  country <span class="op">=</span> <span class="st">"FR"</span>,</span>
 <span>  input_dir <span class="op">=</span> <span class="st">"V:/SCALE_UP/DTA/"</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="st">"V:/SCALE_UP/TMP/"</span>,</span>
+<span>  nace_revision <span class="op">=</span> <span class="st">"2"</span>, <span class="co"># the NACE revision of the sector codes: "2" or "2.1"</span></span>
+<span>  <span class="co"># nace_rev21_from = 2025, # for a panel in Rev. 2 up to 2024 and Rev. 2.1 after</span></span>
+<span>  <span class="co"># financials_unit = "EUR", # if the money variables are in euros, not EUR thousand</span></span>
 <span>  dominance <span class="op">=</span> <span class="cn">FALSE</span> <span class="co"># set TRUE (with dom_vars/dom_num) if your country</span></span>
 <span>  <span class="co"># requires dominance-rule confidentiality statistics</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p><code>nace_revision</code> is required: the pipeline’s sector rules
+are written for NACE Rev. 2, and Rev. 2.1 codes (used from reference
+year 2025) are converted to Rev. 2 first. The build stops if the codes
+do not match the declared revision, and if turnover per employee does
+not fit EUR thousand after <code>financials_unit</code> is applied.</p>
 </div>
 <div class="section level2">
 <h2 id="running-the-full-pipeline-from-files">Running the full pipeline from files<a class="anchor" aria-label="anchor" href="#running-the-full-pipeline-from-files"></a>
 </h2>
 <p>If you have <code>base_financials_&lt;CT&gt;.dta</code> (and
-optionally <code>plants_RAW_&lt;CT&gt;.dta</code>) prepared per
-<code>variable_dictionary_v1.xlsx</code>, alongside this package’s own
+optionally <code>plants_RAW_&lt;CT&gt;.dta</code>) prepared as described
+in <code><a href="../articles/input-data.html">vignette("input-data")</a></code>, alongside this package’s own
 <code>tl3_typology</code>/<code>exchange_rates</code> reference data
 saved as <code>.dta</code> files in the same input folder (exactly as
 the original PDF instructions describe):</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span>nace_revision <span class="op">=</span> <span class="st">"2"</span>,</span>
 <span>  country <span class="op">=</span> <span class="st">"FR"</span>,</span>
 <span>  input_dir <span class="op">=</span> <span class="st">"path/to/input"</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="st">"path/to/output"</span></span>
 <span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/check_inputs.html">check_inputs</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span> <span class="co"># errors, warnings and notes on the input files (counts only)</span></span>
 <span><span class="va">outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_scaleup_pipeline.html">run_scaleup_pipeline</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></span></code></pre></div>
 <p>This writes <code>n13_characteristics_FR.csv</code>,
 <code>n13_transitions_FR.csv</code>, and so on to
@@ -158,7 +200,7 @@ use.</p>
 <p>If you already have data loaded in R — for instance because you’re
 testing, or piping in data from elsewhere in an R workflow — call the
 five functions directly instead. Here’s a small synthetic example:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">2010</span><span class="op">:</span><span class="fl">2018</span></span>
 <span><span class="va">base_financials</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -176,7 +218,7 @@ five functions directly instead. Here’s a small synthetic example:</p>
 <span><span class="op">)</span></span>
 <span><span class="va">base_financials</span><span class="op">$</span><span class="va">turnover</span> <span class="op">&lt;-</span> <span class="va">base_financials</span><span class="op">$</span><span class="va">employment</span> <span class="op">*</span> <span class="fl">100</span></span>
 <span></span>
-<span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span></span>
+<span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span>nace_revision <span class="op">=</span> <span class="st">"2"</span>,</span>
 <span>  country <span class="op">=</span> <span class="st">"FR"</span>,</span>
 <span>  input_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="co"># unused by the pure functions themselves</span></span>
 <span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -207,7 +249,7 @@ produce all three; <code><a href="../reference/compute_predictors.html">compute_
 <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> entirely if <code>added_value</code>,
 <code>tangible_fixed_assets</code>, or <code>labour_costs</code> aren’t
 present in the input data.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">persistence</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compute_persistence.html">compute_persistence</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">accounts_indicators</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">persistence</span><span class="op">)</span></span>
 <span><span class="co">#&gt; NULL</span></span></code></pre></div>
@@ -230,8 +272,8 @@ its largest <code>dom_num</code> firms — when
 directly usable to independently verify a value, the same way the
 original PDF’s confidentiality-check worked example describes doing by
 hand in Stata:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cfg_dom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cfg_dom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span>nace_revision <span class="op">=</span> <span class="st">"2"</span>,</span>
 <span>  country <span class="op">=</span> <span class="st">"FR"</span>, input_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  dominance <span class="op">=</span> <span class="cn">TRUE</span>, dom_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"employment"</span>, <span class="st">"turnover"</span><span class="op">)</span>, dom_num <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
@@ -258,14 +300,19 @@ decision, it does not make it for you.</p>
 <code><a href="../reference/build_accounts_indicators.html">?build_accounts_indicators</a></code>,
 <code><a href="../reference/compute_characteristics.html">?compute_characteristics</a></code>,
 <code><a href="../reference/compute_persistence.html">?compute_persistence</a></code>, <code><a href="../reference/compute_contribution.html">?compute_contribution</a></code>,
-<code><a href="../reference/compute_predictors.html">?compute_predictors</a></code>, <code><a href="../reference/run_scaleup_pipeline.html">?run_scaleup_pipeline</a></code> for
-full argument/return documentation.</li>
+<code><a href="../reference/compute_predictors.html">?compute_predictors</a></code>, <code><a href="../reference/run_scaleup_pipeline.html">?run_scaleup_pipeline</a></code>,
+<code><a href="../reference/run_trade_pipeline.html">?run_trade_pipeline</a></code>, <code><a href="../reference/check_inputs.html">?check_inputs</a></code> for full
+argument/return documentation.</li>
 <li>
 <code><a href="../reference/country_patches.html">?country_patches</a></code> for the 3 country-specific data
 patches carried over from the original Stata source.</li>
 <li>
 <code><a href="../reference/tl3_typology.html">?tl3_typology</a></code>, <code><a href="../reference/exchange_rates.html">?exchange_rates</a></code> for the
 bundled OECD reference data.</li>
+<li>
+<code><a href="../articles/input-data.html">vignette("input-data")</a></code> and
+<code><a href="../articles/input-trade-data.html">vignette("input-trade-data")</a></code> for every input variable (also
+as the dataset <code>variable_dictionary</code>).</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -1,7 +1,7 @@
 # Run the full Scale-Up pipeline, reading and writing files on disk
 
-Mirrors `MASTER_OECD_p2.do` (`Pseudocode/MASTER_OECD_p2.md`): reads the
-raw inputs from `config$input_dir`, runs
+Mirrors `MASTER_OECD_p2.do`: reads the raw inputs from
+`config$input_dir`, runs
 [`build_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_accounts_indicators.md)
 followed by the four independent downstream stages
 ([`compute_characteristics()`](https://amannj.github.io/OECDscaleup/reference/compute_characteristics.md),

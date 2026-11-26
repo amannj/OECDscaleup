@@ -9,7 +9,7 @@ computation (there is no "existing value" to fall back to), but wrong
 for a `replace`, where an unresolved condition must leave the row
 exactly as it was. Used throughout the sequential-overwrite
 classification rules (`tech_grad`, `ind_a38`, `type`, `FOLLOW`/`LEAD`,
-...) documented in `Pseudocode/*.md` as "later rule overwrites earlier"
+...) of the Stata code, written as "later rule overwrites earlier"
 chains.
 
 ## Usage

@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/amannj/OECDscaleup/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/amannj/OECDscaleup/blob/ScalerAnalysis/DESCRIPTION)
 
 Scale Up Team O (2026). *OECDscaleup: Construct OECD Scale-Up
 High-Growth-Firm Indicators*. R package version 0.1.0,

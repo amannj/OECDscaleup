@@ -1,12 +1,12 @@
 # Growth trajectories before/after a scaling event ("transitions" and "evolutions")
 
-Translates `n1_3_persistence.do` (`Pseudocode/n1_3_persistence.md`).
-Computes two related classification schemes: **transitions** (2014-2016
-scaler cohorts, follow-up only) and **evolutions** (2017 cohort, both
-lead-up and follow-up, further split by entrant/incumbent/exiting
-status). Iterates over 8 `(hgstub, def)` HGF-definition combinations,
-each starting fresh from `accounts_indicators` — nothing computed for
-one combination carries into the next.
+Translates `n1_3_persistence.do`. Computes two related classification
+schemes: **transitions** (2014-2016 scaler cohorts, follow-up only) and
+**evolutions** (2017 cohort, both lead-up and follow-up, further split
+by entrant/incumbent/exiting status). Iterates over 8 `(hgstub, def)`
+HGF-definition combinations, each starting fresh from
+`accounts_indicators` — nothing computed for one combination carries
+into the next.
 
 ## Usage
 

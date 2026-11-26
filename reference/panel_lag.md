@@ -6,9 +6,7 @@ earlier in `time` — read from the record with that exact
 gap (e.g. observed in 2010, 2011, 2014 but not 2012-2013),
 `panel_lag(x, 1)` evaluated on the 2014 row looks for a 2013 record —
 which does not exist — and returns `NA`, rather than incorrectly
-reaching back to the 2011 row. See `Pseudocode/00_conventions.md`
-(`LAG`) for the full specification this implements; verified empirically
-against
+reaching back to the 2011 row. Verified empirically against
 [`collapse::flag()`](https://fastverse.org/collapse/reference/flag.html)'s
 time-aware behaviour before use here.
 

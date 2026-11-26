@@ -55,7 +55,8 @@ A data frame with 2,598 rows and 8 columns:
 
   An OECD-supplied labelled urban/rural code, unused by this package
   (which derives its own `typology_UR` from `typology_access_cities`
-  instead — see `Pseudocode/n0_1_accounts_indicators_v2.md` step 18).
+  instead, step 18 of
+  [`build_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_accounts_indicators.md)).
 
 ## Source
 
