@@ -12,8 +12,8 @@
 #' @format A named list with three character vectors:
 #' \describe{
 #'   \item{rescale_to_thousands}{Countries whose raw financial variables are
-#'     not in the package's EUR-thousand convention and must be divided by
-#'     1000: `PT, ES, RO, SI, HU`.}
+#'     supplied in EUR and divided by 1000, unless the configuration says
+#'     otherwise ([config_scaleup()]'s `financials_unit`): `PT, ES, RO, SI, HU`.}
 #'   \item{non_euro}{Countries whose `turnover` needs converting to national
 #'     currency via `exchange_rates.dta` (used to detect the "20-200-20"
 #'     employment/turnover jump pattern in national-currency terms):

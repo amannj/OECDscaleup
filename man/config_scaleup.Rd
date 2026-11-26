@@ -8,9 +8,12 @@ config_scaleup(
   country,
   input_dir,
   output_dir,
+  nace_revision,
+  nace_rev21_from = NULL,
   dominance = FALSE,
   dom_vars = c("employment", "turnover"),
   dom_num = 2,
+  financials_unit = NULL,
   trade_value_unit = NULL
 )
 }
@@ -26,6 +29,18 @@ naming and several country-specific data patches inside
 \item{output_dir}{Folder the final CSV outputs and logs are written to.
 Must already exist.}
 
+\item{nace_revision}{Required. The NACE revision of the sector codes
+(\code{sector_1d}, \code{sector_2d}, \code{sector_3d}) in \code{base_financials}: \code{"2"} (NACE
+Rev. 2) or \code{"2.1"} (NACE Rev. 2.1, used for statistics from reference
+year 2025). The pipeline's sector rules are written for Rev. 2; Rev. 2.1
+codes are converted to Rev. 2 first. The build stops if the codes do not
+match the declared revision (a section letter that does not belong to its
+division, division 45 in Rev. 2.1, section V in Rev. 2).}
+
+\item{nace_rev21_from}{For a panel coded in Rev. 2 up to some year and in
+Rev. 2.1 after: the first year in Rev. 2.1 (with \code{nace_revision = "2"}).
+\code{NULL} (the default): one revision for every year.}
+
 \item{dominance}{Logical; if \code{TRUE}, every output table gains \verb{dom_<var>}
 disclosure-control columns for each variable in \code{dom_vars}. Default
 \code{FALSE}.}
@@ -36,6 +51,13 @@ computed on (only used if \code{dominance = TRUE}). Default
 
 \item{dom_num}{Number of top units defining the dominance ratio (e.g. \code{2}
 means "share held by the 2 largest firms"). Default \code{2}.}
+
+\item{financials_unit}{The unit of the money variables in
+\code{base_financials}: \code{"EUR thousand"} (as the variable dictionary asks) or
+\code{"EUR"} (divided by 1000 on input). \code{NULL} (the default) follows the
+original package: EUR for the countries in
+\code{country_patches$rescale_to_thousands}, EUR thousand otherwise. The build
+stops when turnover per employee does not fit EUR thousand after this step.}
 
 \item{trade_value_unit}{Trade package only: the unit of \code{trade_value} in
 \verb{trade_RAW_<country>.dta}, \code{"EUR"} (divided by 1000) or \code{"EUR thousand"}.
@@ -59,6 +81,7 @@ cfg <- config_scaleup(
   country = "FR",
   input_dir = "V:/SCALE_UP/DTA/",
   output_dir = "V:/SCALE_UP/TMP/",
+  nace_revision = "2",
   dominance = FALSE
 )
 }

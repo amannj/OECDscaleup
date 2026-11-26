@@ -1,5 +1,5 @@
 test_that("compute_predictors is a no-op when the required financial variables are absent", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials()) # no added_value/labour_costs/tangible_fixed_assets for most firms
   ai_no_financials <- ai[, !names(ai) %in% c("added_value", "labour_costs", "tangible_fixed_assets")]
   out <- compute_predictors(cfg, ai_no_financials)
@@ -7,7 +7,7 @@ test_that("compute_predictors is a no-op when the required financial variables a
 })
 
 test_that("compute_predictors produces desc_predictors and regs_predictors on a large enough panel", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials_wide())
   out <- compute_predictors(cfg, ai)
 
@@ -18,7 +18,7 @@ test_that("compute_predictors produces desc_predictors and regs_predictors on a 
 })
 
 test_that("desc_predictors' Perc column is a percentage only for classified types (1-6), NA elsewhere", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials_wide())
   desc <- compute_predictors(cfg, ai)$desc_predictors
 
@@ -36,7 +36,7 @@ test_that("desc_predictors' Perc column is a percentage only for classified type
 })
 
 test_that("regs_predictors relabels sample names to human-readable strings", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials_wide())
   regs <- compute_predictors(cfg, ai)$regs_predictors
 
@@ -46,7 +46,7 @@ test_that("regs_predictors relabels sample names to human-readable strings", {
 })
 
 test_that("regs_predictors' model index cycles 1:3 across the 3 key-variable specifications", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials_wide())
   regs <- compute_predictors(cfg, ai)$regs_predictors
 
@@ -60,7 +60,7 @@ test_that("compute_predictors tolerates a dataset where age data is entirely abs
   # error identically in this scenario; compute_predictors() should instead
   # skip the missing sample gracefully rather than crash - see the comment
   # next to `sample_cols` in compute-predictors.R.
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   bf <- make_base_financials()
   bf <- bf[bf$year <= 2014, ] # truncates away firm 4, the only firm with a birth_year
   ai <- build_accounts_indicators(cfg, bf)
@@ -73,10 +73,10 @@ test_that("compute_predictors tolerates a dataset where age data is entirely abs
 })
 
 test_that("dominance columns appear in predictors outputs only when dominance = TRUE", {
-  ai_cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  ai_cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(ai_cfg, make_base_financials_wide())
 
-  cfg_on <- config_scaleup(
+  cfg_on <- config_scaleup(nace_revision = "2",
     country = "FR", input_dir = tempdir(), output_dir = tempdir(),
     dominance = TRUE, dom_vars = "employment", dom_num = 1
   )

@@ -60,7 +60,7 @@ source repository if you're developing on it directly.
 ```r
 library(OECDscaleup)
 
-cfg <- config_scaleup(
+cfg <- config_scaleup(nace_revision = "2",
   country = "FR",
   input_dir = "path/to/input",   # base_financials_FR.dta, etc.
   output_dir = "path/to/output"

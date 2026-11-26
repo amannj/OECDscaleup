@@ -16,10 +16,11 @@ local_test_dir <- function() {
 #' a shrinking firm, an entrant, an exiter, and a firm with missing optional
 #' financials.
 make_base_financials <- function() {
-  make_firm <- function(idf, employment, turnover, year = 2010:2018, sector_1d = "C",
+  make_firm <- function(idf, employment, turnover, year = 2010:2018, sector_1d = NULL,
                          sector_2d = 26, sector_3d = 262, region_2d = "FR10") {
     n <- length(year)
     stopifnot(length(employment) == n, length(turnover) == n)
+    if (is.null(sector_1d)) sector_1d <- nace_section(sector_2d, "2") # the letter of the division (NACE Rev. 2)
     data.frame(
       idf = rep(idf, n),
       year = year,
@@ -68,10 +69,11 @@ make_base_financials <- function() {
 #' for exercising compute_persistence()'s panel-length gates (transitions
 #' needs >=7 years reaching 2017; evolutions needs >=10 years reaching 2020).
 make_base_financials_long <- function() {
-  make_firm <- function(idf, employment, turnover, year = 2010:2021, sector_1d = "C",
+  make_firm <- function(idf, employment, turnover, year = 2010:2021, sector_1d = NULL,
                          sector_2d = 26, sector_3d = 262, region_2d = "FR10") {
     n <- length(year)
     stopifnot(length(employment) == n, length(turnover) == n)
+    if (is.null(sector_1d)) sector_1d <- nace_section(sector_2d, "2") # the letter of the division (NACE Rev. 2)
     data.frame(
       idf = rep(idf, n), year = year, sector_1d = rep(sector_1d, n),
       sector_2d = rep(sector_2d, n), sector_3d = rep(sector_3d, n),

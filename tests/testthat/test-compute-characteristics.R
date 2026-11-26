@@ -1,5 +1,5 @@
 test_that("compute_characteristics runs end-to-end and has the expected output shape", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials())
   out <- compute_characteristics(cfg, ai)
 
@@ -13,7 +13,7 @@ test_that("compute_characteristics runs end-to-end and has the expected output s
 })
 
 test_that("micro-only samples skip the L3size_cat category", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials())
   out <- compute_characteristics(cfg, ai)
 
@@ -22,7 +22,7 @@ test_that("micro-only samples skip the L3size_cat category", {
 })
 
 test_that("the ALL category has exactly one group value ('full sample')", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials())
   out <- compute_characteristics(cfg, ai)
 
@@ -32,14 +32,14 @@ test_that("the ALL category has exactly one group value ('full sample')", {
 })
 
 test_that("dominance columns appear only when dominance = TRUE", {
-  ai_cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  ai_cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(ai_cfg, make_base_financials())
 
-  cfg_off <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir(), dominance = FALSE)
+  cfg_off <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir(), dominance = FALSE)
   out_off <- compute_characteristics(cfg_off, ai)
   expect_false(any(grepl("^dom_", names(out_off))))
 
-  cfg_on <- config_scaleup(
+  cfg_on <- config_scaleup(nace_revision = "2",
     country = "FR", input_dir = tempdir(), output_dir = tempdir(),
     dominance = TRUE, dom_vars = c("employment", "turnover"), dom_num = 1
   )
@@ -50,7 +50,7 @@ test_that("dominance columns appear only when dominance = TRUE", {
 })
 
 test_that("category columns not present in the input data are silently omitted", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials())
   # this fixture has no `independent`/`foreign_owned`/`region_3d` raw columns
   expect_false("independent" %in% names(ai))

@@ -1,5 +1,5 @@
 test_that("a panel too short for either gate produces neither transitions nor evolutions", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   # make_base_financials() spans 2010-2018 (9 years): long enough for the
   # transitions gate but not the evolutions gate (needs finyear >= 2020) --
   # and neither of its firms scales within the 2014-2016 transitions window.
@@ -12,7 +12,7 @@ test_that("a panel too short for either gate produces neither transitions nor ev
 })
 
 test_that("compute_persistence produces transitions and evolutions on a long-enough panel", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials_long())
   out <- compute_persistence(cfg, ai)
 
@@ -22,7 +22,7 @@ test_that("compute_persistence produces transitions and evolutions on a long-eno
 })
 
 test_that("transitions output has the expected columns and only covers the 2014-2016 cohort", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials_long())
   tr <- compute_persistence(cfg, ai)$transitions
 
@@ -33,7 +33,7 @@ test_that("transitions output has the expected columns and only covers the 2014-
 })
 
 test_that("evolutions_p1 small-cell-suppresses a lone scaler to 'Aggregated' (9)", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials_long())
   p1 <- compute_persistence(cfg, ai)$evolutions_p1
 
@@ -48,7 +48,7 @@ test_that("evolutions_p1 small-cell-suppresses a lone scaler to 'Aggregated' (9)
 })
 
 test_that("evolutions_p2 classifies the scaling firm as an incumbent (continuous panel presence)", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials_long())
   p2 <- compute_persistence(cfg, ai)$evolutions_p2
 
@@ -58,10 +58,10 @@ test_that("evolutions_p2 classifies the scaling firm as an incumbent (continuous
 })
 
 test_that("dominance columns appear in persistence outputs only when dominance = TRUE", {
-  ai_cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  ai_cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(ai_cfg, make_base_financials_long())
 
-  cfg_on <- config_scaleup(
+  cfg_on <- config_scaleup(nace_revision = "2",
     country = "FR", input_dir = tempdir(), output_dir = tempdir(),
     dominance = TRUE, dom_vars = "employment", dom_num = 1
   )

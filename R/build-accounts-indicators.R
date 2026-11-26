@@ -141,7 +141,12 @@ build_accounts_core <- function(config,
     }
   }
 
-  data <- dplyr::filter(data, !.data$sector_1d %in% c("A", "K", "O", "T", "U"))
+  # Fix N1 (NACE Rev. 2.1): Stata left out sections A, K, O, T, U by letter, which in Rev. 2.1 are
+  # agriculture, ICT, administrative services, other services and households. The declared revision
+  # is checked and Rev. 2.1 codes are brought to Rev. 2 (nace_to_rev2()); the excluded sectors are
+  # then found by division (the same divisions in both revisions), by letter only without a division.
+  data <- nace_to_rev2(data, config)
+  data <- data[!nace_excluded(data$sector_1d, data$sector_2d), ]
 
   # sector_L: computed on the *raw* sector_1d, before any "." -> NA normalization,
   # so a missing sector_1d yields 0 here (matches the source: a literal-string
@@ -174,7 +179,9 @@ build_accounts_core <- function(config,
   # findep_rat4 = (capex - cash_flow) / capex mixed thousands with units.
   # Fix T1: n0_2 rescaled the financials of PT only, so for ES, RO, SI and HU the
   # trade outputs mixed EUR with EUR thousand; they now follow n0_1's list.
-  if (config$country %in% country_patches$rescale_to_thousands) {
+  # Fix N2: the unit is config$financials_unit (default: Stata's country list); Stata rescaled by
+  # country only, so a panel delivered in euros by any other country stayed in euros.
+  if (identical(config$financials_unit, "EUR")) {
     rescale_vars <- c(
       "turnover", "added_value", "labour_costs", "operating_costs",
       "services_costs", "exp_revenues_goods", "exp_revenues_services",
@@ -190,6 +197,7 @@ build_accounts_core <- function(config,
       data[[v]] <- if (to_float) stata_float(data[[v]] / 1000) else data[[v]] / 1000
     }
   }
+  check_financials_unit(data, config)
 
   # --- Step 7: trim implausible years -----------------------------------------
   year_bounds <- stats::quantile(data$year, probs = c(0.01, 0.99), na.rm = TRUE, type = 2)

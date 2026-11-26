@@ -1,5 +1,36 @@
 # OECDscaleup (development version)
 
+## NACE revision and money unit are declared (breaking: `nace_revision` is required)
+
+- N1 NACE Rev. 2.1: the sector rules (the sectors left out, the technology
+  and A38 groupings) are written for NACE Rev. 2, and the Stata code left
+  out sections A, K, O, T and U by letter. NACE Rev. 2.1 (statistics from
+  reference year 2025) shifts the letters from K on, so Rev. 2.1 codes would
+  have dropped ICT, administrative and other services and kept finance and
+  public administration, without a warning. On a synthetic test, Rev. 2.1
+  input lost 13 % of the sample and 14 % of the scalers; a panel switching
+  revision in mid-panel showed five times as many exits in the year before
+  the switch. `config_scaleup()` now requires `nace_revision` (`"2"` or
+  `"2.1"`; `nace_rev21_from` for a panel that switches). The build stops,
+  with counts per year, when the section letters do not belong to their
+  divisions under the declared revision, and converts Rev. 2.1 codes to
+  Rev. 2 (repair of motor vehicles back to 45.2; the sale of motor vehicles
+  and building development stay where Rev. 2.1 puts them, as three digits
+  cannot tell them apart). The excluded sectors are now found by division
+  (01-03, 64-66, 84, 97-99, the same in both revisions), by letter only
+  where the division is missing: a firm with a missing section letter in an
+  excluded division is now left out. On the real national panels used for
+  validation, letters and divisions agree everywhere and the sample is
+  unchanged.
+- N2 Money unit: the variable dictionary asks for EUR thousand, and the
+  Stata code divided by 1000 for a fixed list of countries only (PT, ES, RO,
+  SI, HU), so a panel delivered in euros by another country stayed in euros
+  (levels such as turnover, productivity and wages 1000 times too large;
+  growth rates and rankings unaffected). `config_scaleup()` gains
+  `financials_unit` (`"EUR thousand"` or `"EUR"`, default: that country
+  list), and the build stops when the median turnover per employee of firms
+  with 10-49 employees does not fit EUR thousand.
+
 ## Faster, with less memory
 
 - The output stages copy only the columns they use. In particular,

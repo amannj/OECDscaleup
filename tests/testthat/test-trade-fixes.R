@@ -1,7 +1,7 @@
 # Fixes of bugs in the original Stata trade package (FixStataBugs branch). The bug ids (T1-T7)
 # refer to NEWS.md "Known issues inherited from the Stata code".
 
-cfg_t <- function(country = "FR", ...) config_scaleup(country = country, input_dir = tempdir(), output_dir = tempdir(), ...)
+cfg_t <- function(country = "FR", ...) config_scaleup(nace_revision = "2", country = country, input_dir = tempdir(), output_dir = tempdir(), ...)
 tr_rows <- function(...) data.frame(..., stringsAsFactors = FALSE)
 exports_imports <- function(idf = 1, year = 2015, value = c(5000, 3000)) {
   tr_rows(idf = idf, year = year, trade_type = c(2, 1), trade_value = value, code_destin = c("DE", ""),

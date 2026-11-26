@@ -1,5 +1,5 @@
 test_that("compute_contribution runs end-to-end with the expected shape", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials())
   out <- compute_contribution(cfg, ai)
 
@@ -11,7 +11,7 @@ test_that("compute_contribution runs end-to-end with the expected shape", {
 })
 
 test_that("an entrant's full current value is attributed as job creation", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials())
   p1 <- compute_contribution(cfg, ai)$contribution_p1
 
@@ -25,7 +25,7 @@ test_that("an entrant's full current value is attributed as job creation", {
 })
 
 test_that("an exiting firm's full prior value is attributed as job destruction", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials())
   p1 <- compute_contribution(cfg, ai)$contribution_p1
 
@@ -39,7 +39,7 @@ test_that("an exiting firm's full prior value is attributed as job destruction",
 })
 
 test_that("entrants never have a destruction row, and exiting firms never have a creation row", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials())
   p1 <- compute_contribution(cfg, ai)$contribution_p1
 
@@ -48,7 +48,7 @@ test_that("entrants never have a destruction row, and exiting firms never have a
 })
 
 test_that("entrants are excluded from the L3age_cat category (explicit source exclusion)", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials())
   p1 <- compute_contribution(cfg, ai)$contribution_p1
 
@@ -56,7 +56,7 @@ test_that("entrants are excluded from the L3age_cat category (explicit source ex
 })
 
 test_that("the SMEs sample is relabelled non_micro_SMEs in the output", {
-  cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, make_base_financials())
   out <- compute_contribution(cfg, ai)
 
@@ -65,10 +65,10 @@ test_that("the SMEs sample is relabelled non_micro_SMEs in the output", {
 })
 
 test_that("dominance columns are consolidated from the exiting sample's L3 variant", {
-  ai_cfg <- config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  ai_cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(ai_cfg, make_base_financials())
 
-  cfg_on <- config_scaleup(
+  cfg_on <- config_scaleup(nace_revision = "2",
     country = "FR", input_dir = tempdir(), output_dir = tempdir(),
     dominance = TRUE, dom_vars = "employment", dom_num = 1
   )

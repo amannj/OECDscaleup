@@ -66,10 +66,19 @@ cfg <- config_scaleup(
   country = "FR",
   input_dir = "V:/SCALE_UP/DTA/",
   output_dir = "V:/SCALE_UP/TMP/",
+  nace_revision = "2", # the NACE revision of the sector codes: "2" or "2.1"
+  # nace_rev21_from = 2025, # for a panel in Rev. 2 up to 2024 and Rev. 2.1 after
+  # financials_unit = "EUR", # if the money variables are in euros, not EUR thousand
   dominance = FALSE # set TRUE (with dom_vars/dom_num) if your country
   # requires dominance-rule confidentiality statistics
 )
 ```
+
+`nace_revision` is required: the pipeline's sector rules are written for
+NACE Rev. 2, and Rev. 2.1 codes (used from reference year 2025) are converted
+to Rev. 2 first. The build stops if the codes do not match the declared
+revision, and if turnover per employee does not fit EUR thousand after
+`financials_unit` is applied.
 
 ## Running the full pipeline from files
 
@@ -79,7 +88,7 @@ prepared per `variable_dictionary_v1.xlsx`, alongside this package's own
 same input folder (exactly as the original PDF instructions describe):
 
 ```{r, eval = FALSE}
-cfg <- config_scaleup(
+cfg <- config_scaleup(nace_revision = "2",
   country = "FR",
   input_dir = "path/to/input",
   output_dir = "path/to/output"
@@ -117,7 +126,7 @@ base_financials <- data.frame(
 )
 base_financials$turnover <- base_financials$employment * 100
 
-cfg <- config_scaleup(
+cfg <- config_scaleup(nace_revision = "2",
   country = "FR",
   input_dir = tempdir(), # unused by the pure functions themselves
   output_dir = tempdir()
@@ -155,7 +164,7 @@ verify a value, the same way the original PDF's confidentiality-check
 worked example describes doing by hand in Stata:
 
 ```{r}
-cfg_dom <- config_scaleup(
+cfg_dom <- config_scaleup(nace_revision = "2",
   country = "FR", input_dir = tempdir(), output_dir = tempdir(),
   dominance = TRUE, dom_vars = c("employment", "turnover"), dom_num = 2
 )

@@ -2,14 +2,14 @@
 # pins the corrected behaviour; the bug ids (S1-S17) refer to NEWS.md
 # "Known issues inherited from the Stata code".
 
-cfg_fr <- function() config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+cfg_fr <- function() config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
 
 # a panel whose firms cover the given 2-digit sectors (one firm per sector)
 bf_sectors <- function(s2) {
   bf <- make_base_financials()
   one <- bf[bf$idf == 1, ]
   dplyr::bind_rows(lapply(seq_along(s2), function(i) {
-    f <- one; f$idf <- 100 + i; f$sector_2d <- s2[i]; f$sector_3d <- s2[i] * 10; f$birth_year <- 2000; f
+    f <- one; f$idf <- 100 + i; f$sector_2d <- s2[i]; f$sector_3d <- s2[i] * 10; f$sector_1d <- nace_section(s2[i], "2"); f$birth_year <- 2000; f
   }))
 }
 
@@ -166,7 +166,7 @@ test_that("S16: cash_flow and gross_profit are rescaled to thousands with the ot
   bf <- make_base_financials()
   bf$birth_year <- 2000
   bf$cash_flow <- 2000; bf$gross_profit <- 3000; bf$total_assets <- 10000
-  cfg <- config_scaleup(country = "PT", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "PT", input_dir = tempdir(), output_dir = tempdir())
   ai <- build_accounts_indicators(cfg, bf)
   expect_true(all(ai$cash_flow == 2, na.rm = TRUE))
   expect_true(all(ai$gross_profit == 3, na.rm = TRUE))

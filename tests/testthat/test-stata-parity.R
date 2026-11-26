@@ -2,7 +2,7 @@
 # verified in the Stata <-> R reproduction, 2026-11-18). Several of these are
 # Stata *bugs* reproduced on purpose; they will change in the fixes phase.
 
-cfg_fr <- function() config_scaleup(country = "FR", input_dir = tempdir(), output_dir = tempdir())
+cfg_fr <- function() config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
 
 test_that("turnover 0 at t-3: no HG flag and no growth rate (x/0 is missing), but still in the pool", {
   bf <- make_base_financials()
@@ -56,7 +56,7 @@ test_that("rescaling a float variable rounds to single precision, as Stata's rep
   # n0_1: `replace v = v/1000` leaves a float (or byte/int) variable float, a long/double one double
   expect_equal(stata_replace_type(c("byte", "int", "long", "float", "double", NA)),
                c("float", "float", "double", "float", "double", "double"))
-  cfg <- config_scaleup(country = "PT", input_dir = tempdir(), output_dir = tempdir())
+  cfg <- config_scaleup(nace_revision = "2", country = "PT", input_dir = tempdir(), output_dir = tempdir())
   bf <- make_base_financials()
   bf$turnover <- stata_float(bf$turnover * 1.37) # values a float column can hold
   bf$added_value <- bf$turnover

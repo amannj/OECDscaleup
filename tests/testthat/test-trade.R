@@ -2,7 +2,7 @@
 # verified against Stata on the synthetic TR scenarios of the reproduction harness.
 
 cfg_trade <- function(country = "FR", ...) {
-  config_scaleup(country = country, input_dir = tempdir(), output_dir = tempdir(), ...)
+  config_scaleup(nace_revision = "2", country = country, input_dir = tempdir(), output_dir = tempdir(), ...)
 }
 trade_rows <- function(...) data.frame(..., stringsAsFactors = FALSE)
 
