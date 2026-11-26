@@ -11,8 +11,7 @@ back with the OECD.
 
 It is a behaviour-preserving translation of the OECD's original Stata
 pipeline (`MASTER_OECD_p2.do` and 5 worker `.do` files, package version
-1.3) — see the [changelog](https://amannj.github.io/OECDscaleup/news/index.html) for what changed in the
-translation and why.
+1.3) — see the [changelog](NEWS.md).
 
 ## Verification against the Stata code
 
@@ -23,11 +22,9 @@ variables, short panels, dominance statistics, …) and on one full national
 firm-level dataset (confidential). All output tables match: rows, keys,
 labels and counts exactly, other values within a relative 1e-4.
 
-At the git tag `stata-parity-v1_3` the R code reproduces the Stata code
-**including its bugs**. Those bugs are being fixed on the `FixStataBugs`
-branch; see "Known issues inherited from the Stata code" in the changelog.
-The comparison harness lives outside this repository, alongside the
-original Stata code.
+This branch (`Stata-to-R`) keeps this first version, 0.1.0. The development
+version, with the trade routines, the scaler analysis and the full
+documentation, is on the default branch `ScalerAnalysis`.
 
 Running on a full national panel needs a lot of memory (tens of GB for a
 panel of several million firm-years); reducing it is planned.
