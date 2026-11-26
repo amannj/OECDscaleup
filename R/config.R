@@ -171,7 +171,7 @@ print.scaleup_config <- function(x, ...) {
 #'
 #' Mirrors the source's pervasive `cap confirm v <var>` / `cap summ <var>`
 #' guards: many financial and category variables are optional per
-#' `variable_dictionary_v1.xlsx`, and whole blocks of logic are silently
+#' [variable_dictionary], and whole blocks of logic are silently
 #' skipped (not errored) when a given country's raw data lacks them.
 #'
 #' @param data A data frame.

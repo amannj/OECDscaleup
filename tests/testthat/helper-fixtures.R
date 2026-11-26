@@ -1,4 +1,4 @@
-# Synthetic `base_financials`-shaped fixtures, matching variable_dictionary_v1.xlsx.
+# Synthetic `base_financials`-shaped fixtures, matching `variable_dictionary` (data-raw/variable_dictionary.R).
 # No real firm microdata ships with the source package (it's confidential and
 # country-specific), so all test data here is fabricated.
 

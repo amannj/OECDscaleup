@@ -20,3 +20,27 @@ test_that("build_accounts_indicators works with the real bundled exchange_rates 
   # HR is a non-Euro country patch; turnover should have been converted via the real rate
   expect_true(all(!is.na(out$turnover)))
 })
+
+test_that("variable_dictionary matches what the build does", {
+  d <- variable_dictionary
+  expect_setequal(unique(d$dataset), c("base_financials", "plants_RAW", "trade_RAW"))
+  expect_equal(anyDuplicated(d[c("dataset", "variable")]), 0)
+  expect_true(all(d$priority %in% c("must-have", "nice-to-have, first order", "nice-to-have, second order")))
+  expect_true(all(d$format %in% c("numeric", "string", "string (letter)")))
+  bf <- d[d$dataset == "base_financials", ]
+  expect_setequal(bf$variable[bf$package_requirement == "required"], base_required_vars)
+  expect_setequal(bf$variable[bf$money], base_money_vars)
+  expect_setequal(bf$variable[bf$negatives_missing], base_negatives_missing)
+  tr <- d[d$dataset == "trade_RAW", ]
+  expect_setequal(tr$variable[tr$package_requirement == "required"], trade_required_vars)
+  expect_true(all(tr$priority == "must-have"))
+  # first-order nice-to-have by decision of the OECD team
+  expect_equal(bf$priority[bf$variable %in% c("exit_acq", "exit_close")], rep("nice-to-have, first order", 2))
+})
+
+test_that("a missing required column points to the input-data article", {
+  cfg <- config_scaleup(nace_revision = "2", country = "FR", input_dir = tempdir(), output_dir = tempdir())
+  bf <- make_base_financials()
+  bf$region_2d <- NULL
+  expect_error(build_accounts_indicators(cfg, bf), "region_2d.*input-data", class = "OECDscaleup_data_error")
+})

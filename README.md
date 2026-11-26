@@ -34,8 +34,10 @@ panel of several million firm-years); reducing it is planned.
 
 Firm-level microdata is confidential and never leaves the country whose
 national statistical institute holds it, so **no real data ships with this
-package** — every input this package needs is documented in
-`variable_dictionary_v1.xlsx` from the original Stata package.
+package** — every input variable is documented in the articles
+[Input data](https://amannj.github.io/OECDscaleup/articles/input-data.html)
+and [Input data for the trade package](https://amannj.github.io/OECDscaleup/articles/input-trade-data.html),
+and in the package dataset `variable_dictionary`.
 
 ## Installation
 

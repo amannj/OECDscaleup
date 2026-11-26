@@ -18,6 +18,6 @@ non-missing value, \code{FALSE} otherwise.
 \description{
 Mirrors the source's pervasive \verb{cap confirm v <var>} / \verb{cap summ <var>}
 guards: many financial and category variables are optional per
-\code{variable_dictionary_v1.xlsx}, and whole blocks of logic are silently
+\link{variable_dictionary}, and whole blocks of logic are silently
 skipped (not errored) when a given country's raw data lacks them.
 }

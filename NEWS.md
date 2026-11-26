@@ -1,5 +1,22 @@
 # OECDscaleup (development version)
 
+## Input data documented in the package
+
+- The OECD variable dictionary (Phase 3 spreadsheet) is now part of the
+  package: the dataset `variable_dictionary` (one row per variable of
+  `base_financials`, `plants_RAW` and `trade_RAW`, with definition, format,
+  coding, source, SBS code, priority and notes) and two articles built
+  from it, `vignette("input-data")` and `vignette("input-trade-data")`. The
+  priorities were fill colours only in the spreadsheet and are now a
+  column; `exit_acq` and `exit_close` are first-order nice-to-have. The
+  sector codes are NACE Rev. 2 or Rev. 2.1 (the spreadsheet said "NACE
+  2.2"). Each variable also says what the package needs (required,
+  optional, not used) and does with it, and whether it is a money variable
+  (rescaled with `financials_unit = "EUR"`) and has its negative values set
+  to missing. A test keeps these columns in line with the build.
+- The error for a missing required column points to the articles instead
+  of `variable_dictionary_v1.xlsx` / `variable_dictionary_v2.xlsx`.
+
 ## NACE revision and money unit are declared (breaking: `nace_revision` is required)
 
 - N1 NACE Rev. 2.1: the sector rules (the sectors left out, the technology

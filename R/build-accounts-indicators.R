@@ -18,14 +18,14 @@
 #' physical row position.
 #'
 #' @param config A `scaleup_config` from [config_scaleup()].
-#' @param base_financials A data frame of raw firm-level financials, matching
-#'   the `BASE_FINANCIALS` sheet of `variable_dictionary_v1.xlsx`. Must
+#' @param base_financials A data frame of raw firm-level financials, as
+#'   described in [variable_dictionary] and `vignette("input-data")`. Must
 #'   contain `idf, year, sector_1d, sector_2d, sector_3d, employment,
 #'   turnover, region_2d`; every other column is optional and used only if
 #'   present.
-#' @param plants_raw Optional data frame of establishment-level data (the
-#'   `PLANTS_RAW` sheet), with columns `idf, idp, year`. If `NULL` (the
-#'   default), no `multiplant` indicator is produced.
+#' @param plants_raw Optional data frame of establishment-level data
+#'   (`plants_RAW` in [variable_dictionary]), with columns `idf, idp, year`.
+#'   If `NULL` (the default), no `multiplant` indicator is produced.
 #' @param exchange_rates Optional data frame with columns `year, country,
 #'   rate` (as shipped in this package's `exchange_rates` dataset). Required
 #'   only for the non-Euro countries listed in `country_patches$non_euro`.
@@ -55,6 +55,29 @@ build_accounts_indicators <- function(config,
     tl3_typology = tl3_typology, storage_types = storage_types
   )
 }
+
+# Money variables of base_financials: divided by 1000 when config$financials_unit is "EUR" (step 6).
+# Kept in sync with the `money` column of `variable_dictionary` (tested).
+base_money_vars <- c(
+  "turnover", "added_value", "labour_costs", "operating_costs",
+  "services_costs", "exp_revenues_goods", "exp_revenues_services",
+  "depr_amort", "interest_costs", "intangible_fixed_assets",
+  "tangible_fixed_assets", "fixed_assets", "current_assets",
+  "total_assets", "loans", "total_liabilities", "cash_flow", "gross_profit"
+)
+# Variables whose negative values are set to missing (step 5); the `negatives_missing` column.
+base_negatives_missing <- c(
+  "employment", "turnover", "added_value", "exp_revenues_goods",
+  "exp_revenues_services", "labour_costs", "operating_costs", "services_costs",
+  "depr_amort", "interest_costs", "intangible_fixed_assets",
+  "tangible_fixed_assets", "fixed_assets", "current_assets", "total_assets",
+  "loans", "total_liabilities"
+)
+# Columns the build stops without (step 4); the "required" rows of `variable_dictionary`.
+base_required_vars <- c(
+  "idf", "year", "sector_3d", "sector_2d", "employment", "turnover",
+  "sector_1d", "region_2d"
+)
 
 #' Shared body of `n0_1` (second package) and `n0_2` (trade package)
 #'
@@ -112,15 +135,11 @@ build_accounts_core <- function(config,
   # --- Step 4: validation and normalization -----------------------------------
   data$country <- NULL # Orbis JY artifact
 
-  required_vars <- c(
-    "idf", "year", "sector_3d", "sector_2d", "employment", "turnover",
-    "sector_1d", "region_2d"
-  )
-  missing_vars <- setdiff(required_vars, names(data))
+  missing_vars <- setdiff(base_required_vars, names(data))
   if (length(missing_vars) > 0) {
     rlang::abort(
       sprintf(
-        "Missing required column(s): %s. Check variable_dictionary_v1.xlsx.",
+        "Missing required column(s): %s. See vignette(\"input-data\", package = \"OECDscaleup\").",
         paste(missing_vars, collapse = ", ")
       ),
       class = "OECDscaleup_data_error"
@@ -160,13 +179,7 @@ build_accounts_core <- function(config,
   encode_levels <- list(sector_1d = stata_encode_levels(data$sector_1d))
 
   # --- Step 5: clean implausible negative financial values --------------------
-  negative_clean_vars <- c(
-    "employment", "turnover", "added_value", "exp_revenues_goods",
-    "exp_revenues_services", "labour_costs", "operating_costs", "services_costs",
-    "depr_amort", "interest_costs", "intangible_fixed_assets",
-    "tangible_fixed_assets", "fixed_assets", "current_assets", "total_assets",
-    "loans", "total_liabilities"
-  )
+  negative_clean_vars <- base_negatives_missing
   # n0_2: the trade values are cleaned too. Fix T1: the export-revenue variables
   # are cleaned (and rescaled below) as in n0_1; n0_2 had left them out.
   if (trade) negative_clean_vars <- c(negative_clean_vars, "exp_value", "imp_value")
@@ -182,13 +195,7 @@ build_accounts_core <- function(config,
   # Fix N2: the unit is config$financials_unit (default: Stata's country list); Stata rescaled by
   # country only, so a panel delivered in euros by any other country stayed in euros.
   if (identical(config$financials_unit, "EUR")) {
-    rescale_vars <- c(
-      "turnover", "added_value", "labour_costs", "operating_costs",
-      "services_costs", "exp_revenues_goods", "exp_revenues_services",
-      "depr_amort", "interest_costs", "intangible_fixed_assets",
-      "tangible_fixed_assets", "fixed_assets", "current_assets",
-      "total_assets", "loans", "total_liabilities", "cash_flow", "gross_profit"
-    )
+    rescale_vars <- base_money_vars
     # `replace v = v/1000` keeps a float variable float (and promotes byte/int to
     # float), so the stored result is the single-precision rounding of the quotient
     for (v in intersect(rescale_vars, names(data))) {

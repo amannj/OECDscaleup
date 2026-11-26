@@ -18,18 +18,18 @@
 #'
 #' @param config A `scaleup_config` from [config_scaleup()].
 #' @param trade_raw Data frame with `idf, year, trade_type, trade_value`
-#'   (numeric) and `code_destin, prod_code` (string), as in the `TRADE_RAW`
-#'   sheet of `variable_dictionary_v2.xlsx`.
+#'   (numeric) and `code_destin, prod_code` (string), as in the `trade_RAW`
+#'   rows of [variable_dictionary] (`vignette("input-trade-data")`).
 #' @param storage_types Optional Stata storage types of `trade_raw`'s columns
 #'   (see [build_accounts_indicators()]); used for the PT/HU rescaling.
 #' @return A data frame, one row per `(idf, year)` present in `trade_raw`.
 #' @export
 build_trade_panel <- function(config, trade_raw, storage_types = NULL) {
   d <- as.data.frame(trade_raw)
-  required <- c("idf", "year", "trade_value", "trade_type", "code_destin", "prod_code")
+  required <- trade_required_vars
   miss <- setdiff(required, names(d))
   if (length(miss)) {
-    rlang::abort(sprintf("Missing required trade column(s): %s. Check variable_dictionary_v2.xlsx.",
+    rlang::abort(sprintf("Missing required trade column(s): %s. See vignette(\"input-trade-data\", package = \"OECDscaleup\").",
                          paste(miss, collapse = ", ")), class = "OECDscaleup_data_error")
   }
   for (v in c("code_destin", "prod_code")) {
@@ -214,3 +214,6 @@ build_trade_accounts_indicators <- function(config,
     tl3_typology = tl3_typology, storage_types = storage_types, trade_panel = panel
   )
 }
+
+# Columns of trade_RAW the trade build stops without; the trade_RAW rows of `variable_dictionary` (tested).
+trade_required_vars <- c("idf", "year", "trade_value", "trade_type", "code_destin", "prod_code")

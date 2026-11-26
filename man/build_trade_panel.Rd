@@ -10,8 +10,8 @@ build_trade_panel(config, trade_raw, storage_types = NULL)
 \item{config}{A \code{scaleup_config} from \code{\link[=config_scaleup]{config_scaleup()}}.}
 
 \item{trade_raw}{Data frame with \verb{idf, year, trade_type, trade_value}
-(numeric) and \verb{code_destin, prod_code} (string), as in the \code{TRADE_RAW}
-sheet of \code{variable_dictionary_v2.xlsx}.}
+(numeric) and \verb{code_destin, prod_code} (string), as in the \code{trade_RAW}
+rows of \link{variable_dictionary} (\code{vignette("input-trade-data")}).}
 
 \item{storage_types}{Optional Stata storage types of \code{trade_raw}'s columns
 (see \code{\link[=build_accounts_indicators]{build_accounts_indicators()}}); used for the PT/HU rescaling.}

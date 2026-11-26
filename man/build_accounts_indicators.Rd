@@ -16,14 +16,14 @@ build_accounts_indicators(
 \arguments{
 \item{config}{A \code{scaleup_config} from \code{\link[=config_scaleup]{config_scaleup()}}.}
 
-\item{base_financials}{A data frame of raw firm-level financials, matching
-the \code{BASE_FINANCIALS} sheet of \code{variable_dictionary_v1.xlsx}. Must
+\item{base_financials}{A data frame of raw firm-level financials, as
+described in \link{variable_dictionary} and \code{vignette("input-data")}. Must
 contain \verb{idf, year, sector_1d, sector_2d, sector_3d, employment, turnover, region_2d}; every other column is optional and used only if
 present.}
 
-\item{plants_raw}{Optional data frame of establishment-level data (the
-\code{PLANTS_RAW} sheet), with columns \verb{idf, idp, year}. If \code{NULL} (the
-default), no \code{multiplant} indicator is produced.}
+\item{plants_raw}{Optional data frame of establishment-level data
+(\code{plants_RAW} in \link{variable_dictionary}), with columns \verb{idf, idp, year}.
+If \code{NULL} (the default), no \code{multiplant} indicator is produced.}
 
 \item{exchange_rates}{Optional data frame with columns \verb{year, country, rate} (as shipped in this package's \code{exchange_rates} dataset). Required
 only for the non-Euro countries listed in \code{country_patches$non_euro}.}

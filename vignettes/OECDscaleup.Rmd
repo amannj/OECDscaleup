@@ -83,7 +83,7 @@ revision, and if turnover per employee does not fit EUR thousand after
 ## Running the full pipeline from files
 
 If you have `base_financials_<CT>.dta` (and optionally `plants_RAW_<CT>.dta`)
-prepared per `variable_dictionary_v1.xlsx`, alongside this package's own
+prepared as described in `vignette("input-data")`, alongside this package's own
 `tl3_typology`/`exchange_rates` reference data saved as `.dta` files in the
 same input folder (exactly as the original PDF instructions describe):
 
@@ -186,3 +186,5 @@ make it for you.
 - `?country_patches` for the 3 country-specific data patches carried over
   from the original Stata source.
 - `?tl3_typology`, `?exchange_rates` for the bundled OECD reference data.
+- `vignette("input-data")` and `vignette("input-trade-data")` for every
+  input variable (also as the dataset `variable_dictionary`).

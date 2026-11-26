@@ -2,3 +2,12 @@ url: https://amannj.github.io/OECDscaleup/
 template:
   bootstrap: 5
 
+articles:
+- title: Getting started
+  contents:
+  - OECDscaleup
+- title: Input data
+  desc: What each input variable should contain and what the package does with it.
+  contents:
+  - input-data
+  - input-trade-data
