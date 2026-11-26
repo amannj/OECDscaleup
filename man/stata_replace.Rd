@@ -26,5 +26,5 @@ fresh \code{gen}-style computation (there is no "existing value" to fall back
 to), but wrong for a \code{replace}, where an unresolved condition must leave
 the row exactly as it was. Used throughout the sequential-overwrite
 classification rules (\code{tech_grad}, \code{ind_a38}, \code{type}, \code{FOLLOW}/\code{LEAD}, ...)
-documented in \verb{Pseudocode/*.md} as "later rule overwrites earlier" chains.
+of the Stata code, written as "later rule overwrites earlier" chains.
 }

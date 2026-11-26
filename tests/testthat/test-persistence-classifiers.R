@@ -25,7 +25,7 @@ test_that("classify_scaling_var: a real declining value with unresolved reversal
 
 test_that("classify_scaling_var: later rules override earlier ones on overlap (documented edge case)", {
   # F3hg==1 (-> 6) AND grvar3y in [-0.10,0.10] (-> 4): rule 4 is written after rule 6, so 4 wins.
-  # This is the exact edge case called out in Pseudocode/n1_3_persistence.md step 8.
+  # This is the exact edge case called out in n1_3_persistence.do (step 8 of the classification).
   expect_equal(classify_scaling_var(1, 0.05, 0), 4)
 })
 

@@ -20,7 +20,7 @@ output (mirrors the source: a short panel may produce none of the 3
 CSVs).
 }
 \description{
-Translates \code{n1_3_persistence.do} (\code{Pseudocode/n1_3_persistence.md}). Computes
+Translates \code{n1_3_persistence.do}. Computes
 two related classification schemes: \strong{transitions} (2014-2016 scaler
 cohorts, follow-up only) and \strong{evolutions} (2017 cohort, both lead-up and
 follow-up, further split by entrant/incumbent/exiting status). Iterates

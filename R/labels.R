@@ -10,8 +10,7 @@
 #' `compute_predictors()`) as integers with a label map here; every other
 #' category (`sector_1d`, `region_2d`, `ind_a38`, `reg_techgrad`, `size_age`,
 #' `typology_UR`) is kept as a plain character string throughout, since
-#' nothing ever compares them to a specific hardcoded value. See
-#' `Pseudocode/00_conventions.md`'s `ENCODE`/`DECODE` primitive note.
+#' nothing ever compares them to a specific hardcoded value.
 #'
 #' `multiplant`, `independent`, and `foreign_owned` are a deliberate dual-use
 #' case: they stay `0`/`1` numeric throughout (so they can be averaged into

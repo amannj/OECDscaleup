@@ -1,7 +1,6 @@
 #' Build the firm-year analytical panel and its derived indicators
 #'
-#' Translates `n0_1_accounts_indicators_v2.do`
-#' (`Pseudocode/n0_1_accounts_indicators_v2.md`). Cleans the raw firm-level
+#' Translates `n0_1_accounts_indicators_v2.do`. Cleans the raw firm-level
 #' panel, optionally folds in establishment-level plant data, and constructs
 #' every derived variable the other 4 pipeline stages depend on: growth
 #' rates, high-growth-firm (HGF) flags, age/size/sector/region categories,

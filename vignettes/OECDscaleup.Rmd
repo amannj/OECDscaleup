@@ -15,20 +15,39 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(OECDscaleup)
 ```
 
+## Installation
+
+The package is not on CRAN. Install it from GitHub with `devtools`:
+
+```{r, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("amannj/OECDscaleup", build_vignettes = TRUE)
+```
+
+This installs the default branch of the repository
+(<https://github.com/amannj/OECDscaleup>); `ref = "<branch or tag>"`
+installs another version, for example `ref = "stata-parity-v1_3-1"` for the
+version that reproduces the Stata code bug for bug.
+
 ## What this package does
 
 This package builds the firm-level "high-growth firm" (HGF) / scale-up
 indicators used in the OECD Scale Up project, and produces the
-disclosure-checked aggregate tables shared back with the OECD. It is a
-behaviour-preserving translation of the OECD's original Stata pipeline
-(`MASTER_OECD_p2.do` and 5 worker `.do` files) — see `Analysis/stata.md` and
-`Pseudocode/*.md` in the package source repository for the full analysis this
-translation was built from.
+disclosure-checked aggregate tables shared back with the OECD. It translates
+the OECD's original Stata packages: the "Second Package"
+(`MASTER_OECD_p2.do` and 5 worker `.do` files, version 1.3) and the trade
+package (`MASTER_OECD_trade.do`, version 1.0). The translation was verified
+table by table against the Stata code; the
+[changelog](https://amannj.github.io/OECDscaleup/news/index.html) lists
+every departure from the Stata code since then (bug fixes, the declared NACE
+revision and money unit) and why.
 
 Firm-level microdata is confidential and never leaves the country whose
 national statistical institute holds it, so **no real data ships with this
 package**. Every example below uses small, fabricated data purely to
-demonstrate the interface — the actual numbers are meaningless.
+demonstrate the interface — the actual numbers are meaningless. The input
+data are described in `vignette("input-data")` and
+`vignette("input-trade-data")`.
 
 ## The pipeline at a glance
 
@@ -50,10 +69,15 @@ Stages 2-5 are independent of each other and only depend on stage 1's
 output. All five are **pure functions** — data frames in, data frames out —
 so they can be tested and used without touching the filesystem.
 
-`run_scaleup_pipeline()` is the only function that performs file I/O: it
-reads the raw `.dta` inputs, calls the five functions above in order, and
-writes every output as a CSV — mirroring `MASTER_OECD_p2.do`'s role in the
-original package.
+`run_scaleup_pipeline()` performs the file I/O: it reads the raw `.dta`
+inputs, calls the five functions above in order, and writes every output as
+a CSV — mirroring `MASTER_OECD_p2.do`'s role in the original package.
+
+The trade package works the same way: `build_trade_accounts_indicators()`
+(the panel with the firm-year trade variables merged in) and
+`compute_trade_characteristics()`, run from files by
+`run_trade_pipeline()`. `check_inputs()` checks the input files of both
+before a run.
 
 ## Configuration
 
@@ -183,7 +207,8 @@ make it for you.
 
 - `?config_scaleup`, `?build_accounts_indicators`, `?compute_characteristics`,
   `?compute_persistence`, `?compute_contribution`, `?compute_predictors`,
-  `?run_scaleup_pipeline` for full argument/return documentation.
+  `?run_scaleup_pipeline`, `?run_trade_pipeline`, `?check_inputs` for full
+  argument/return documentation.
 - `?country_patches` for the 3 country-specific data patches carried over
   from the original Stata source.
 - `?tl3_typology`, `?exchange_rates` for the bundled OECD reference data.

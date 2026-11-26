@@ -20,8 +20,8 @@ A data frame with 2,598 rows and 8 columns:
 labels.}
 \item{typology_UR}{An OECD-supplied labelled urban/rural code, unused by
 this package (which derives its own \code{typology_UR} from
-\code{typology_access_cities} instead — see
-\code{Pseudocode/n0_1_accounts_indicators_v2.md} step 18).}
+\code{typology_access_cities} instead, step 18
+of \code{\link[=build_accounts_indicators]{build_accounts_indicators()}}).}
 }
 }
 \source{

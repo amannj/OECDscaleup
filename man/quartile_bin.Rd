@@ -17,8 +17,7 @@ An integer vector of bin numbers \verb{1..n} (or \code{NA}).
 \description{
 Thin wrapper around \code{\link[statar:xtile]{statar::xtile()}} documenting the contract this package
 relies on: \code{NA} in, \code{NA} out; non-missing values split into \code{n} groups of
-(approximately) equal size, numbered \verb{1..n}. See
-\verb{Pseudocode/00_conventions.md}'s \code{QUARTILE} primitive. Callers are
+(approximately) equal size, numbered \verb{1..n}. Callers are
 responsible for applying this only within already-grouped data (this
 package additionally imposes a minimum group size of 50 before calling this
 at all — see \code{compute_predictors()}).

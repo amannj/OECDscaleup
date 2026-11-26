@@ -15,8 +15,7 @@ A single numeric value (or \code{NA} if \code{x} has no non-missing values).
 \description{
 A confidentiality-preserving stand-in for a true median: true medians are
 not published per this project's disclosure rules. Sorts \code{x} ascending
-(\code{NA} sorted last, matching Stata's convention — see
-\verb{Pseudocode/00_conventions.md}, \code{MISSING}), then averages the (up to) 5
+(\code{NA} sorted last, matching Stata's convention), then averages the (up to) 5
 values centred on position \code{round_half_up(n_non_missing / 2)}. This is
 \strong{not} interchangeable with a true median except by coincidence — do not
 replace with \code{median()}.

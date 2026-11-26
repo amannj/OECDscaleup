@@ -30,7 +30,7 @@ test_that("predictors_classify_type: no top-quartile predictor resolves to Expan
 test_that("rule 5 (Transformational) wins over rule 6 (Expansionist) when the two growth measures disagree", {
   # MFP_gr <= 0 (rule 6's own condition) but gross_profit_gr > 0 (rule 5) -
   # rule 5 is applied after rule 6, so it wins - the documented edge case in
-  # Pseudocode/n1_3_predictors.md step 7, note 3.
+  # the type classification of n1_3_predictors.do.
   expect_equal(predictors_classify_type(mk(1, -0.05, 1, 1, gross_profit_gr = 0.1)), 5)
 })
 

@@ -1,6 +1,6 @@
 #' Run the full Scale-Up pipeline, reading and writing files on disk
 #'
-#' Mirrors `MASTER_OECD_p2.do` (`Pseudocode/MASTER_OECD_p2.md`): reads the raw
+#' Mirrors `MASTER_OECD_p2.do`: reads the raw
 #' inputs from `config$input_dir`, runs [build_accounts_indicators()] followed
 #' by the four independent downstream stages ([compute_characteristics()],
 #' [compute_persistence()], [compute_contribution()], [compute_predictors()]),

@@ -32,8 +32,7 @@ round_half_up <- function(x, digits = 0) {
 #' at the exact point of comparison (it must not replace the vector's stored
 #' value elsewhere); only valid when comparing against a literal, itself
 #' never-missing, constant — for comparisons between two possibly-missing
-#' variables, resolve missingness explicitly instead (see
-#' `Pseudocode/00_conventions.md`'s `MISSING` note).
+#' variables, resolve missingness explicitly instead.
 #'
 #' @param x A numeric vector.
 #' @return A numeric vector with every `NA` replaced by `Inf`.
@@ -55,7 +54,7 @@ stata_num <- function(x) {
 #' to), but wrong for a `replace`, where an unresolved condition must leave
 #' the row exactly as it was. Used throughout the sequential-overwrite
 #' classification rules (`tech_grad`, `ind_a38`, `type`, `FOLLOW`/`LEAD`, ...)
-#' documented in `Pseudocode/*.md` as "later rule overwrites earlier" chains.
+#' of the Stata code, written as "later rule overwrites earlier" chains.
 #'
 #' @param cur The current value of the variable being updated.
 #' @param cond A logical vector (may contain `NA`).
@@ -93,10 +92,9 @@ cut_stata <- function(x, at) {
 #' key, not from `n` rows earlier. If a firm's panel has a gap (e.g. observed
 #' in 2010, 2011, 2014 but not 2012-2013), `panel_lag(x, 1)` evaluated on the
 #' 2014 row looks for a 2013 record — which does not exist — and returns `NA`,
-#' rather than incorrectly reaching back to the 2011 row. See
-#' `Pseudocode/00_conventions.md` (`LAG`) for the full specification this
-#' implements; verified empirically against `collapse::flag()`'s time-aware
-#' behaviour before use here.
+#' rather than incorrectly reaching back to the 2011 row. Verified
+#' empirically against `collapse::flag()`'s time-aware behaviour before use
+#' here.
 #'
 #' @param x Numeric vector to lag.
 #' @param n Number of periods to lag by.
@@ -147,8 +145,7 @@ panel_sdiff <- function(x, n, id, time) {
 #'
 #' A confidentiality-preserving stand-in for a true median: true medians are
 #' not published per this project's disclosure rules. Sorts `x` ascending
-#' (`NA` sorted last, matching Stata's convention — see
-#' `Pseudocode/00_conventions.md`, `MISSING`), then averages the (up to) 5
+#' (`NA` sorted last, matching Stata's convention), then averages the (up to) 5
 #' values centred on position `round_half_up(n_non_missing / 2)`. This is
 #' **not** interchangeable with a true median except by coincidence — do not
 #' replace with `median()`.
@@ -180,8 +177,7 @@ approx_median <- function(x) {
 #' The share of the total held by the `top_n` largest units — a standard
 #' "(n,k)-dominance rule" statistic. Missing values are treated as `0` when
 #' accumulating (matching Stata's `sum()`/`total()` egen functions) and sort
-#' last (never among the "top" units), matching
-#' `Pseudocode/00_conventions.md`'s `DOMINANCE_SHARE` primitive. Returns `NA`
+#' last (never among the "top" units). Returns `NA`
 #' if the group has fewer than `top_n` units, or if the group's total is `0`.
 #'
 #' @param x A numeric vector (the values within one group, e.g. `employment`
@@ -213,8 +209,7 @@ dominance_share <- function(x, top_n) {
 #' — not the first row of each subsequent episode, the single first
 #' occurrence ever. `NA` values in `x` are treated as "not an event" and do
 #' not break the chain (matching Stata's `sum()` treating missing as `0` in
-#' the cumulative-sum idiom the source uses for this same purpose — see
-#' `Pseudocode/00_conventions.md`, `FIRST_OCCURRENCE_FLAG`).
+#' the cumulative-sum idiom the source uses for this same purpose).
 #'
 #' @param id Panel unit identifier vector (e.g. `idf`).
 #' @param time Panel time vector (e.g. `year`).
@@ -253,8 +248,7 @@ group_fill <- function(x, g, stat = c("min", "max", "mean", "sum")) {
 #'
 #' Thin wrapper around [statar::xtile()] documenting the contract this package
 #' relies on: `NA` in, `NA` out; non-missing values split into `n` groups of
-#' (approximately) equal size, numbered `1..n`. See
-#' `Pseudocode/00_conventions.md`'s `QUARTILE` primitive. Callers are
+#' (approximately) equal size, numbered `1..n`. Callers are
 #' responsible for applying this only within already-grouped data (this
 #' package additionally imposes a minimum group size of 50 before calling this
 #' at all — see `compute_predictors()`).

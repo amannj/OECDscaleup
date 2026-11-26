@@ -22,8 +22,8 @@
 #'     labels.}
 #'   \item{typology_UR}{An OECD-supplied labelled urban/rural code, unused by
 #'     this package (which derives its own `typology_UR` from
-#'     `typology_access_cities` instead — see
-#'     `Pseudocode/n0_1_accounts_indicators_v2.md` step 18).}
+#'     `typology_access_cities` instead, step 18
+#'     of [build_accounts_indicators()]).}
 #' }
 #' @source OECD Scale Up project, `tl3_typology.dta` (`Stata/` in the
 #'   original package).

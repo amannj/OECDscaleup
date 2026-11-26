@@ -17,7 +17,7 @@ frames (PDF Tables 3.6/3.7), or an empty list if the precondition isn't
 met.
 }
 \description{
-Translates \code{n1_3_predictors.do} (\code{Pseudocode/n1_3_predictors.md}). The
+Translates \code{n1_3_predictors.do}. The
 entire procedure is a no-op unless \code{added_value}, \code{tangible_fixed_assets},
 and \code{labour_costs} all exist in \code{accounts_indicators}. First classifies
 first-time-eligible scalers into 6 "driver" types based on which

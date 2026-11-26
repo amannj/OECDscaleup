@@ -13,10 +13,10 @@ methodology matter more here than in most packages.
   (`build_accounts_indicators()`), the classification rules in
   `compute_persistence()`/`compute_predictors()`, or the disclosure-control
   logic (`dominance_share()`, `approx_median()`).
-- If you're changing behaviour rather than just refactoring, check whether
-  the change should also be reflected in `Pseudocode/*.md` and
-  `Analysis/stata.md` in the source repository this package was translated
-  from, so the two stay in sync.
+- If you're changing behaviour rather than just refactoring, say how the
+  change departs from the original Stata code (the `.do` file and step) and
+  add a `NEWS.md` entry: departures from Stata are documented there, one by
+  one.
 
 ## Setup
 
@@ -58,5 +58,5 @@ devtools::test()              # run the test suite
 Please include: the function involved, a minimal reproducible example
 (synthetic data only — never attach real firm microdata to an issue, even
 internally), and, if you believe the translated behaviour diverges from the
-original Stata pipeline, which `Pseudocode/*.md` step you believe it
-diverges from.
+original Stata pipeline, which `.do` file and step you believe it diverges
+from.

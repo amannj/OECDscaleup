@@ -14,7 +14,7 @@ Invisibly, a named list of every non-\code{NULL} output table produced
 (the same tables written to \code{config$output_dir}).
 }
 \description{
-Mirrors \code{MASTER_OECD_p2.do} (\code{Pseudocode/MASTER_OECD_p2.md}): reads the raw
+Mirrors \code{MASTER_OECD_p2.do}: reads the raw
 inputs from \code{config$input_dir}, runs \code{\link[=build_accounts_indicators]{build_accounts_indicators()}} followed
 by the four independent downstream stages (\code{\link[=compute_characteristics]{compute_characteristics()}},
 \code{\link[=compute_persistence]{compute_persistence()}}, \code{\link[=compute_contribution]{compute_contribution()}}, \code{\link[=compute_predictors]{compute_predictors()}}),

@@ -24,8 +24,7 @@ earlier in \code{time} — read from the record with that exact \verb{(id, time 
 key, not from \code{n} rows earlier. If a firm's panel has a gap (e.g. observed
 in 2010, 2011, 2014 but not 2012-2013), \code{panel_lag(x, 1)} evaluated on the
 2014 row looks for a 2013 record — which does not exist — and returns \code{NA},
-rather than incorrectly reaching back to the 2011 row. See
-\verb{Pseudocode/00_conventions.md} (\code{LAG}) for the full specification this
-implements; verified empirically against \code{collapse::flag()}'s time-aware
-behaviour before use here.
+rather than incorrectly reaching back to the 2011 row. Verified
+empirically against \code{collapse::flag()}'s time-aware behaviour before use
+here.
 }

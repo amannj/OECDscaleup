@@ -337,9 +337,9 @@ worker `.do` files, version 1.0, `scaleup@oecd.org`) into R.
 
 ## Translation notes
 
-- Ported from `Pseudocode/*.md` (a structure-preserving intermediate
-  representation of the original Stata source), not directly from the `.do`
-  files — see that directory for the line-by-line correspondence.
+- Ported via a structure-preserving pseudocode of the original Stata source
+  (a working document of the translation, not part of this repository),
+  not directly from the `.do` files.
 - Several Stata/R semantic gaps were identified and deliberately corrected
   for, each with a dedicated regression test: Stata's non-propagating
   missing-value comparisons (`stata_num()`), `replace ... if` semantics
@@ -351,8 +351,8 @@ worker `.do` files, version 1.0, `scaleup@oecd.org`) into R.
   this package's dominance-share tests. Everything else is covered by new
   unit and integration tests built from synthetic fixtures, since the real
   firm microdata this pipeline processes is confidential and never ships
-  with the package (see `Analysis/stata.md` and `variable_dictionary_v1.xlsx`
-  for the input schema fixtures are built against).
+  with the package (the fixtures follow the OECD variable dictionary, now
+  `variable_dictionary`).
 - No `.dlg` dialog files exist in the source package, so no Shiny GUI was
   built (there was nothing to recreate).
 - Known residual approximations, not exact-match verified against a live

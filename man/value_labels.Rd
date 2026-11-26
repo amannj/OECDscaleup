@@ -17,8 +17,7 @@ specific numbers elsewhere in the logic (\code{age_cat}, \code{size_cat},
 \code{compute_predictors()}) as integers with a label map here; every other
 category (\code{sector_1d}, \code{region_2d}, \code{ind_a38}, \code{reg_techgrad}, \code{size_age},
 \code{typology_UR}) is kept as a plain character string throughout, since
-nothing ever compares them to a specific hardcoded value. See
-\verb{Pseudocode/00_conventions.md}'s \code{ENCODE}/\code{DECODE} primitive note.
+nothing ever compares them to a specific hardcoded value.
 }
 \details{
 \code{multiplant}, \code{independent}, and \code{foreign_owned} are a deliberate dual-use

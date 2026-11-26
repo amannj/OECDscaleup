@@ -3,9 +3,7 @@
 #' Constructs and validates the configuration shared by every pipeline stage,
 #' replacing the Stata global macros (`$country`, `$inputdir`, `$outputdir`,
 #' `$dominance`, `$domvars`, `$dom_num`) set once in `MASTER_OECD_p2.do` and
-#' read implicitly by every downstream `.do` file. See
-#' `Pseudocode/00_conventions.md`'s `CONFIG` primitive and
-#' `Pseudocode/MASTER_OECD_p2.md`.
+#' read implicitly by every downstream `.do` file.
 #'
 #' @param country 2-letter ISO country code (e.g. `"FR"`). Drives output file
 #'   naming and several country-specific data patches inside

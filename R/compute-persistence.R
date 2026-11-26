@@ -128,7 +128,7 @@ collapse_by_group_year <- function(data, follow_col, group, hg, config) {
 
 #' Growth trajectories before/after a scaling event ("transitions" and "evolutions")
 #'
-#' Translates `n1_3_persistence.do` (`Pseudocode/n1_3_persistence.md`). Computes
+#' Translates `n1_3_persistence.do`. Computes
 #' two related classification schemes: **transitions** (2014-2016 scaler
 #' cohorts, follow-up only) and **evolutions** (2017 cohort, both lead-up and
 #' follow-up, further split by entrant/incumbent/exiting status). Iterates
@@ -345,7 +345,7 @@ compute_evolutions <- function(config, accounts_indicators) {
       data$FOLLOW <- ifelse(stata_num(f3_exit_acq) == 1, 0, data$FOLLOW)
     }
     data$FOLLOW_othvar <- classify_other_var(data[[paste0("F3", spec$othhg)]], data[[paste0("F3", spec$othgrvar3y)]])
-    # NB: FOLLOW_othvar gets no exit_acq override in evolutions - see Pseudocode/n1_3_persistence.md.
+    # NB: FOLLOW_othvar gets no exit_acq override in evolutions, as in n1_3_persistence.do.
 
     data$ALL <- 1L
 

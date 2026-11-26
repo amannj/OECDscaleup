@@ -28,6 +28,5 @@ same way Stata's missing-as-largest-value convention would. Only use this
 at the exact point of comparison (it must not replace the vector's stored
 value elsewhere); only valid when comparing against a literal, itself
 never-missing, constant — for comparisons between two possibly-missing
-variables, resolve missingness explicitly instead (see
-\verb{Pseudocode/00_conventions.md}'s \code{MISSING} note).
+variables, resolve missingness explicitly instead.
 }

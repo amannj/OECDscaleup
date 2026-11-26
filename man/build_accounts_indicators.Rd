@@ -45,8 +45,7 @@ A data frame, one row per \verb{(idf, year)}, ready to be passed to
 \code{\link[=compute_contribution]{compute_contribution()}}, and \code{\link[=compute_predictors]{compute_predictors()}}.
 }
 \description{
-Translates \code{n0_1_accounts_indicators_v2.do}
-(\code{Pseudocode/n0_1_accounts_indicators_v2.md}). Cleans the raw firm-level
+Translates \code{n0_1_accounts_indicators_v2.do}. Cleans the raw firm-level
 panel, optionally folds in establishment-level plant data, and constructs
 every derived variable the other 4 pipeline stages depend on: growth
 rates, high-growth-firm (HGF) flags, age/size/sector/region categories,

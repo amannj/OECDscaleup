@@ -28,8 +28,8 @@ country_patches
 The source Stata pipeline hardcodes three country-list branches inside
 \code{n0_1_accounts_indicators_v2.do} to work around idiosyncrasies of specific
 national data sources — these are data-source patches, not general
-econometric rules (see \code{Analysis/stata.md} section 8 and
-\code{Pseudocode/n0_1_accounts_indicators_v2.md} steps 6, 8, 17). They are kept
+econometric rules (steps 6, 8 and 17 of
+\code{\link[=build_accounts_indicators]{build_accounts_indicators()}}). They are kept
 here as one explicit, documented table instead of scattered \verb{if (country \%in\% c(...))} chains, so extending them as more countries join the project
 only requires editing this table.
 }

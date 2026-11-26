@@ -7,9 +7,10 @@ Description: Builds the firm-level high-growth-firm (HGF) / scale-up
     indicators used in the OECD Scale Up project from confidential
     national firm microdata, and produces the disclosure-checked
     aggregate tabulations (characteristics, transitions/evolutions,
-    contribution, predictors) shared back with the OECD. A behaviour-
-    preserving translation of the OECD "Second Package" Stata pipeline
-    (see 'data-raw/' for provenance).
+    contribution, predictors, trade) shared back with the OECD. A
+    translation of the OECD "Second Package" and trade package Stata
+    pipelines, verified table by table against the Stata code, with the
+    bugs of the Stata code fixed and documented.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -29,7 +30,7 @@ Suggests:
     rmarkdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.1
 LazyData: true
 URL: https://github.com/amannj/OECDscaleup, https://amannj.github.io/OECDscaleup/
 BugReports: https://github.com/amannj/OECDscaleup/issues

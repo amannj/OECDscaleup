@@ -92,7 +92,7 @@ predictors_type_labels <- c(
 
 #' Classify scalers by pre-period predictor quartile and regress scaling on them
 #'
-#' Translates `n1_3_predictors.do` (`Pseudocode/n1_3_predictors.md`). The
+#' Translates `n1_3_predictors.do`. The
 #' entire procedure is a no-op unless `added_value`, `tangible_fixed_assets`,
 #' and `labour_costs` all exist in `accounts_indicators`. First classifies
 #' first-time-eligible scalers into 6 "driver" types based on which

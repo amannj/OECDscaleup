@@ -10,4 +10,4 @@ NULL
 # evaluation and dynamic column names), not literal undefined globals -
 # this is the standard, widely-used suppression for R CMD check's static
 # analysis, which cannot otherwise tell the two apart.
-utils::globalVariables(c(".data", ":="))
+utils::globalVariables(c(".data", ":=", "variable_dictionary"))

@@ -70,7 +70,7 @@ nace_to_rev2 <- function(data, config) {
   s3[repair] <- 452
   has2 <- rev21 & !is.na(s2)
   s1[has2] <- nace_section(s2[has2], "2")
-  back <- c(setNames(LETTERS[1:10], LETTERS[1:10]), K = "J", setNames(LETTERS[11:21], LETTERS[12:22]))
+  back <- c(stats::setNames(LETTERS[1:10], LETTERS[1:10]), K = "J", stats::setNames(LETTERS[11:21], LETTERS[12:22]))
   only1 <- rev21 & is.na(s2) & !is.na(s1)
   s1[only1] <- unname(back[s1[only1]])
 

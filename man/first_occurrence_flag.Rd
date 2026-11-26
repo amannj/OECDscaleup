@@ -22,6 +22,5 @@ Returns \code{1} only on the earliest \code{time} value (per \code{id}) at which
 — not the first row of each subsequent episode, the single first
 occurrence ever. \code{NA} values in \code{x} are treated as "not an event" and do
 not break the chain (matching Stata's \code{sum()} treating missing as \code{0} in
-the cumulative-sum idiom the source uses for this same purpose — see
-\verb{Pseudocode/00_conventions.md}, \code{FIRST_OCCURRENCE_FLAG}).
+the cumulative-sum idiom the source uses for this same purpose).
 }
