@@ -69,9 +69,7 @@ An object of class \code{scaleup_config}.
 }
 \description{
 Constructs and validates the configuration shared by every pipeline stage,
-replacing the Stata global macros (\verb{$country}, \verb{$inputdir}, \verb{$outputdir},
-\verb{$dominance}, \verb{$domvars}, \verb{$dom_num}) set once in \code{MASTER_OECD_p2.do} and
-read implicitly by every downstream \code{.do} file.
+passed to every function of the package.
 }
 \examples{
 \dontrun{

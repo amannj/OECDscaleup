@@ -22,3 +22,4 @@ A vector the same length as \code{x}.
 \code{x - panel_lag(x, n, id, time)} — a single subtraction against the value \code{n}
 periods ago (not an iterated first-difference).
 }
+\keyword{internal}

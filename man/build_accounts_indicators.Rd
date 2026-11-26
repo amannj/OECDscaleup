@@ -31,12 +31,12 @@ only for the non-Euro countries listed in \code{country_patches$non_euro}.}
 \item{tl3_typology}{Optional data frame with columns \verb{region_3d, typology_access_cities} (as shipped in this package's \code{tl3_typology}
 dataset). Required only if \code{base_financials} has a \code{region_3d} column.}
 
-\item{storage_types}{Optional named character vector giving the Stata
+\item{storage_types}{Optional named character vector giving the
 storage type (\code{"byte"}, \code{"int"}, \code{"long"}, \code{"float"}, \code{"double"}) of the
 columns of \code{base_financials}, as stored in its \code{.dta} file.
-\code{\link[=run_scaleup_pipeline]{run_scaleup_pipeline()}} reads it from the file header. Where Stata
-rescales a \code{float} (or \code{byte}/\code{int}) variable in place, the result is
-stored in single precision, and R rounds it the same way. \code{NULL} (the
+\code{\link[=run_scaleup_pipeline]{run_scaleup_pipeline()}} reads it from the file header. A \code{float} (or
+\code{byte}/\code{int}) variable rescaled to EUR thousand is rounded to single
+precision, as the file stores it. \code{NULL} (the
 default) treats every column as \code{double}.}
 }
 \value{
@@ -45,7 +45,7 @@ A data frame, one row per \verb{(idf, year)}, ready to be passed to
 \code{\link[=compute_contribution]{compute_contribution()}}, and \code{\link[=compute_predictors]{compute_predictors()}}.
 }
 \description{
-Translates \code{n0_1_accounts_indicators_v2.do}. Cleans the raw firm-level
+Cleans the raw firm-level
 panel, optionally folds in establishment-level plant data, and constructs
 every derived variable the other 4 pipeline stages depend on: growth
 rates, high-growth-firm (HGF) flags, age/size/sector/region categories,
@@ -53,12 +53,8 @@ the TL3 urbanisation typology, labour productivity, multi-factor
 productivity (Solow residual), and the acquisition indicator.
 }
 \details{
-Unlike the source \code{.do} file, this is a pure function: it takes
-already-loaded data frames and returns the built panel, rather than
-reading/writing \code{.dta} files itself (that I/O now lives in
-\code{\link[=run_scaleup_pipeline]{run_scaleup_pipeline()}}, mirroring \code{MASTER_OECD_p2.do}'s role). This also
-means the row-order-dependent \verb{sort idf year} step in the source is
-unnecessary here: every lag/lead below is computed via \code{\link[=panel_lag]{panel_lag()}} /
-\code{\link[=panel_lead]{panel_lead()}}, which key off \verb{(idf, year)} values directly rather than
-physical row position.
+This is a pure function: it takes already-loaded data frames and returns
+the built panel (\code{\link[=run_scaleup_pipeline]{run_scaleup_pipeline()}} reads and writes the files).
+Lags and leads are taken by \verb{(idf, year)}, not by row position, so a gap
+in a firm's years gives a missing value.
 }

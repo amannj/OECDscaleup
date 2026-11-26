@@ -21,3 +21,4 @@ algorithm confirmed equivalent to R's \code{quantile(type = 2)} (Hyndman & Fan
 \code{stats::quantile()} wherever the source computes \code{r(p1)}/\code{r(p99)} for
 winsorizing or trimming.
 }
+\keyword{internal}

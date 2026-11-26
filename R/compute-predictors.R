@@ -27,13 +27,10 @@ predictors_quartile_var <- function(data, var, ymin, end_year) {
 #'
 #' Rules are applied in order, a later rule overwriting an earlier one. Types
 #' 9 ("Missing info") and 50 ("<50 year-sector N") come first so that the
-#' strategic types 1-4 can still be assigned from the quartiles that are known
-#' (as the Stata code intends).
+#' strategic types 1-4 can still be assigned from the quartiles that are known.
 #'
-#' Fix S4: types 5/6 ("Transformational"/"Expansionist") say that *none* of the
+#' Types 5/6 ("Transformational"/"Expansionist") say that *none* of the
 #' three quartiles is the top one, which is only known when all three are known.
-#' In Stata a missing quartile compared as "not 4", so 5/6 overwrote 9/50
-#' whenever `MFP_gr` or `gross_profit_gr` was known.
 #' @keywords internal
 predictors_classify_type <- function(data) {
   type <- rep(0, nrow(data))
@@ -92,7 +89,7 @@ predictors_type_labels <- c(
 
 #' Classify scalers by pre-period predictor quartile and regress scaling on them
 #'
-#' Translates `n1_3_predictors.do`. The
+#' The
 #' entire procedure is a no-op unless `added_value`, `tangible_fixed_assets`,
 #' and `labour_costs` all exist in `accounts_indicators`. First classifies
 #' first-time-eligible scalers into 6 "driver" types based on which
@@ -101,10 +98,8 @@ predictors_type_labels <- c(
 #' regressions of scaling on those same predictors.
 #'
 #' The strategic types use *levels* at t-3: MFP (the "productivity" type),
-#' tangible fixed assets over turnover and the average wage. The Stata
-#' documentation calls the productivity type "productivity growth in 4th
-#' quartile at t-3", but the code uses the MFP level, like the other two types
-#' (S11). MFP growth enters the regressions (model 2) and the Transformational
+#' tangible fixed assets over turnover and the average wage.
+#' MFP growth enters the regressions (model 2) and the Transformational
 #' / Expansionist types.
 #'
 #' @param config A `scaleup_config` from [config_scaleup()].

@@ -1,26 +1,23 @@
 #' Collapse transaction-level trade data to a firm-year panel
 #'
-#' Translates PART 2 of `n0_2_trade_accounts_indicators.do` (trade package
-#' v1.0). The raw trade file has one row per firm, year, flow (`trade_type`
+#' The raw trade file has one row per firm, year, flow (`trade_type`
 #' 1 = import, 2 = export), destination country and CN8 product. The result
 #' has one row per firm-year with, for each flow, the total value, the number
 #' of distinct 6-digit products and the largest product's share; for exports
 #' also the number of destination countries (all and EU). Imports have no
-#' partner country in the data, so their partner counts are dropped, as in
-#' Stata.
+#' partner country in the data, so their partner counts are dropped.
 #'
-#' Stata semantics reproduced: `egen total()` and `gen` results are stored as
-#' `float`, `collapse (sum)` as `double`; products whose 6-digit total is
+#' Values are stored as in the original routines (`float` totals, `double`
+#' sums); products whose 6-digit total is
 #' below 1 (thousand EUR) are blanked before the counts; a flow whose values
 #' were all missing stays missing after the collapse (which would sum them to
-#' 0); a flow that is entirely absent stays missing after the reshape (bug
-#' T2).
+#' 0); a flow that is entirely absent stays missing for every firm.
 #'
 #' @param config A `scaleup_config` from [config_scaleup()].
 #' @param trade_raw Data frame with `idf, year, trade_type, trade_value`
 #'   (numeric) and `code_destin, prod_code` (string), as in the `trade_RAW`
 #'   rows of [variable_dictionary] (`vignette("input-trade-data")`).
-#' @param storage_types Optional Stata storage types of `trade_raw`'s columns
+#' @param storage_types Optional storage types of `trade_raw`'s columns
 #'   (see [build_accounts_indicators()]); used for the PT/HU rescaling.
 #' @return A data frame, one row per `(idf, year)` present in `trade_raw`.
 #' @export
@@ -187,8 +184,7 @@ group_all <- function(x, g) {
 
 #' Build the trade package's firm-year panel (`trade_accounts_indicators`)
 #'
-#' Translates `n0_2_trade_accounts_indicators.do`: the second package's
-#' [build_accounts_indicators()] (an earlier version of it) with the firm-year
+#' The panel of [build_accounts_indicators()] with the firm-year
 #' trade panel ([build_trade_panel()]) merged in, and exporter/importer flags,
 #' first-time exporters (`y4_exporter`), heavy/light exporting turnover
 #' scalers (`HGX10/20`, `HGNX10/20`), `sector_exporter` and `digit_sect`
@@ -196,7 +192,7 @@ group_all <- function(x, g) {
 #'
 #' @inheritParams build_accounts_indicators
 #' @param trade_raw The transaction-level trade data (see [build_trade_panel()]).
-#' @param trade_storage_types Optional Stata storage types of `trade_raw`.
+#' @param trade_storage_types Optional storage types of `trade_raw`.
 #' @return A data frame, one row per `(idf, year)` of `base_financials`, ready
 #'   for [compute_trade_characteristics()].
 #' @export

@@ -17,7 +17,6 @@ matching the column contract of \verb{n13_characteristics_<country>.csv}
 (PDF Table 3.3).
 }
 \description{
-Translates \code{n1_3_characteristics.do}.
 For every combination of 24 firm samples (each HGF definition, its
 "eligible non-scaler" complement, micro/non-micro) and up to 12 category
 breakdowns (age, size, sector, region, ownership, ...), reports firm

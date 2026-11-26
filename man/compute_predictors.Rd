@@ -17,7 +17,7 @@ frames (PDF Tables 3.6/3.7), or an empty list if the precondition isn't
 met.
 }
 \description{
-Translates \code{n1_3_predictors.do}. The
+The
 entire procedure is a no-op unless \code{added_value}, \code{tangible_fixed_assets},
 and \code{labour_costs} all exist in \code{accounts_indicators}. First classifies
 first-time-eligible scalers into 6 "driver" types based on which
@@ -27,9 +27,7 @@ regressions of scaling on those same predictors.
 }
 \details{
 The strategic types use \emph{levels} at t-3: MFP (the "productivity" type),
-tangible fixed assets over turnover and the average wage. The Stata
-documentation calls the productivity type "productivity growth in 4th
-quartile at t-3", but the code uses the MFP level, like the other two types
-(S11). MFP growth enters the regressions (model 2) and the Transformational
+tangible fixed assets over turnover and the average wage.
+MFP growth enters the regressions (model 2) and the Transformational
 / Expansionist types.
 }

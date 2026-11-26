@@ -26,3 +26,4 @@ lookup, so e.g. \code{decode_category(x, "L3age_cat")} resolves to the same map
 as \code{decode_category(x, "age_cat")} — lagged category columns always mean
 the same categories as their contemporaneous counterpart.
 }
+\keyword{internal}

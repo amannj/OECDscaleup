@@ -128,7 +128,7 @@ collapse_by_group_year <- function(data, follow_col, group, hg, config) {
 
 #' Growth trajectories before/after a scaling event ("transitions" and "evolutions")
 #'
-#' Translates `n1_3_persistence.do`. Computes
+#' Computes
 #' two related classification schemes: **transitions** (2014-2016 scaler
 #' cohorts, follow-up only) and **evolutions** (2017 cohort, both lead-up and
 #' follow-up, further split by entrant/incumbent/exiting status). Iterates

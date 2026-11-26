@@ -24,3 +24,4 @@ occurrence ever. \code{NA} values in \code{x} are treated as "not an event" and 
 not break the chain (matching Stata's \code{sum()} treating missing as \code{0} in
 the cumulative-sum idiom the source uses for this same purpose).
 }
+\keyword{internal}

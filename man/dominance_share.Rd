@@ -19,7 +19,7 @@ A single numeric value in \verb{[0, 1]}, or \code{NA}.
 \description{
 The share of the total held by the \code{top_n} largest units — a standard
 "(n,k)-dominance rule" statistic. Missing values are treated as \code{0} when
-accumulating (matching Stata's \code{sum()}/\code{total()} egen functions) and sort
+accumulating and sort
 last (never among the "top" units). Returns \code{NA}
 if the group has fewer than \code{top_n} units, or if the group's total is \code{0}.
 }

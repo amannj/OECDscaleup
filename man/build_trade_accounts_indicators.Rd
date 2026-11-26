@@ -35,23 +35,22 @@ only for the non-Euro countries listed in \code{country_patches$non_euro}.}
 \item{tl3_typology}{Optional data frame with columns \verb{region_3d, typology_access_cities} (as shipped in this package's \code{tl3_typology}
 dataset). Required only if \code{base_financials} has a \code{region_3d} column.}
 
-\item{storage_types}{Optional named character vector giving the Stata
+\item{storage_types}{Optional named character vector giving the
 storage type (\code{"byte"}, \code{"int"}, \code{"long"}, \code{"float"}, \code{"double"}) of the
 columns of \code{base_financials}, as stored in its \code{.dta} file.
-\code{\link[=run_scaleup_pipeline]{run_scaleup_pipeline()}} reads it from the file header. Where Stata
-rescales a \code{float} (or \code{byte}/\code{int}) variable in place, the result is
-stored in single precision, and R rounds it the same way. \code{NULL} (the
+\code{\link[=run_scaleup_pipeline]{run_scaleup_pipeline()}} reads it from the file header. A \code{float} (or
+\code{byte}/\code{int}) variable rescaled to EUR thousand is rounded to single
+precision, as the file stores it. \code{NULL} (the
 default) treats every column as \code{double}.}
 
-\item{trade_storage_types}{Optional Stata storage types of \code{trade_raw}.}
+\item{trade_storage_types}{Optional storage types of \code{trade_raw}.}
 }
 \value{
 A data frame, one row per \verb{(idf, year)} of \code{base_financials}, ready
 for \code{\link[=compute_trade_characteristics]{compute_trade_characteristics()}}.
 }
 \description{
-Translates \code{n0_2_trade_accounts_indicators.do}: the second package's
-\code{\link[=build_accounts_indicators]{build_accounts_indicators()}} (an earlier version of it) with the firm-year
+The panel of \code{\link[=build_accounts_indicators]{build_accounts_indicators()}} with the firm-year
 trade panel (\code{\link[=build_trade_panel]{build_trade_panel()}}) merged in, and exporter/importer flags,
 first-time exporters (\code{y4_exporter}), heavy/light exporting turnover
 scalers (\code{HGX10/20}, \code{HGNX10/20}), \code{sector_exporter} and \code{digit_sect}

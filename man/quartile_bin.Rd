@@ -30,3 +30,4 @@ exactly in the reproduction runs (every predictor type and desc_predictors
 cell, nine synthetic scenarios), provided the input is stored as Stata
 stores it (\code{float}, see \code{stata_float()}).
 }
+\keyword{internal}

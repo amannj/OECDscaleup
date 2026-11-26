@@ -19,3 +19,4 @@ A numeric vector the same length as \code{x}.
 algorithm — see \code{\link[=percentile_stata]{percentile_stata()}}); values at or below the 99th
 percentile, and missing values, are returned unchanged.
 }
+\keyword{internal}

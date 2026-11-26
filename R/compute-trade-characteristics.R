@@ -1,7 +1,6 @@
 #' Characteristics of exporting and non-exporting scalers (trade package)
 #'
-#' Translates `n1_6_trade_characteristics.do` (trade package v1.0), a variant
-#' of [compute_characteristics()]:
+#' A variant of [compute_characteristics()]:
 #'
 #' * **p1**: scalers, non-scalers and heavy/light exporting turnover scalers
 #'   (`HGX`/`HGNX`) by exporter status, size-age group, sector group x

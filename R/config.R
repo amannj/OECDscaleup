@@ -1,9 +1,7 @@
 #' Build a Scale-Up pipeline configuration
 #'
 #' Constructs and validates the configuration shared by every pipeline stage,
-#' replacing the Stata global macros (`$country`, `$inputdir`, `$outputdir`,
-#' `$dominance`, `$domvars`, `$dom_num`) set once in `MASTER_OECD_p2.do` and
-#' read implicitly by every downstream `.do` file.
+#' passed to every function of the package.
 #'
 #' @param country 2-letter ISO country code (e.g. `"FR"`). Drives output file
 #'   naming and several country-specific data patches inside
@@ -176,6 +174,7 @@ print.scaleup_config <- function(x, ...) {
 #' @param var Column name (string).
 #' @return `TRUE` if `var` is a column of `data` and has at least one
 #'   non-missing value, `FALSE` otherwise.
+#' @keywords internal
 #' @export
 has_column <- function(data, var) {
   var %in% names(data) && sum(!is.na(data[[var]])) > 0

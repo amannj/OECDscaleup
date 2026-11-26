@@ -22,3 +22,4 @@ A vector the same length as \code{x}.
 Symmetric to \code{\link[=panel_lag]{panel_lag()}}: the value of \code{x} for the same \code{id} at \code{n}
 periods later in \code{time}, or \code{NA} if that exact key does not exist.
 }
+\keyword{internal}

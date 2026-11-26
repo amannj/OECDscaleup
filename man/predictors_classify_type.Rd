@@ -9,13 +9,10 @@ predictors_classify_type(data)
 \description{
 Rules are applied in order, a later rule overwriting an earlier one. Types
 9 ("Missing info") and 50 ("<50 year-sector N") come first so that the
-strategic types 1-4 can still be assigned from the quartiles that are known
-(as the Stata code intends).
+strategic types 1-4 can still be assigned from the quartiles that are known.
 }
 \details{
-Fix S4: types 5/6 ("Transformational"/"Expansionist") say that \emph{none} of the
+Types 5/6 ("Transformational"/"Expansionist") say that \emph{none} of the
 three quartiles is the top one, which is only known when all three are known.
-In Stata a missing quartile compared as "not 4", so 5/6 overwrote 9/50
-whenever \code{MFP_gr} or \code{gross_profit_gr} was known.
 }
 \keyword{internal}

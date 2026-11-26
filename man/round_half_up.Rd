@@ -22,3 +22,4 @@ calculations in this package (e.g. \code{\link[=approx_median]{approx_median()}}
 defined in terms of Stata's convention, so this helper is used instead of
 base \code{round()} wherever the source Stata code calls \code{round()}.
 }
+\keyword{internal}

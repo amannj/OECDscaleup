@@ -1,20 +1,16 @@
 #' Build the firm-year analytical panel and its derived indicators
 #'
-#' Translates `n0_1_accounts_indicators_v2.do`. Cleans the raw firm-level
+#' Cleans the raw firm-level
 #' panel, optionally folds in establishment-level plant data, and constructs
 #' every derived variable the other 4 pipeline stages depend on: growth
 #' rates, high-growth-firm (HGF) flags, age/size/sector/region categories,
 #' the TL3 urbanisation typology, labour productivity, multi-factor
 #' productivity (Solow residual), and the acquisition indicator.
 #'
-#' Unlike the source `.do` file, this is a pure function: it takes
-#' already-loaded data frames and returns the built panel, rather than
-#' reading/writing `.dta` files itself (that I/O now lives in
-#' [run_scaleup_pipeline()], mirroring `MASTER_OECD_p2.do`'s role). This also
-#' means the row-order-dependent `sort idf year` step in the source is
-#' unnecessary here: every lag/lead below is computed via [panel_lag()] /
-#' [panel_lead()], which key off `(idf, year)` values directly rather than
-#' physical row position.
+#' This is a pure function: it takes already-loaded data frames and returns
+#' the built panel ([run_scaleup_pipeline()] reads and writes the files).
+#' Lags and leads are taken by `(idf, year)`, not by row position, so a gap
+#' in a firm's years gives a missing value.
 #'
 #' @param config A `scaleup_config` from [config_scaleup()].
 #' @param base_financials A data frame of raw firm-level financials, as
@@ -31,12 +27,12 @@
 #' @param tl3_typology Optional data frame with columns `region_3d,
 #'   typology_access_cities` (as shipped in this package's `tl3_typology`
 #'   dataset). Required only if `base_financials` has a `region_3d` column.
-#' @param storage_types Optional named character vector giving the Stata
+#' @param storage_types Optional named character vector giving the
 #'   storage type (`"byte"`, `"int"`, `"long"`, `"float"`, `"double"`) of the
 #'   columns of `base_financials`, as stored in its `.dta` file.
-#'   [run_scaleup_pipeline()] reads it from the file header. Where Stata
-#'   rescales a `float` (or `byte`/`int`) variable in place, the result is
-#'   stored in single precision, and R rounds it the same way. `NULL` (the
+#'   [run_scaleup_pipeline()] reads it from the file header. A `float` (or
+#'   `byte`/`int`) variable rescaled to EUR thousand is rounded to single
+#'   precision, as the file stores it. `NULL` (the
 #'   default) treats every column as `double`.
 #'
 #' @return A data frame, one row per `(idf, year)`, ready to be passed to

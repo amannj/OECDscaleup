@@ -28,3 +28,4 @@ rather than incorrectly reaching back to the 2011 row. Verified
 empirically against \code{collapse::flag()}'s time-aware behaviour before use
 here.
 }
+\keyword{internal}

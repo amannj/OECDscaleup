@@ -21,3 +21,4 @@ guards: many financial and category variables are optional per
 \link{variable_dictionary}, and whole blocks of logic are silently
 skipped (not errored) when a given country's raw data lacks them.
 }
+\keyword{internal}

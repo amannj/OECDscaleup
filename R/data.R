@@ -1,8 +1,8 @@
 #' TL3/NUTS3 region urbanisation typology
 #'
 #' Classifies TL3 (NUTS3-equivalent) regions by their access to cities, per
-#' the OECD regional urban/rural typology. Supplied by the OECD alongside the
-#' original Stata package (`Stata/tl3_typology.dta`); bundled here as-is
+#' the OECD regional urban/rural typology. Supplied by the OECD
+#' (`tl3_typology.dta`); bundled here as-is
 #' because it is small, non-confidential reference data (not firm microdata).
 #' Used by [build_accounts_indicators()] to derive `typology_UR` when the raw
 #' input data has a `region_3d` column.
@@ -25,15 +25,14 @@
 #'     `typology_access_cities` instead, step 18
 #'     of [build_accounts_indicators()]).}
 #' }
-#' @source OECD Scale Up project, `tl3_typology.dta` (`Stata/` in the
-#'   original package).
+#' @source OECD Scale Up project, `tl3_typology.dta`.
 "tl3_typology"
 
 #' Annual average Eurostat exchange rates
 #'
 #' Annual average EUR exchange rates for the 5 non-Euro countries this
-#' project covers, 2008-2022. Supplied by the OECD alongside the original
-#' Stata package (`Stata/exchange_rates.dta`); bundled here as-is because it
+#' project covers, 2008-2022. Supplied by the OECD
+#' (`exchange_rates.dta`); bundled here as-is because it
 #' is small, non-confidential reference data. Used by
 #' [build_accounts_indicators()] to convert `turnover` to national currency
 #' for the countries in `country_patches$non_euro`.
@@ -46,8 +45,8 @@
 #'   \item{country}{2-letter country code — the join key used by
 #'     [build_accounts_indicators()], alongside `year`.}
 #' }
-#' @source Eurostat, via the OECD Scale Up project's `exchange_rates.dta`
-#'   (`Stata/` in the original package). See
+#' @source Eurostat, via the OECD Scale Up project's `exchange_rates.dta`.
+#'   See
 #'   \url{https://ec.europa.eu/eurostat/databrowser/view/ERT_BIL_EUR_A/default/table?lang=en}.
 "exchange_rates"
 

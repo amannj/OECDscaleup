@@ -19,3 +19,4 @@ A vector the same length as \code{x}.
 \description{
 \code{x - panel_lag(x, 1, id, time)}.
 }
+\keyword{internal}

@@ -10,6 +10,7 @@
 #' @param x A numeric vector.
 #' @param digits Number of decimal places (default `0`).
 #' @return A numeric vector, rounded half-away-from-zero.
+#' @keywords internal
 #' @export
 round_half_up <- function(x, digits = 0) {
   scale <- 10^digits
@@ -36,6 +37,7 @@ round_half_up <- function(x, digits = 0) {
 #'
 #' @param x A numeric vector.
 #' @return A numeric vector with every `NA` replaced by `Inf`.
+#' @keywords internal
 #' @export
 stata_num <- function(x) {
   if (!is.numeric(x)) return(ifelse(is.na(x), Inf, x))
@@ -61,6 +63,7 @@ stata_num <- function(x) {
 #' @param value The replacement value (recycled as needed) where `cond` is
 #'   `TRUE`.
 #' @return A vector the same length/type as `cur`.
+#' @keywords internal
 #' @export
 stata_replace <- function(cur, cond, value) {
   cond <- !is.na(cond) & cond
@@ -78,6 +81,7 @@ stata_replace <- function(cur, cond, value) {
 #' @param x A numeric vector.
 #' @param at A numeric vector of breakpoints, in increasing order.
 #' @return A numeric vector of interval lower bounds (or `NA`).
+#' @keywords internal
 #' @export
 cut_stata <- function(x, at) {
   stopifnot(length(at) >= 2, !is.unsorted(at))
@@ -101,6 +105,7 @@ cut_stata <- function(x, at) {
 #' @param id Panel unit identifier vector (e.g. `idf`), same length as `x`.
 #' @param time Panel time vector (e.g. `year`), same length as `x`.
 #' @return A vector the same length as `x`.
+#' @keywords internal
 #' @export
 panel_lag <- function(x, n, id, time) {
   collapse::flag(x, n = n, g = id, t = time)
@@ -113,6 +118,7 @@ panel_lag <- function(x, n, id, time) {
 #'
 #' @inheritParams panel_lag
 #' @return A vector the same length as `x`.
+#' @keywords internal
 #' @export
 panel_lead <- function(x, n, id, time) {
   collapse::flag(x, n = -n, g = id, t = time)
@@ -124,6 +130,7 @@ panel_lead <- function(x, n, id, time) {
 #'
 #' @inheritParams panel_lag
 #' @return A vector the same length as `x`.
+#' @keywords internal
 #' @export
 panel_diff1 <- function(x, id, time) {
   x - panel_lag(x, 1, id, time)
@@ -136,6 +143,7 @@ panel_diff1 <- function(x, id, time) {
 #'
 #' @inheritParams panel_lag
 #' @return A vector the same length as `x`.
+#' @keywords internal
 #' @export
 panel_sdiff <- function(x, n, id, time) {
   x - panel_lag(x, n, id, time)
@@ -145,7 +153,7 @@ panel_sdiff <- function(x, n, id, time) {
 #'
 #' A confidentiality-preserving stand-in for a true median: true medians are
 #' not published per this project's disclosure rules. Sorts `x` ascending
-#' (`NA` sorted last, matching Stata's convention), then averages the (up to) 5
+#' (`NA` sorted last), then averages the (up to) 5
 #' values centred on position `round_half_up(n_non_missing / 2)`. This is
 #' **not** interchangeable with a true median except by coincidence — do not
 #' replace with `median()`.
@@ -176,7 +184,7 @@ approx_median <- function(x) {
 #'
 #' The share of the total held by the `top_n` largest units — a standard
 #' "(n,k)-dominance rule" statistic. Missing values are treated as `0` when
-#' accumulating (matching Stata's `sum()`/`total()` egen functions) and sort
+#' accumulating and sort
 #' last (never among the "top" units). Returns `NA`
 #' if the group has fewer than `top_n` units, or if the group's total is `0`.
 #'
@@ -216,6 +224,7 @@ dominance_share <- function(x, top_n) {
 #' @param x A 0/1 (or `NA`) numeric vector, the same length as `id`/`time`,
 #'   typically a high-growth-firm flag.
 #' @return An integer vector (`0L`/`1L`), the same length and order as `x`.
+#' @keywords internal
 #' @export
 first_occurrence_flag <- function(id, time, x) {
   ord <- order(id, time)
@@ -263,6 +272,7 @@ group_fill <- function(x, g, stat = c("min", "max", "mean", "sum")) {
 #' @param x A numeric vector.
 #' @param n Number of equal-frequency bins (default `4`, i.e. quartiles).
 #' @return An integer vector of bin numbers `1..n` (or `NA`).
+#' @keywords internal
 #' @export
 quartile_bin <- function(x, n = 4) {
   statar::xtile(x, n = n)
@@ -279,6 +289,7 @@ quartile_bin <- function(x, n = 4) {
 #' @param x A numeric vector.
 #' @param probs A numeric vector of probabilities in `[0, 1]`.
 #' @return A named numeric vector of the requested percentiles.
+#' @keywords internal
 #' @export
 percentile_stata <- function(x, probs) {
   stats::quantile(x, probs = probs, na.rm = TRUE, type = 2)
@@ -293,6 +304,7 @@ percentile_stata <- function(x, probs) {
 #' @param x A numeric vector.
 #' @param upper_prob Upper percentile threshold (default `0.99`).
 #' @return A numeric vector the same length as `x`.
+#' @keywords internal
 #' @export
 winsorize_upper <- function(x, upper_prob = 0.99) {
   p <- percentile_stata(x, upper_prob)
@@ -308,6 +320,7 @@ winsorize_upper <- function(x, upper_prob = 0.99) {
 #' @param lower_prob Lower percentile threshold (default `0.01`).
 #' @param upper_prob Upper percentile threshold (default `0.99`).
 #' @return A numeric vector the same length as `x`.
+#' @keywords internal
 #' @export
 winsorize_both <- function(x, lower_prob = 0.01, upper_prob = 0.99) {
   bounds <- percentile_stata(x, c(lower_prob, upper_prob))

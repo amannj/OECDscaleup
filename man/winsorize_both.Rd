@@ -20,3 +20,4 @@ A numeric vector the same length as \code{x}.
 \code{x} is set to \code{NA} wherever it falls below its own 1st percentile or above
 its own 99th percentile (Stata algorithm — see \code{\link[=percentile_stata]{percentile_stata()}}).
 }
+\keyword{internal}

@@ -17,7 +17,7 @@ destruction detail) and \code{contribution_p2} (undifferentiated aggregate),
 matching PDF Table 3.5.
 }
 \description{
-Translates \code{n1_3_contribution.do}. For
+For
 5 selected years and 16 firm samples, computes total employment/turnover
 created vs. destroyed over the prior 3-year window, treating entrants as
 creating their full current value and exits as destroying their full

@@ -54,7 +54,7 @@ at t-1: log employment, 1-year employment growth, log turnover per
 employee and, where present, independence and exporter status; plus a
 young-firm dummy (age class 0-5 at t-1), years since entry and its
 square, and a linear calendar trend. Firm-clustered standard errors
-(CR1, as Stata's \verb{vce(cluster idf)}); \code{ame_scaler} is the average
+(CR1); \code{ame_scaler} is the average
 change in the yearly crossing probability when \code{scaler} goes from 0 to 1.
 Exits count as no crossing in their year (a cause-specific hazard).
 Two models each (\code{window}): \code{from_t-3}, every step; \code{after_window}, only
@@ -64,7 +64,7 @@ a scaler.
 }
 }
 \description{
-New analysis (not part of the original Stata package). Follows firms from
+New analysis. Follows firms from
 the start of the 3-year window that first makes them a scaler (or a
 non-scaler of the pool) and records when they cross into mid-cap status,
 with firm exit as a competing event.

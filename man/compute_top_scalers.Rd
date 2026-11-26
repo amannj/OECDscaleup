@@ -29,7 +29,7 @@ turnover scalers). \code{\link[=run_scaler_analysis]{run_scaler_analysis()}} rep
 A tibble.
 }
 \description{
-New analysis (not part of the original Stata package). Ranks the
+New analysis. Ranks the
 high-growth scalers of each year by how much they grew over the 3-year
 window t-3..t and describes the fastest ones, in the format of
 \code{\link[=compute_characteristics]{compute_characteristics()}}.

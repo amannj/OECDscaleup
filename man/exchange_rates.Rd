@@ -15,8 +15,8 @@ A data frame with 75 rows and 4 columns:
 }
 }
 \source{
-Eurostat, via the OECD Scale Up project's \code{exchange_rates.dta}
-(\verb{Stata/} in the original package). See
+Eurostat, via the OECD Scale Up project's \code{exchange_rates.dta}.
+See
 \url{https://ec.europa.eu/eurostat/databrowser/view/ERT_BIL_EUR_A/default/table?lang=en}.
 }
 \usage{
@@ -24,8 +24,8 @@ exchange_rates
 }
 \description{
 Annual average EUR exchange rates for the 5 non-Euro countries this
-project covers, 2008-2022. Supplied by the OECD alongside the original
-Stata package (\code{Stata/exchange_rates.dta}); bundled here as-is because it
+project covers, 2008-2022. Supplied by the OECD
+(\code{exchange_rates.dta}); bundled here as-is because it
 is small, non-confidential reference data. Used by
 \code{\link[=build_accounts_indicators]{build_accounts_indicators()}} to convert \code{turnover} to national currency
 for the countries in \code{country_patches$non_euro}.

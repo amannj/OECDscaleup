@@ -25,16 +25,15 @@ of \code{\link[=build_accounts_indicators]{build_accounts_indicators()}}).}
 }
 }
 \source{
-OECD Scale Up project, \code{tl3_typology.dta} (\verb{Stata/} in the
-original package).
+OECD Scale Up project, \code{tl3_typology.dta}.
 }
 \usage{
 tl3_typology
 }
 \description{
 Classifies TL3 (NUTS3-equivalent) regions by their access to cities, per
-the OECD regional urban/rural typology. Supplied by the OECD alongside the
-original Stata package (\code{Stata/tl3_typology.dta}); bundled here as-is
+the OECD regional urban/rural typology. Supplied by the OECD
+(\code{tl3_typology.dta}); bundled here as-is
 because it is small, non-confidential reference data (not firm microdata).
 Used by \code{\link[=build_accounts_indicators]{build_accounts_indicators()}} to derive \code{typology_UR} when the raw
 input data has a \code{region_3d} column.

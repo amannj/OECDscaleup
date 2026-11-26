@@ -30,3 +30,4 @@ value elsewhere); only valid when comparing against a literal, itself
 never-missing, constant — for comparisons between two possibly-missing
 variables, resolve missingness explicitly instead.
 }
+\keyword{internal}

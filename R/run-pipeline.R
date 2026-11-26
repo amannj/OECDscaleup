@@ -1,6 +1,6 @@
 #' Run the full Scale-Up pipeline, reading and writing files on disk
 #'
-#' Mirrors `MASTER_OECD_p2.do`: reads the raw
+#' Reads the raw
 #' inputs from `config$input_dir`, runs [build_accounts_indicators()] followed
 #' by the four independent downstream stages ([compute_characteristics()],
 #' [compute_persistence()], [compute_contribution()], [compute_predictors()]),
@@ -11,7 +11,7 @@
 #'
 #' This is the only function in the package that performs file I/O; every
 #' `compute_*()`/`build_*()` function is a pure, directly-testable
-#' data-frame-in-data-frame-out transformation (see `Stata2R/recommendation.md`).
+#' data-frame-in-data-frame-out transformation.
 #' Call the pure functions directly if you already have the inputs loaded in
 #' R (e.g. this package's own bundled `tl3_typology`/`exchange_rates` data).
 #'
@@ -69,14 +69,14 @@ run_scaleup_pipeline <- function(config) {
 
 #' Run the trade package, reading and writing files on disk
 #'
-#' Mirrors `MASTER_OECD_trade.do`: reads `base_financials_<country>.dta`,
+#' Reads `base_financials_<country>.dta`,
 #' `trade_RAW_<country>.dta` and (if present) `plants_RAW_<country>.dta`,
 #' `exchange_rates.dta` and `tl3_typology.dta` from `config$input_dir`; runs
 #' [build_trade_accounts_indicators()] and [compute_trade_characteristics()];
 #' writes `trade_accounts_indicators_<country>.dta` to `config$input_dir` and
 #' `n16_trade_characteristics_p1_<country>.csv` / `..._p2_...` to
 #' `config$output_dir`. The second package ([run_scaleup_pipeline()]) is not
-#' needed first: like the Stata code, the trade package builds its own panel.
+#' needed first: the trade package builds its own panel.
 #'
 #' @param config A `scaleup_config` from [config_scaleup()].
 #' @return Invisibly, a list with the `p1` and `p2` tables.

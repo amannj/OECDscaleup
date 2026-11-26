@@ -2,6 +2,10 @@ url: https://amannj.github.io/OECDscaleup/
 template:
   bootstrap: 5
 
+# A development version (x.y.z.9000) is built at the site root, labelled as in development
+development:
+  mode: unreleased
+
 articles:
 - title: Getting started
   contents:
@@ -11,3 +15,42 @@ articles:
   contents:
   - input-data
   - input-trade-data
+
+reference:
+- title: Configuration and input checks
+  contents:
+  - config_scaleup
+  - check_inputs
+  - country_patches
+- title: Scale-up pipeline
+  desc: The baseline indicators, from files or step by step.
+  contents:
+  - run_scaleup_pipeline
+  - build_accounts_indicators
+  - compute_characteristics
+  - compute_persistence
+  - compute_contribution
+  - compute_predictors
+- title: Scaler analysis
+  desc: The fastest-growing scalers and scalers growing into mid-caps.
+  contents:
+  - run_scaler_analysis
+  - compute_top_scalers
+  - compute_midcap_transitions
+- title: Trade (optional)
+  desc: Firm-level international trade in goods.
+  contents:
+  - run_trade_pipeline
+  - build_trade_panel
+  - build_trade_accounts_indicators
+  - compute_trade_characteristics
+- title: Confidentiality statistics
+  contents:
+  - dominance_share
+  - approx_median
+- title: Data
+  contents:
+  - variable_dictionary
+  - example_scaleup_data
+  - tl3_typology
+  - exchange_rates

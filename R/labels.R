@@ -92,6 +92,7 @@ export_label <- function(x, map) {
 #' @param x The category column (integer-coded or already character).
 #' @param cat_name Name of the category (used to find the label map).
 #' @return A character vector.
+#' @keywords internal
 #' @export
 decode_category <- function(x, cat_name) {
   base_name <- sub("^L[0-9]+", "", cat_name)

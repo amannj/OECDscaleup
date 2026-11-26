@@ -14,7 +14,7 @@ Invisibly, a named list of every non-\code{NULL} output table produced
 (the same tables written to \code{config$output_dir}).
 }
 \description{
-Mirrors \code{MASTER_OECD_p2.do}: reads the raw
+Reads the raw
 inputs from \code{config$input_dir}, runs \code{\link[=build_accounts_indicators]{build_accounts_indicators()}} followed
 by the four independent downstream stages (\code{\link[=compute_characteristics]{compute_characteristics()}},
 \code{\link[=compute_persistence]{compute_persistence()}}, \code{\link[=compute_contribution]{compute_contribution()}}, \code{\link[=compute_predictors]{compute_predictors()}}),
@@ -26,7 +26,7 @@ worked example).
 \details{
 This is the only function in the package that performs file I/O; every
 \verb{compute_*()}/\verb{build_*()} function is a pure, directly-testable
-data-frame-in-data-frame-out transformation (see \code{Stata2R/recommendation.md}).
+data-frame-in-data-frame-out transformation.
 Call the pure functions directly if you already have the inputs loaded in
 R (e.g. this package's own bundled \code{tl3_typology}/\code{exchange_rates} data).
 }

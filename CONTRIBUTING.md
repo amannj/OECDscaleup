@@ -1,8 +1,7 @@
 # Contributing to OECDscaleup
 
-Thanks for contributing. This package is a behaviour-preserving translation
-of the OECD Scale Up project's Stata pipeline, used by national statistical
-institutes across the OECD to compute internationally-comparable
+Thanks for contributing. This package computes the OECD Scale Up
+project's indicators, used by national statistical institutes across the OECD to compute internationally-comparable
 high-growth-firm statistics — correctness and faithfulness to the documented
 methodology matter more here than in most packages.
 
@@ -13,10 +12,8 @@ methodology matter more here than in most packages.
   (`build_accounts_indicators()`), the classification rules in
   `compute_persistence()`/`compute_predictors()`, or the disclosure-control
   logic (`dominance_share()`, `approx_median()`).
-- If you're changing behaviour rather than just refactoring, say how the
-  change departs from the original Stata code (the `.do` file and step) and
-  add a `NEWS.md` entry: departures from Stata are documented there, one by
-  one.
+- If you're changing behaviour rather than just refactoring, explain the
+  change and add a `NEWS.md` entry.
 
 ## Setup
 
@@ -57,6 +54,4 @@ devtools::test()              # run the test suite
 
 Please include: the function involved, a minimal reproducible example
 (synthetic data only — never attach real firm microdata to an issue, even
-internally), and, if you believe the translated behaviour diverges from the
-original Stata pipeline, which `.do` file and step you believe it diverges
-from.
+internally) and what you expected instead.

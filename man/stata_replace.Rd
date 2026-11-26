@@ -28,3 +28,4 @@ the row exactly as it was. Used throughout the sequential-overwrite
 classification rules (\code{tech_grad}, \code{ind_a38}, \code{type}, \code{FOLLOW}/\code{LEAD}, ...)
 of the Stata code, written as "later rule overwrites earlier" chains.
 }
+\keyword{internal}

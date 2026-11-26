@@ -17,8 +17,7 @@ A list with data frames \code{p1} and \code{p2}, matching
 \verb{trade_characteristics_p1_<country>.csv} and \code{..._p2_...}.
 }
 \description{
-Translates \code{n1_6_trade_characteristics.do} (trade package v1.0), a variant
-of \code{\link[=compute_characteristics]{compute_characteristics()}}:
+A variant of \code{\link[=compute_characteristics]{compute_characteristics()}}:
 }
 \details{
 \itemize{

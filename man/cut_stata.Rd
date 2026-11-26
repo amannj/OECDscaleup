@@ -20,3 +20,4 @@ falls in, labelling it with the interval's \strong{lower bound}. The final
 breakpoint is exclusive: values equal to or beyond it (and values below the
 first breakpoint) return \code{NA}, matching Stata's \code{cut()} egen function.
 }
+\keyword{internal}
