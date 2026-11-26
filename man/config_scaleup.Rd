@@ -14,7 +14,8 @@ config_scaleup(
   dom_vars = c("employment", "turnover"),
   dom_num = 2,
   financials_unit = NULL,
-  trade_value_unit = NULL
+  trade_value_unit = NULL,
+  tl_classification = "TL2024"
 )
 }
 \arguments{
@@ -23,8 +24,9 @@ naming and several country-specific data patches inside
 \code{\link[=build_accounts_indicators]{build_accounts_indicators()}} (see \code{country_patches}).}
 
 \item{input_dir}{Folder holding \verb{base_financials_<country>.dta} (and
-\verb{plants_RAW_<country>.dta} if available), \code{exchange_rates.dta}, and
-\code{tl3_typology.dta}. Must already exist.}
+\verb{plants_RAW_<country>.dta} if available). A \code{tl3_typology.dta} or
+\code{exchange_rates.dta} there replaces the package's \link{tl3_typology} or
+\link{exchange_rates}. Must already exist.}
 
 \item{output_dir}{Folder the final CSV outputs and logs are written to.
 Must already exist.}
@@ -63,6 +65,11 @@ stops when turnover per employee does not fit EUR thousand after this step.}
 \verb{trade_RAW_<country>.dta}, \code{"EUR"} (divided by 1000) or \code{"EUR thousand"}.
 \code{NULL} (the default) follows the trade package: EUR for PT and HU, EUR
 thousand otherwise (\code{country_patches$trade_values_in_eur}).}
+
+\item{tl_classification}{The OECD territorial classification of the region
+codes (\code{region_2d}, \code{region_3d}): \code{"TL2024"} (the default; NUTS 2024 for
+EU countries) or \code{"TL2021"} (NUTS 2021). It selects the regional typology
+of \link{tl3_typology}; see \code{vignette("input-data")}.}
 }
 \value{
 An object of class \code{scaleup_config}.

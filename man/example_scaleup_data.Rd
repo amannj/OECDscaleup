@@ -37,7 +37,7 @@ try the package without confidential data.
 \details{
 The data are random and mean nothing: the sizes, growth rates and ratios
 are only roughly plausible. The country is France (\code{"FR"}), so the region
-codes are real French NUTS codes that link to \link{tl3_typology}.
+codes are real French NUTS codes that link to \link{tl3_typology} (TL2024).
 }
 \examples{
 ex <- example_scaleup_data(n_firms = 200)

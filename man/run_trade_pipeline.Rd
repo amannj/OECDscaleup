@@ -15,7 +15,8 @@ Invisibly, a list with the \code{p1} and \code{p2} tables.
 \description{
 Reads \verb{base_financials_<country>.dta},
 \verb{trade_RAW_<country>.dta} and (if present) \verb{plants_RAW_<country>.dta},
-\code{exchange_rates.dta} and \code{tl3_typology.dta} from \code{config$input_dir}; runs
+\code{exchange_rates.dta} and \code{tl3_typology.dta} (else the package's
+\link{exchange_rates} and \link{tl3_typology}) from \code{config$input_dir}; runs
 \code{\link[=build_trade_accounts_indicators]{build_trade_accounts_indicators()}} and \code{\link[=compute_trade_characteristics]{compute_trade_characteristics()}};
 writes \verb{trade_accounts_indicators_<country>.dta} to \code{config$input_dir} and
 \verb{n16_trade_characteristics_p1_<country>.csv} / \code{..._p2_...} to

@@ -7,8 +7,9 @@
 #'   naming and several country-specific data patches inside
 #'   [build_accounts_indicators()] (see `country_patches`).
 #' @param input_dir Folder holding `base_financials_<country>.dta` (and
-#'   `plants_RAW_<country>.dta` if available), `exchange_rates.dta`, and
-#'   `tl3_typology.dta`. Must already exist.
+#'   `plants_RAW_<country>.dta` if available). A `tl3_typology.dta` or
+#'   `exchange_rates.dta` there replaces the package's [tl3_typology] or
+#'   [exchange_rates]. Must already exist.
 #' @param output_dir Folder the final CSV outputs and logs are written to.
 #'   Must already exist.
 #' @param dominance Logical; if `TRUE`, every output table gains `dom_<var>`
@@ -39,6 +40,10 @@
 #'   `trade_RAW_<country>.dta`, `"EUR"` (divided by 1000) or `"EUR thousand"`.
 #'   `NULL` (the default) follows the trade package: EUR for PT and HU, EUR
 #'   thousand otherwise (`country_patches$trade_values_in_eur`).
+#' @param tl_classification The OECD territorial classification of the region
+#'   codes (`region_2d`, `region_3d`): `"TL2024"` (the default; NUTS 2024 for
+#'   EU countries) or `"TL2021"` (NUTS 2021). It selects the regional typology
+#'   of [tl3_typology]; see `vignette("input-data")`.
 #'
 #' @return An object of class `scaleup_config`.
 #' @export
@@ -62,7 +67,8 @@ config_scaleup <- function(country,
                             dom_vars = c("employment", "turnover"),
                             dom_num = 2,
                             financials_unit = NULL,
-                            trade_value_unit = NULL) {
+                            trade_value_unit = NULL,
+                            tl_classification = "TL2024") {
   if (!is.character(country) || length(country) != 1 || nchar(country) != 2) {
     rlang::abort(
       "`country` must be a single 2-letter ISO country code (e.g. \"FR\").",
@@ -127,6 +133,10 @@ config_scaleup <- function(country,
   if (!identical(trade_value_unit, "EUR") && !identical(trade_value_unit, "EUR thousand")) {
     rlang::abort("`trade_value_unit` must be \"EUR\" or \"EUR thousand\".", class = "OECDscaleup_config_error")
   }
+  if (!is.character(tl_classification) || length(tl_classification) != 1 ||
+      !tl_classification %in% c("TL2024", "TL2021")) {
+    rlang::abort("`tl_classification` must be \"TL2024\" or \"TL2021\".", class = "OECDscaleup_config_error")
+  }
 
   structure(
     list(
@@ -140,7 +150,8 @@ config_scaleup <- function(country,
       nace_rev21_from = if (is.null(nace_rev21_from)) NULL else as.integer(nace_rev21_from),
       financials_unit = financials_unit,
       financials_unit_default = financials_unit_default,
-      trade_value_unit = trade_value_unit
+      trade_value_unit = trade_value_unit,
+      tl_classification = tl_classification
     ),
     class = "scaleup_config"
   )
@@ -155,6 +166,7 @@ print.scaleup_config <- function(x, ...) {
   cat("  NACE:       ", if (is.null(x$nace_rev21_from)) paste("Rev.", x$nace_revision) else
     sprintf("Rev. 2, Rev. 2.1 from %d", x$nace_rev21_from), "\n")
   cat("  financials: ", x$financials_unit, "\n")
+  if (!is.null(x$tl_classification)) cat("  regions:    ", x$tl_classification, "\n")
   cat("  dominance:  ", x$dominance, "\n")
   if (x$dominance) {
     cat("  dom_vars:   ", paste(x$dom_vars, collapse = ", "), "\n")

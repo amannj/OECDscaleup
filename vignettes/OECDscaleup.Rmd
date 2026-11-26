@@ -111,6 +111,16 @@ cfg <- config_scaleup(
   EUR thousand; the build then divides them by 1000.
 * `dominance = TRUE` adds the dominance statistics for the confidentiality
   checks (step 10).
+* `tl_classification` declares the OECD territorial classification of the
+  region codes: `"TL2024"` (the default; NUTS 2024 for EU countries) or
+  `"TL2021"` (NUTS 2021).
+
+The package ships its reference data: the OECD regional typology used for
+the urban/rural breakdown and the euro exchange rates of the non-euro
+countries. **Version 0.2.0.9000 ships the OECD territorial correspondence
+table TL2024 of 20 November 2026 (TL2024 and TL2021) and exchange rates for
+2008-2025.** The versions by package version are listed in
+[Input data: reference data](input-data.html#reference-data).
 
 ## Step 3: Check the inputs
 
@@ -120,8 +130,7 @@ anything is computed. It lists errors (what would stop the build), warnings
 data). The report holds counts and shares only, so it can be shared.
 
 ```{r}
-chk <- check_inputs(cfg, ex$base_financials, ex$plants_raw, ex$trade_raw,
-                    tl3_typology = tl3_typology)
+chk <- check_inputs(cfg, ex$base_financials, ex$plants_raw, ex$trade_raw)
 ```
 
 No errors or warnings here. The notes list the optional variables the
@@ -135,8 +144,7 @@ the tables use: growth rates, the scaler flags, size, age and sector
 classes, productivity and financial ratios.
 
 ```{r}
-ai <- build_accounts_indicators(cfg, ex$base_financials, ex$plants_raw,
-                                tl3_typology = tl3_typology)
+ai <- build_accounts_indicators(cfg, ex$base_financials, ex$plants_raw)
 dim(ai)
 ```
 
@@ -325,15 +333,13 @@ institute; the package reports the statistics needed for it.
 ## Step 11: Running everything from files
 
 In production, the input files are `.dta` files in `input_dir`, named as
-in `vignette("input-data")`, together with the reference files
-`tl3_typology.dta` (for `region_3d`) and `exchange_rates.dta` (for non-euro
-countries). With the example data:
+in `vignette("input-data")`. The regional typology and the exchange rates
+come from the package. With the example data:
 
 ```{r, eval = FALSE}
 dir <- "path/to/input"
 haven::write_dta(ex$base_financials, file.path(dir, "base_financials_FR.dta"))
 haven::write_dta(ex$plants_raw, file.path(dir, "plants_RAW_FR.dta"))
-haven::write_dta(tl3_typology, file.path(dir, "tl3_typology.dta"))
 
 cfg <- config_scaleup(country = "FR", input_dir = dir, output_dir = "path/to/output",
                       nace_revision = "2")
@@ -354,8 +360,7 @@ The trade part adds firm-level trade in goods: the transaction-level file
 firm and year and merged onto the panel.
 
 ```{r}
-tai <- build_trade_accounts_indicators(cfg, ex$base_financials, ex$trade_raw, ex$plants_raw,
-                                       tl3_typology = tl3_typology)
+tai <- build_trade_accounts_indicators(cfg, ex$base_financials, ex$trade_raw, ex$plants_raw)
 round(100 * tapply(tai$exporter, tai$year, mean, na.rm = TRUE), 1)
 ```
 

@@ -26,8 +26,11 @@
 #'   groups within their division, section letters against the declared
 #'   `nace_revision`, the sectors the analysis leaves out); `birth_year`
 #'   after `year`; the money unit (turnover per employee, after
-#'   `financials_unit`); the reference files the build needs (`tl3_typology`
-#'   for `region_3d`, `exchange_rates` for the years of a non-euro country);
+#'   `financials_unit`); the reference data: the region codes against the
+#'   TL3 typology of the declared `tl_classification` (and how many are found
+#'   under TL2024 and TL2021), the years of a non-euro country against the
+#'   exchange rates, and which tables are used (the package's, unless files
+#'   in the input folder or arguments replace them);
 #' * `plants_RAW` and `trade_RAW`: firms not in `base_financials`; for trade,
 #'   whether exports fit EUR thousand next to turnover (after
 #'   `trade_value_unit`).
@@ -36,9 +39,10 @@
 #' @param base_financials,plants_raw,trade_raw Data frames to check; `NULL`
 #'   reads them from `config$input_dir` (`plants_raw` and `trade_raw` only
 #'   when `base_financials` is `NULL` too).
-#' @param tl3_typology,exchange_rates Reference data for the data frames
-#'   given (as the package datasets [tl3_typology], [exchange_rates]); read
-#'   from `config$input_dir` when the files are read.
+#' @param tl3_typology,exchange_rates Reference data replacing the package's
+#'   [tl3_typology] and [exchange_rates], as in [build_accounts_indicators()].
+#'   `NULL` (the default) uses the package's, or, when the files are read, a
+#'   `tl3_typology.dta` / `exchange_rates.dta` in `config$input_dir`.
 #' @return Invisibly, a data frame of class `scaleup_input_check` with one
 #'   row per check: `dataset`, `variable` (`""` for checks of a whole file),
 #'   `priority` (of the dictionary), `check`, `result` (`"error"`,
@@ -346,30 +350,53 @@ check_base_panel <- function(bf, config, add, tl3_typology, exchange_rates, ref_
     }
   }
   if (has_column(bf, "region_3d") && is.character(bf$region_3d)) {
+    P1 <- "nice-to-have, first order"
+    cls <- if (is.null(config$tl_classification)) "TL2024" else config$tl_classification
+    r3 <- bf$region_3d[!is_missing_value(bf$region_3d)]
     if (is.null(tl3_typology)) {
-      add(B, "region_3d", "reference", "error", sprintf("region_3d is present, so the build needs the TL3 typology (%s).",
-                                                       ref_name("tl3_typology")), "nice-to-have, first order")
+      # the package's table: report the match under both classifications
+      pkg <- OECDscaleup::tl3_typology
+      share_in <- function(k) count_share(sum(r3 %in% pkg$region_3d[pkg$classification == k]), length(r3))
+      miss <- vapply(c("TL2024", "TL2021"), function(k) sum(!r3 %in% pkg$region_3d[pkg$classification == k]), 0)
+      src <- sprintf("the package's %s typology (OECD territorial correspondence table, version of 20 November 2026)", cls)
+      add(B, "region_3d", "reference", if (miss[[cls]]) "warning" else "ok",
+          if (miss[[cls]]) sprintf("not in %s in %s non-missing rows (no urban/rural type).", src, count_share(miss[[cls]], length(r3)))
+          else sprintf("every region_3d is in %s.", src), P1)
+      add(B, "region_3d", "reference", "note", sprintf("region codes found in TL2024: %s; in TL2021: %s.",
+                                                       share_in("TL2024"), share_in("TL2021")), P1)
+      other <- setdiff(c("TL2024", "TL2021"), cls)
+      if (miss[[other]] < miss[[cls]]) {
+        add(B, "region_3d", "reference", "warning",
+            sprintf("more region codes are found in %s than in the declared %s: set tl_classification = \"%s\" in config_scaleup() if the data use %s codes.",
+                    other, cls, other, other), P1)
+      }
     } else {
-      r3 <- bf$region_3d[!is_missing_value(bf$region_3d)]
-      k <- sum(!r3 %in% as.character(tl3_typology$region_3d))
+      tl <- tl3_for_config(tl3_typology, config)
+      k <- sum(!r3 %in% as.character(tl$region_3d))
       add(B, "region_3d", "reference", if (k) "warning" else "ok",
-          if (k) sprintf("not in the TL3 typology in %s non-missing rows (no urban/rural type).", count_share(k, length(r3)))
-          else "every region_3d is in the TL3 typology.", "nice-to-have, first order")
+          if (k) sprintf("not in the TL3 typology of %s in %s non-missing rows (no urban/rural type).", ref_name("tl3_typology"),
+                         count_share(k, length(r3)))
+          else sprintf("every region_3d is in the TL3 typology of %s.", ref_name("tl3_typology")), P1)
+      if (!"classification" %in% names(tl3_typology)) {
+        add(B, "region_3d", "reference", "warning",
+            sprintf("%s is used instead of the package's TL2024/TL2021 typology; it has no `classification` column (a table of an earlier release?). Remove it to use the package's table (version of 20 November 2026).",
+                    ref_name("tl3_typology")), P1)
+      }
     }
   }
   if (config$country %in% country_patches$non_euro && ok_num("year")) {
-    if (is.null(exchange_rates)) {
-      add(B, "", "reference", "error", sprintf("%s is a non-euro country: the build needs the exchange rates (%s).",
-                                              config$country, ref_name("exchange_rates")))
-    } else {
-      have <- as.double(exchange_rates$year[exchange_rates$country == config$country & !is.na(exchange_rates$rate)])
-      yrs <- sort(unique(as.double(bf$year)))
-      gap <- setdiff(yrs, have)
-      add(B, "", "reference", if (length(gap)) "warning" else "ok",
-          if (length(gap)) sprintf("no exchange rate for %s in %s: turnover growth is missing there.", config$country,
-                                   paste(gap, collapse = ", "))
-          else "exchange rates cover every year.")
+    rates <- rates_or_default(exchange_rates)
+    src <- if (is.null(exchange_rates)) "the package's exchange rates (2008-2025)" else ref_name("exchange_rates")
+    if (!is.null(exchange_rates)) {
+      add(B, "", "reference", "note", sprintf("%s is used instead of the package's exchange rates (2008-2025).", src))
     }
+    have <- as.double(rates$year[rates$country == config$country & !is.na(rates$rate)])
+    yrs <- sort(unique(as.double(bf$year)))
+    gap <- setdiff(yrs, have)
+    add(B, "", "reference", if (length(gap)) "warning" else "ok",
+        if (length(gap)) sprintf("no exchange rate for %s in %s (%s): turnover growth is missing there.", config$country,
+                                 paste(gap, collapse = ", "), src)
+        else sprintf("%s cover every year.", src))
   }
 }
 

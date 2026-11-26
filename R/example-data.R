@@ -9,7 +9,7 @@
 #'
 #' The data are random and mean nothing: the sizes, growth rates and ratios
 #' are only roughly plausible. The country is France (`"FR"`), so the region
-#' codes are real French NUTS codes that link to [tl3_typology].
+#' codes are real French NUTS codes that link to [tl3_typology] (TL2024).
 #'
 #' @param n_firms Number of firms.
 #' @param years Calendar years of the panel (consecutive).
@@ -43,8 +43,9 @@ example_scaleup_data <- function(n_firms = 3000, years = 2010:2022, seed = 1) {
   # ---- firms ------------------------------------------------------------------
   divisions <- c(10, 20, 22, 25, 26, 28, 41, 43, 46, 47, 49, 55, 56, 62, 68, 70, 71, 73, 86, 96, 1, 64)
   div_weight <- c(5, 2, 3, 5, 2, 3, 6, 6, 8, 9, 4, 4, 6, 4, 3, 4, 4, 2, 3, 3, 1, 1)
-  typ <- tl3_typology[tl3_typology$iso3 == "FRA" & tl3_typology$typology_access_cities %in%
-                        c("MR-L", "MR-M", "NMR-M", "NMR-S", "NMR-R"), c("region_3d", "typology_access_cities")]
+  typ <- tl3_typology[tl3_typology$classification == "TL2024" & tl3_typology$iso3 == "FRA" &
+                        access_code(tl3_typology$typology_access_cities) %in% c("MR-L", "MR-M", "NMR-M", "NMR-S", "NMR-R"),
+                      c("region_3d", "typology_access_cities")]
   typ <- typ[order(typ$region_3d), ]
   regions <- unlist(lapply(split(typ$region_3d, typ$typology_access_cities), function(r) r[seq_len(min(2, length(r)))]),
                     use.names = FALSE)

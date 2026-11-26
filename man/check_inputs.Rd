@@ -20,9 +20,10 @@ check_inputs(
 reads them from \code{config$input_dir} (\code{plants_raw} and \code{trade_raw} only
 when \code{base_financials} is \code{NULL} too).}
 
-\item{tl3_typology, exchange_rates}{Reference data for the data frames
-given (as the package datasets \link{tl3_typology}, \link{exchange_rates}); read
-from \code{config$input_dir} when the files are read.}
+\item{tl3_typology, exchange_rates}{Reference data replacing the package's
+\link{tl3_typology} and \link{exchange_rates}, as in \code{\link[=build_accounts_indicators]{build_accounts_indicators()}}.
+\code{NULL} (the default) uses the package's, or, when the files are read, a
+\code{tl3_typology.dta} / \code{exchange_rates.dta} in \code{config$input_dir}.}
 }
 \value{
 Invisibly, a data frame of class \code{scaleup_input_check} with one
@@ -60,8 +61,11 @@ the country, region and product codes;
 groups within their division, section letters against the declared
 \code{nace_revision}, the sectors the analysis leaves out); \code{birth_year}
 after \code{year}; the money unit (turnover per employee, after
-\code{financials_unit}); the reference files the build needs (\code{tl3_typology}
-for \code{region_3d}, \code{exchange_rates} for the years of a non-euro country);
+\code{financials_unit}); the reference data: the region codes against the
+TL3 typology of the declared \code{tl_classification} (and how many are found
+under TL2024 and TL2021), the years of a non-euro country against the
+exchange rates, and which tables are used (the package's, unless files
+in the input folder or arguments replace them);
 \item \code{plants_RAW} and \code{trade_RAW}: firms not in \code{base_financials}; for trade,
 whether exports fit EUR thousand next to turnover (after
 \code{trade_value_unit}).

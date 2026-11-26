@@ -25,11 +25,13 @@ present.}
 (\code{plants_RAW} in \link{variable_dictionary}), with columns \verb{idf, idp, year}.
 If \code{NULL} (the default), no \code{multiplant} indicator is produced.}
 
-\item{exchange_rates}{Optional data frame with columns \verb{year, country, rate} (as shipped in this package's \code{exchange_rates} dataset). Required
-only for the non-Euro countries listed in \code{country_patches$non_euro}.}
+\item{exchange_rates}{Optional data frame with columns \verb{year, country, rate}, used for the non-euro countries in \code{country_patches$non_euro}.
+\code{NULL} (the default) uses the package's \link{exchange_rates}.}
 
-\item{tl3_typology}{Optional data frame with columns \verb{region_3d, typology_access_cities} (as shipped in this package's \code{tl3_typology}
-dataset). Required only if \code{base_financials} has a \code{region_3d} column.}
+\item{tl3_typology}{Optional data frame with columns \verb{region_3d, typology_access_cities} (and \code{classification}, to select
+\code{config$tl_classification}), used when \code{base_financials} has a
+\code{region_3d} column. \code{NULL} (the default) uses the package's
+\link{tl3_typology}.}
 
 \item{storage_types}{Optional named character vector giving the
 storage type (\code{"byte"}, \code{"int"}, \code{"long"}, \code{"float"}, \code{"double"}) of the

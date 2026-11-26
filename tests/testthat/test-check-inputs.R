@@ -101,16 +101,34 @@ test_that("values, codings and codes are reported as counts, never as values", {
   expect_equal(results(rep, "independent", "missing"), "ok")
 })
 
-test_that("reference data: TL3 typology for region_3d, exchange rates for non-euro countries", {
+test_that("reference data: the package's TL3 typology and exchange rates by default", {
+  ref <- function(rep, v = "region_3d") rep[rep$variable == v & rep$check == "reference", ]
   d <- small_panel(); d$region_3d <- "FR101"
-  expect_equal(results(quiet_check(cfg_ci(), d), "region_3d", "reference"), "error")
+  r <- ref(quiet_check(cfg_ci(), d))
+  expect_false(any(r$result %in% c("error", "warning")))
+  expect_true(any(grepl("TL2024: 80 of 80 .*TL2021: 80 of 80", r$detail)))
   d$region_3d[1:2] <- "FR999"
-  expect_equal(results(quiet_check(cfg_ci(), d, tl3_typology = tl3_typology), "region_3d", "reference"), "warning")
+  expect_true("warning" %in% ref(quiet_check(cfg_ci(), d))$result)
+  # codes of TL2021 only: the check suggests declaring TL2021
+  only21 <- setdiff(tl3_typology$region_3d[tl3_typology$classification == "TL2021"],
+                    tl3_typology$region_3d[tl3_typology$classification == "TL2024"])
+  d$region_3d <- only21[1]
+  r <- ref(quiet_check(cfg_ci(), d))
+  expect_true(any(grepl("tl_classification = \"TL2021\"", r$detail)))
+  r <- ref(quiet_check(cfg_ci(tl_classification = "TL2021"), d))
+  expect_false(any(r$result %in% c("error", "warning")))
+  # an old-format table given instead of the package's
+  old <- data.frame(region_3d = "FR101", typology_access_cities = "MR-L")
+  d$region_3d <- "FR101"
+  r <- ref(quiet_check(cfg_ci(), d, tl3_typology = old))
+  expect_true(any(r$result == "warning" & grepl("no `classification` column", r$detail)))
+  # exchange rates: the package's cover 2008-2025
   hr <- config_scaleup(country = "HR", input_dir = tempdir(), output_dir = tempdir(), nace_revision = "2")
   rep <- quiet_check(hr, small_panel())
-  expect_true("error" %in% rep$result[rep$check == "reference"])
-  rep <- quiet_check(hr, small_panel(), exchange_rates = exchange_rates)
-  expect_true("ok" %in% rep$result[rep$check == "reference"])
+  expect_equal(rep$result[rep$check == "reference"], "ok")
+  late <- small_panel(); late$year <- late$year + 7 # 2026-2027
+  rep <- quiet_check(hr, late)
+  expect_true(any(rep$result == "warning" & grepl("no exchange rate for HR in 2026, 2027", rep$detail)))
 })
 
 test_that("plants and trade records are linked to base_financials", {

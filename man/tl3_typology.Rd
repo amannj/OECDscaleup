@@ -3,39 +3,68 @@
 \docType{data}
 \name{tl3_typology}
 \alias{tl3_typology}
-\title{TL3/NUTS3 region urbanisation typology}
+\title{OECD regional typology of small (TL3) regions}
 \format{
-A data frame with 2,598 rows and 8 columns:
+A data frame, one row per classification and TL3 region:
 \describe{
+\item{classification}{\code{"TL2024"} or \code{"TL2021"}.}
 \item{iso3}{3-letter ISO country code.}
-\item{region_3d}{TL3/NUTS3 region code — the join key used by
-\code{\link[=build_accounts_indicators]{build_accounts_indicators()}}.}
-\item{classificationlatesttl2021}{TL classification vintage.}
-\item{tl}{Territorial level (always \code{"3"} in this table).}
-\item{regionalnameeng}{Region name (English).}
-\item{regionalnamepublicationeng}{Region name with country/state suffix.}
-\item{typology_access_cities}{5-letter urbanisation code (\code{MR-L}, \code{MR-M},
-\code{NMR-M}, \code{NMR-S}, \code{NMR-R}) — the column
-\code{\link[=build_accounts_indicators]{build_accounts_indicators()}} actually reads and remaps to readable
-labels.}
-\item{typology_UR}{An OECD-supplied labelled urban/rural code, unused by
-this package (which derives its own \code{typology_UR} from
-\code{typology_access_cities} instead, step 18
-of \code{\link[=build_accounts_indicators]{build_accounts_indicators()}}).}
+\item{region_3d}{TL3 region code (the NUTS 3 code for EU countries): the
+key joined to \code{region_3d}.}
+\item{region_name}{Region name (English).}
+\item{tl3c_id}{TL2024 only: the aggregated metropolitan region (TL3C)
+the region belongs to; the OECD advises aggregating to it when several
+TL3 regions form one metropolitan region.}
+\item{typology_access_level1}{Access to cities, level 1: \code{MR}
+(metropolitan region) or \code{NM} (non-metropolitan).}
+\item{typology_access_cities}{Access to cities, level 2: \code{MR_L}
+(metropolitan, functional urban area above 1.5 million inhabitants),
+\code{MR_M} (metropolitan, 250,000 to 1.5 million), \code{NMR_M} (near a
+functional urban area above 250,000), \code{NMR_S} (near a functional urban
+area of 50,000 to 250,000), \code{NMR_R} (remote); \code{..} not available. The
+column the package uses.}
+\item{typology_rural_urban}{The earlier rural/urban typology: \verb{3_PU}
+predominantly urban, \verb{3_IN} intermediate, \verb{3_PR} predominantly rural.}
+\item{typology_rural_urban_extended}{TL2024 only: the extended rural/urban
+typology (close to a city or remote), for some countries.}
 }
 }
 \source{
-OECD Scale Up project, \code{tl3_typology.dta}.
+OECD territorial correspondence table TL2024 (version of 20 November
+2026), OECD geographical definitions,
+\url{https://www.oecd.org/en/data/datasets/oecd-geographical-definitions.html}
+(\url{http://oe.cd/geostats}). Built by \code{data-raw/prepare-reference-data.R}.
 }
 \usage{
 tl3_typology
 }
 \description{
-Classifies TL3 (NUTS3-equivalent) regions by their access to cities, per
-the OECD regional urban/rural typology. Supplied by the OECD
-(\code{tl3_typology.dta}); bundled here as-is
-because it is small, non-confidential reference data (not firm microdata).
-Used by \code{\link[=build_accounts_indicators]{build_accounts_indicators()}} to derive \code{typology_UR} when the raw
-input data has a \code{region_3d} column.
+The OECD territorial classification of small (TL3) regions, with their
+typologies. \code{\link[=build_accounts_indicators]{build_accounts_indicators()}} joins it to \code{region_3d} to give
+the urban/rural breakdown \code{typology_UR} (from the access-to-cities
+typology), for the classification declared in
+\code{config_scaleup(tl_classification = )}: \code{"TL2024"} (the default; NUTS 2024
+for EU countries) or \code{"TL2021"} (NUTS 2021).
+}
+\details{
+\strong{Version.} Package version 0.2.0.9000 ships the OECD territorial
+correspondence table TL2024, version of \strong{20 November 2026}: its TL2024
+regions (2,628 TL3 regions in 49 countries) and its TL2021 regions (2,598
+regions in 44 countries). The OECD revises the typologies in this table: the access-to-cities
+typology of non-metropolitan regions in EU countries and of non-EU countries
+was still being updated in that version, and Türkiye has no access-to-cities
+typology in TL2024 (commuting data are not available). Version 0.1.0 shipped
+the TL2021 table of the earlier routines (the same 2,598 regions and
+typology). See \code{vignette("input-data")} for the versions by package version.
+
+Between TL2021 and TL2024 the TL3 codes changed in Germany, Finland, the
+United Kingdom, Latvia, the Netherlands, Norway and Portugal, and the
+access-to-cities typology of about 200 regions changed (most in Germany and
+Türkiye). \code{check_inputs()} reports how many region codes of the data match
+each classification.
+
+A \code{tl3_typology.dta} in the input folder replaces this table in
+\code{\link[=run_scaleup_pipeline]{run_scaleup_pipeline()}} and \code{\link[=run_trade_pipeline]{run_trade_pipeline()}}; a table without a
+\code{classification} column is used as it is.
 }
 \keyword{datasets}

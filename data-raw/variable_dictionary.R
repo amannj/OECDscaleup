@@ -21,6 +21,7 @@ NICE2 <- "nice-to-have, second order"
 NACE_DEF <- "core sector, %s, NACE Rev. 2 or Rev. 2.1 (or ISIC Rev. 4); not ISIC Rev. 3 or NACE Rev. 1.1"
 NACE_NOTE <- "Declare the revision in config_scaleup(nace_revision = ); a panel that switches from Rev. 2 to Rev. 2.1 also gives nace_rev21_from (the first Rev. 2.1 year)."
 BF <- "base_financials"
+TL_NOTE <- "Declare the classification in config_scaleup(tl_classification = ): \"TL2024\" (the default; NUTS 2024 for EU countries) or \"TL2021\" (NUTS 2021)."
 
 rows <- list(
   # ---- base_financials ---------------------------------------------------------
@@ -57,12 +58,12 @@ rows <- list(
   v(BF, "sector_1d", sprintf(NACE_DEF, "section letter"), "string (letter)", MUST, "required",
     "Checked against the division for the declared revision (the build stops on a mismatch). Used to leave out sections A, K, O, T, U (Rev. 2 letters) only where the division is missing. Section L (real estate) is flagged.",
     source = "BR", notes = NACE_NOTE),
-  v(BF, "region_2d", "NUTS2 code (2021 classification)", "string", MUST, "required",
+  v(BF, "region_2d", "TL2 region code (the NUTS 2 code for EU countries), of the declared TL classification", "string", MUST, "required",
     "Regional breakdown (L3region_2d) and region dummies of the predictor regressions. In countries with small regions (country_patches$aggregate_small_regions), small NUTS2 regions are merged into their NUTS1 region. Region x sector group cells (reg_techgrad).",
-    source = "BR"),
-  v(BF, "region_3d", "NUTS3 code (2021 classification)", "string", NICE1, "optional",
-    "Joined to the OECD TL3 typology (tl3_typology.dta in the input folder, required when region_3d is present) to give the urban/rural breakdown typology_UR.",
-    source = "BR"),
+    source = "BR", notes = TL_NOTE),
+  v(BF, "region_3d", "TL3 region code (the NUTS 3 code for EU countries), of the declared TL classification", "string", NICE1, "optional",
+    "Joined to the OECD TL3 regional typology of the declared classification (the package's tl3_typology, unless a tl3_typology.dta is in the input folder) to give the urban/rural breakdown typology_UR (access to cities).",
+    source = "BR", notes = TL_NOTE),
   v(BF, "employment", "full-time equivalent (FTE) number of persons employed", "numeric", MUST, "required",
     "Employment growth and the high-growth flags (HGE), size classes (0-9, 10-19, 20-49, 50-99, 100-249, 250+), employment creation (compute_contribution()), labour productivity. Implausible one-year spikes and dips are set to missing. Scaler analysis (run_scaler_analysis()): the top-scaler ranking and the employment thresholds of the SME and mid-cap definitions.",
     source = "SBS", sbs_code = "220103",
@@ -145,8 +146,8 @@ rows <- list(
     notes = "It should not change if a plant is acquired by a new firm."),
   v("plants_RAW", "year", "calendar year", "numeric", MUST, "required (if the file is supplied)",
     "Plants are counted per firm and year."),
-  v("plants_RAW", "p_region_2d", "plant location, NUTS2 code (2021 classification)", "string", NICE2, "not used", "Not used."),
-  v("plants_RAW", "p_region_3d", "plant location, NUTS3 code (2021 classification)", "string", NICE2, "not used", "Not used."),
+  v("plants_RAW", "p_region_2d", "plant location, TL2 (NUTS 2) code, same classification as region_2d", "string", NICE2, "not used", "Not used."),
+  v("plants_RAW", "p_region_3d", "plant location, TL3 (NUTS 3) code, same classification as region_3d", "string", NICE2, "not used", "Not used."),
   v("plants_RAW", "hq", "indicator of whether a plant is the firm's headquarters", "numeric", NICE2, "not used", "Not used.",
     coding = "1 = the plant is the firm's headquarters, 0 = not the headquarters"),
 

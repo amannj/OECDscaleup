@@ -28,5 +28,9 @@ This is the only function in the package that performs file I/O; every
 \verb{compute_*()}/\verb{build_*()} function is a pure, directly-testable
 data-frame-in-data-frame-out transformation.
 Call the pure functions directly if you already have the inputs loaded in
-R (e.g. this package's own bundled \code{tl3_typology}/\code{exchange_rates} data).
+R.
+
+The regional typology and the exchange rates are the package's
+\link{tl3_typology} (for \code{config$tl_classification}) and \link{exchange_rates},
+unless \code{tl3_typology.dta} or \code{exchange_rates.dta} is in \code{config$input_dir}.
 }

@@ -13,7 +13,11 @@
 #' `compute_*()`/`build_*()` function is a pure, directly-testable
 #' data-frame-in-data-frame-out transformation.
 #' Call the pure functions directly if you already have the inputs loaded in
-#' R (e.g. this package's own bundled `tl3_typology`/`exchange_rates` data).
+#' R.
+#'
+#' The regional typology and the exchange rates are the package's
+#' [tl3_typology] (for `config$tl_classification`) and [exchange_rates],
+#' unless `tl3_typology.dta` or `exchange_rates.dta` is in `config$input_dir`.
 #'
 #' @param config A `scaleup_config` from [config_scaleup()].
 #' @return Invisibly, a named list of every non-`NULL` output table produced
@@ -71,7 +75,8 @@ run_scaleup_pipeline <- function(config) {
 #'
 #' Reads `base_financials_<country>.dta`,
 #' `trade_RAW_<country>.dta` and (if present) `plants_RAW_<country>.dta`,
-#' `exchange_rates.dta` and `tl3_typology.dta` from `config$input_dir`; runs
+#' `exchange_rates.dta` and `tl3_typology.dta` (else the package's
+#' [exchange_rates] and [tl3_typology]) from `config$input_dir`; runs
 #' [build_trade_accounts_indicators()] and [compute_trade_characteristics()];
 #' writes `trade_accounts_indicators_<country>.dta` to `config$input_dir` and
 #' `n16_trade_characteristics_p1_<country>.csv` / `..._p2_...` to

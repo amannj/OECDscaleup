@@ -59,12 +59,14 @@ files. `<CT>` is the two-letter country code given to `config_scaleup()`.
 |---|---|---|
 | `base_financials_<CT>.dta` | Firm-level panel: one row per firm and year, basic variables with a standard naming structure and no derived indices (growth rates and the like) | always |
 | `plants_RAW_<CT>.dta` | Establishment-level data: one row per plant and year | optional (gives `multiplant`) |
-| `tl3_typology.dta` | OECD urban/rural typology of TL3 regions (package dataset `tl3_typology`) | when `base_financials` has `region_3d` |
-| `exchange_rates.dta` | Eurostat annual average exchange rates (package dataset `exchange_rates`) | for the non-euro countries in `country_patches$non_euro` |
+| `tl3_typology.dta` | OECD regional typology of TL3 regions | not needed: replaces the package's `tl3_typology` |
+| `exchange_rates.dta` | Annual average euro exchange rates | not needed: replaces the package's `exchange_rates` |
 
-The two reference files ship with the package and can be written to the
-input folder with, for example,
-`haven::write_dta(tl3_typology, file.path(input_dir, "tl3_typology.dta"))`.
+The regional typology and the exchange rates ship with the package (see
+[Reference data](#reference-data) below). A `tl3_typology.dta` or
+`exchange_rates.dta` in the input folder replaces them; remove such files
+from earlier rounds to use the package's current tables. `check_inputs()`
+says which tables are used.
 
 ## General rules
 
@@ -86,7 +88,12 @@ input folder with, for example,
    `nace_rev21_from`. The build checks the section letters against the
    divisions for the declared revision, stops on a mismatch, and converts
    Rev. 2.1 codes to Rev. 2, for which the sector rules are written.
-4. **Regions** are NUTS codes of the 2021 classification.
+4. **Regions** are codes of the OECD territorial classification: TL2 and
+   TL3 regions, which are the NUTS 2 and NUTS 3 regions in EU countries. The
+   classification is declared with `config_scaleup(tl_classification =)`:
+   `"TL2024"` (the default; NUTS 2024) or `"TL2021"` (NUTS 2021). It selects
+   the regional typology used for the urban/rural breakdown;
+   `check_inputs()` reports how many of the region codes are found in each.
 5. **`year`** is the calendar year the data refer to, not the year the
    accounts were filed. A firm appears at most once per year.
 
@@ -149,6 +156,36 @@ supply_table("plants_RAW")
 ```{r}
 use_table("plants_RAW")
 ```
+
+## Reference data
+
+Two reference tables ship with the package and are updated with it:
+
+* `tl3_typology`: the OECD regional typology of small (TL3) regions, from
+  the OECD territorial correspondence table
+  ([OECD geographical definitions](https://www.oecd.org/en/data/datasets/oecd-geographical-definitions.html),
+  <http://oe.cd/geostats>). The package uses its access-to-cities typology
+  (large metropolitan, metropolitan, near a metropolitan area, near a small
+  or medium city, remote) for the urban/rural breakdown, in the
+  classification declared with `tl_classification`.
+* `exchange_rates`: annual average euro exchange rates for the non-euro
+  countries (Canada, Denmark, Croatia, Hungary, Romania). Turnover is
+  converted to national currency before growth is computed, so that growth
+  rates do not move with the exchange rate.
+
+| Package version | Regional typology (`tl3_typology`) | Exchange rates (`exchange_rates`) |
+|---|---|---|
+| **0.2.0.9000** (current) | OECD territorial correspondence table TL2024, **version of 20 November 2026**: TL2024 (default) and TL2021 | **2008-2025**: Eurostat `ert_bil_eur_a` (update of 8 July 2026); Croatia: ECB annual averages to 2022, the fixed conversion rate 7.53450 from 2023 (euro adoption) |
+| 0.1.0 | OECD TL2021 typology | 2008-2022 |
+
+The OECD revises the typology within a version of the classification: in
+the version of 20 November 2026, the access-to-cities typology of
+non-metropolitan regions in EU countries and of non-EU countries was still
+being updated, and Türkiye has no access-to-cities typology. Between TL2021
+and TL2024 the TL3 codes changed in Germany, Finland, the United Kingdom,
+Latvia, the Netherlands, Norway and Portugal, and the typology changed for
+about 200 regions, so the urban/rural breakdown can differ from version
+0.1.0. Details: `?tl3_typology`, `?exchange_rates`.
 
 ## Sources and references
 

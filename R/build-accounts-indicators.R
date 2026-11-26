@@ -22,11 +22,13 @@
 #'   (`plants_RAW` in [variable_dictionary]), with columns `idf, idp, year`.
 #'   If `NULL` (the default), no `multiplant` indicator is produced.
 #' @param exchange_rates Optional data frame with columns `year, country,
-#'   rate` (as shipped in this package's `exchange_rates` dataset). Required
-#'   only for the non-Euro countries listed in `country_patches$non_euro`.
+#'   rate`, used for the non-euro countries in `country_patches$non_euro`.
+#'   `NULL` (the default) uses the package's [exchange_rates].
 #' @param tl3_typology Optional data frame with columns `region_3d,
-#'   typology_access_cities` (as shipped in this package's `tl3_typology`
-#'   dataset). Required only if `base_financials` has a `region_3d` column.
+#'   typology_access_cities` (and `classification`, to select
+#'   `config$tl_classification`), used when `base_financials` has a
+#'   `region_3d` column. `NULL` (the default) uses the package's
+#'   [tl3_typology].
 #' @param storage_types Optional named character vector giving the
 #'   storage type (`"byte"`, `"int"`, `"long"`, `"float"`, `"double"`) of the
 #'   columns of `base_financials`, as stored in its `.dta` file.
@@ -213,13 +215,7 @@ build_accounts_core <- function(config,
 
   # --- Step 8: national-currency turnover for non-Euro countries --------------
   if (config$country %in% country_patches$non_euro) {
-    if (is.null(exchange_rates)) {
-      rlang::abort(
-        "`exchange_rates` is required for non-Euro countries but was not supplied.",
-        class = "OECDscaleup_data_error"
-      )
-    }
-    rates <- exchange_rates %>%
+    rates <- rates_or_default(exchange_rates) %>%
       dplyr::filter(.data$country == config$country) %>%
       dplyr::select("year", "rate")
     data <- dplyr::left_join(data, rates, by = "year")
@@ -551,13 +547,9 @@ build_accounts_core <- function(config,
 
   # --- Step 18: TL3 urbanisation typology --------------------------------------
   if (has_column(data, "region_3d")) {
-    if (is.null(tl3_typology)) {
-      rlang::abort(
-        "`tl3_typology` is required because `region_3d` is present but was not supplied.",
-        class = "OECDscaleup_data_error"
-      )
-    }
-    typ <- tl3_typology %>% dplyr::select("region_3d", "typology_access_cities")
+    # the table given, else the package's; the rows of config$tl_classification
+    typ <- tl3_for_config(tl3_typology, config) %>% dplyr::select("region_3d", "typology_access_cities")
+    typ$typology_access_cities <- access_code(typ$typology_access_cities)
     data <- dplyr::left_join(data, typ, by = "region_3d")
     # Fix S7: only the five documented groups exist; any other value (the ".."
     # of regions without a typology) is missing. Stata kept ".." as a category.

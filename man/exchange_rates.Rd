@@ -3,31 +3,52 @@
 \docType{data}
 \name{exchange_rates}
 \alias{exchange_rates}
-\title{Annual average Eurostat exchange rates}
+\title{Annual average euro exchange rates}
 \format{
-A data frame with 75 rows and 4 columns:
+A data frame with one row per currency and year:
 \describe{
-\item{currency}{3-letter currency code (e.g. \code{"HRK"}).}
+\item{currency}{3-letter currency code (e.g. \code{"HUF"}).}
 \item{year}{Calendar year.}
-\item{rate}{Annual average units of national currency per EUR.}
-\item{country}{2-letter country code — the join key used by
-\code{\link[=build_accounts_indicators]{build_accounts_indicators()}}, alongside \code{year}.}
+\item{rate}{Annual average, units of national currency per euro.}
+\item{country}{2-letter country code, joined with \code{year} to the data.}
 }
 }
 \source{
-Eurostat, via the OECD Scale Up project's \code{exchange_rates.dta}.
-See
-\url{https://ec.europa.eu/eurostat/databrowser/view/ERT_BIL_EUR_A/default/table?lang=en}.
+Eurostat, \code{ert_bil_eur_a},
+\url{https://ec.europa.eu/eurostat/databrowser/view/ERT_BIL_EUR_A/default/table?lang=en};
+ECB, \url{https://data.ecb.europa.eu/data/datasets/EXR}. Built by
+\code{data-raw/prepare-reference-data.R}.
 }
 \usage{
 exchange_rates
 }
 \description{
-Annual average EUR exchange rates for the 5 non-Euro countries this
-project covers, 2008-2022. Supplied by the OECD
-(\code{exchange_rates.dta}); bundled here as-is because it
-is small, non-confidential reference data. Used by
-\code{\link[=build_accounts_indicators]{build_accounts_indicators()}} to convert \code{turnover} to national currency
-for the countries in \code{country_patches$non_euro}.
+Annual averages of the euro exchange rate (units of national currency per
+euro) for the non-euro countries in \code{country_patches$non_euro}: Canada
+(CAD), Denmark (DKK), Croatia (HRK), Hungary (HUF) and Romania (RON).
+\code{\link[=build_accounts_indicators]{build_accounts_indicators()}} converts \code{turnover} to national currency with
+them before computing turnover growth, so that growth rates are not moved
+by the exchange rate. Without a rate for a year, the turnover growth of that
+year is missing; \code{check_inputs()} reports such years.
+}
+\details{
+\strong{Version.} Package version 0.2.0.9000 covers \strong{2008-2025}:
+\itemize{
+\item CAD, DKK, HUF, RON: Eurostat \code{ert_bil_eur_a}, as extracted from the update
+of 8 July 2026;
+\item HRK: Croatia adopted the euro on 1 January 2023, and Eurostat no longer
+publishes the kuna series. 2008-2022: the ECB annual averages (series
+\code{EXR.A.HRK.EUR.SP00.A}, the source of the Eurostat series), rounded to 4
+decimals; from 2023: the fixed conversion rate 7.53450, so that turnover
+growth over windows ending in 2023 or later equals growth in euros.
+}
+
+Version 0.1.0 shipped the rates of the earlier routines, 2008-2022 (the same
+Eurostat values for CAD, DKK, HUF and RON; for HRK values within 0.02 \% of the
+ECB averages). See \code{vignette("input-data")} for the versions by package
+version.
+
+An \code{exchange_rates.dta} in the input folder replaces this table in
+\code{\link[=run_scaleup_pipeline]{run_scaleup_pipeline()}} and \code{\link[=run_trade_pipeline]{run_trade_pipeline()}}.
 }
 \keyword{datasets}
