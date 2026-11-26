@@ -30,7 +30,13 @@
       <ul class="navbar-nav me-auto">
 <li class="active nav-item"><a class="nav-link" href="../articles/OECDscaleup.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-input-data" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Input data</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-input-data">
+<li><a class="dropdown-item" href="../articles/input-data.html">Firm-level input data (base_financials, plants_RAW)</a></li>
+    <li><a class="dropdown-item" href="../articles/input-trade-data.html">Trade input data (trade_RAW)</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -72,11 +78,14 @@ firm data.</p>
 <h2 id="what-oecdscaleup-does">What OECDscaleup does<a class="anchor" aria-label="anchor" href="#what-oecdscaleup-does"></a>
 </h2>
 <p>OECDscaleup computes indicators on high-growth firms (“scalers”) from
-national firm-level microdata, for the OECD Scale Up project. It builds
-on previous OECD routines written in Stata. The firm-level data never
-leave the national statistical institute that holds them: the package
-produces aggregate tables, with the statistics needed to check them for
-confidentiality before they are shared.</p>
+national firm-level microdata, for the OECD Scale Up project, part of
+the OECD’s work to understand SMEs and their potential to scale up (see
+<a href="https://www.oecd.org/en/about/programmes/helping-smes-scale-up.html" class="external-link">Helping
+SMEs scale up</a>). It builds on previous OECD routines written in
+Stata. The firm-level data never leave the national statistical
+institute that holds them: the package produces aggregate tables, with
+the statistics needed to check them for confidentiality before they are
+shared.</p>
 <p>It has three parts:</p>
 <ul>
 <li>

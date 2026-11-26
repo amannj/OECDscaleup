@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Construct OECD Scale-Up High-Growth-Firm Indicators • OECDscaleup</title>
+<title>Measuring the Scale-Up of SMEs • OECDscaleup</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Construct OECD Scale-Up High-Growth-Firm Indicators">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Measuring the Scale-Up of SMEs">
 <meta name="description" content="Builds the firm-level high-growth-firm (HGF) / scale-up indicators used in the OECD Scale Up project from confidential national firm microdata, and produces the aggregate tables (characteristics, transitions/evolutions, contribution, predictors, trade) shared back with the OECD, with the statistics needed for confidentiality checks. Also analyses the fastest-growing scalers and scalers growing into mid-caps. Builds on previous OECD routines written in Stata.">
 <meta property="og:description" content="Builds the firm-level high-growth-firm (HGF) / scale-up indicators used in the OECD Scale Up project from confidential national firm microdata, and produces the aggregate tables (characteristics, transitions/evolutions, contribution, predictors, trade) shared back with the OECD, with the statistics needed for confidentiality checks. Also analyses the fastest-growing scalers and scalers growing into mid-caps. Builds on previous OECD routines written in Stata.">
 </head>
@@ -32,7 +32,13 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="articles/OECDscaleup.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="articles/index.html">Articles</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-input-data" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Input data</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-input-data">
+<li><a class="dropdown-item" href="articles/input-data.html">Firm-level input data (base_financials, plants_RAW)</a></li>
+    <li><a class="dropdown-item" href="articles/input-trade-data.html">Trade input data (trade_RAW)</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -55,7 +61,7 @@
 <blockquote>
 <p><strong>Development version.</strong> OECDscaleup is under active development, so functions and outputs may still change. Please report problems and suggestions as an <a href="https://github.com/amannj/OECDscaleup/issues" class="external-link">issue on GitHub</a> or to <a href="mailto:scaleup@oecd.org" class="email">scaleup@oecd.org</a>. Use synthetic data in a report (for example from <code><a href="reference/example_scaleup_data.html">example_scaleup_data()</a></code>), never confidential firm data.</p>
 </blockquote>
-<p>OECDscaleup computes indicators on high-growth firms (“scalers”) from national firm-level microdata, for the OECD Scale Up project. It builds on previous OECD routines written in Stata.</p>
+<p>OECDscaleup computes indicators on high-growth firms (“scalers”) from national firm-level microdata, for the OECD Scale Up project. It is part of the OECD’s work to understand SMEs and their potential to scale up: see <a href="https://www.oecd.org/en/about/programmes/helping-smes-scale-up.html" class="external-link">Helping SMEs scale up</a>. It builds on previous OECD routines written in Stata.</p>
 <p>The firm-level data never leave the national statistical institute that holds them: the package produces aggregate tables, with the statistics needed to check them for confidentiality before they are shared. It covers:</p>
 <ul>
 <li>
@@ -119,7 +125,7 @@
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>MIT — see <a href="LICENSE.html"><code>LICENSE.md</code></a>.</p>
+<p>CC0 1.0 Universal (public domain dedication) — see <a href="LICENSE.html"><code>LICENSE.md</code></a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -127,6 +133,7 @@
 <ul class="list-unstyled">
 <li><a href="https://github.com/amannj/OECDscaleup/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/amannj/OECDscaleup/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://www.oecd.org/en/about/programmes/helping-smes-scale-up.html" class="external-link">OECD: Helping SMEs scale up</a></li>
 </ul>
 </div>
 
@@ -134,7 +141,7 @@
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+<li><small>CC0</small></li>
 </ul>
 </div>
 

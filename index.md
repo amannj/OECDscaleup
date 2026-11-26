@@ -9,8 +9,11 @@
 > never confidential firm data.
 
 OECDscaleup computes indicators on high-growth firms (“scalers”) from
-national firm-level microdata, for the OECD Scale Up project. It builds
-on previous OECD routines written in Stata.
+national firm-level microdata, for the OECD Scale Up project. It is part
+of the OECD’s work to understand SMEs and their potential to scale up:
+see [Helping SMEs scale
+up](https://www.oecd.org/en/about/programmes/helping-smes-scale-up.html).
+It builds on previous OECD routines written in Stata.
 
 The firm-level data never leave the national statistical institute that
 holds them: the package produces aggregate tables, with the statistics
@@ -93,5 +96,5 @@ for more.
 
 ## License
 
-MIT — see
+CC0 1.0 Universal (public domain dedication) — see
 [`LICENSE.md`](https://amannj.github.io/OECDscaleup/LICENSE.md).

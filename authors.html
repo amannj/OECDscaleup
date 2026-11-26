@@ -17,7 +17,11 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="articles/OECDscaleup.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="articles/index.html">Articles</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-input-data" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Input data</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-input-data"><li><a class="dropdown-item" href="articles/input-data.html">Firm-level input data (base_financials, plants_RAW)</a></li>
+    <li><a class="dropdown-item" href="articles/input-trade-data.html">Trade input data (trade_RAW)</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json"></form></li>
@@ -47,11 +51,11 @@
       <p><small class="dont-index">Source: <a href="https://github.com/amannj/OECDscaleup/blob/ScalerAnalysis/DESCRIPTION" class="external-link"><code>DESCRIPTION</code></a></small></p>
 
       <p>Scale Up Team O (2026).
-<em>OECDscaleup: Construct OECD Scale-Up High-Growth-Firm Indicators</em>.
+<em>OECDscaleup: Measuring the Scale-Up of SMEs</em>.
 R package version 0.2.0.9000, <a href="https://github.com/amannj/OECDscaleup" class="external-link">https://github.com/amannj/OECDscaleup</a>.
 </p>
       <pre>@Manual{,
-  title = {OECDscaleup: Construct OECD Scale-Up High-Growth-Firm Indicators},
+  title = {OECDscaleup: Measuring the Scale-Up of SMEs},
   author = {OECD {Scale Up Team}},
   year = {2026},
   note = {R package version 0.2.0.9000},

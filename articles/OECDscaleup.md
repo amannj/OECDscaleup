@@ -11,11 +11,14 @@
 ## What OECDscaleup does
 
 OECDscaleup computes indicators on high-growth firms (“scalers”) from
-national firm-level microdata, for the OECD Scale Up project. It builds
-on previous OECD routines written in Stata. The firm-level data never
-leave the national statistical institute that holds them: the package
-produces aggregate tables, with the statistics needed to check them for
-confidentiality before they are shared.
+national firm-level microdata, for the OECD Scale Up project, part of
+the OECD’s work to understand SMEs and their potential to scale up (see
+[Helping SMEs scale
+up](https://www.oecd.org/en/about/programmes/helping-smes-scale-up.html)).
+It builds on previous OECD routines written in Stata. The firm-level
+data never leave the national statistical institute that holds them: the
+package produces aggregate tables, with the statistics needed to check
+them for confidentiality before they are shared.
 
 It has three parts:
 

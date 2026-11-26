@@ -1,4 +1,4 @@
-# OECDscaleup: Construct OECD Scale-Up High-Growth-Firm Indicators
+# OECDscaleup: Measuring the Scale-Up of SMEs
 
 Builds the firm-level high-growth-firm (HGF) / scale-up indicators used
 in the OECD Scale Up project from confidential national firm microdata,
