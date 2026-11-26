@@ -46,15 +46,18 @@ build_accounts_indicators(
 
 - exchange_rates:
 
-  Optional data frame with columns `year, country, rate` (as shipped in
-  this package's `exchange_rates` dataset). Required only for the
-  non-Euro countries listed in `country_patches$non_euro`.
+  Optional data frame with columns `year, country, rate`, used for the
+  non-euro countries in `country_patches$non_euro`. `NULL` (the default)
+  uses the package's
+  [exchange_rates](https://amannj.github.io/OECDscaleup/reference/exchange_rates.md).
 
 - tl3_typology:
 
   Optional data frame with columns `region_3d, typology_access_cities`
-  (as shipped in this package's `tl3_typology` dataset). Required only
-  if `base_financials` has a `region_3d` column.
+  (and `classification`, to select `config$tl_classification`), used
+  when `base_financials` has a `region_3d` column. `NULL` (the default)
+  uses the package's
+  [tl3_typology](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md).
 
 - storage_types:
 

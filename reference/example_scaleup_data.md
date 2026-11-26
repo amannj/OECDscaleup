@@ -51,7 +51,8 @@ A list of three data frames:
 The data are random and mean nothing: the sizes, growth rates and ratios
 are only roughly plausible. The country is France (`"FR"`), so the
 region codes are real French NUTS codes that link to
-[tl3_typology](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md).
+[tl3_typology](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md)
+(TL2024).
 
 ## Examples
 

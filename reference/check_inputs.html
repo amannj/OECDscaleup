@@ -82,9 +82,10 @@ when <code>base_financials</code> is <code>NULL</code> too).</p></dd>
 
 
 <dt id="arg-tl-typology-exchange-rates">tl3_typology, exchange_rates<a class="anchor" aria-label="anchor" href="#arg-tl-typology-exchange-rates"></a></dt>
-<dd><p>Reference data for the data frames
-given (as the package datasets <a href="tl3_typology.html">tl3_typology</a>, <a href="exchange_rates.html">exchange_rates</a>); read
-from <code>config$input_dir</code> when the files are read.</p></dd>
+<dd><p>Reference data replacing the package's
+<a href="tl3_typology.html">tl3_typology</a> and <a href="exchange_rates.html">exchange_rates</a>, as in <code><a href="build_accounts_indicators.html">build_accounts_indicators()</a></code>.
+<code>NULL</code> (the default) uses the package's, or, when the files are read, a
+<code>tl3_typology.dta</code> / <code>exchange_rates.dta</code> in <code>config$input_dir</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -114,8 +115,11 @@ the country, region and product codes;</p></li>
 groups within their division, section letters against the declared
 <code>nace_revision</code>, the sectors the analysis leaves out); <code>birth_year</code>
 after <code>year</code>; the money unit (turnover per employee, after
-<code>financials_unit</code>); the reference files the build needs (<code>tl3_typology</code>
-for <code>region_3d</code>, <code>exchange_rates</code> for the years of a non-euro country);</p></li>
+<code>financials_unit</code>); the reference data: the region codes against the
+TL3 typology of the declared <code>tl_classification</code> (and how many are found
+under TL2024 and TL2021), the years of a non-euro country against the
+exchange rates, and which tables are used (the package's, unless files
+in the input folder or arguments replace them);</p></li>
 <li><p><code>plants_RAW</code> and <code>trade_RAW</code>: firms not in <code>base_financials</code>; for trade,
 whether exports fit EUR thousand next to turnover (after
 <code>trade_value_unit</code>).</p></li>

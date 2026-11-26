@@ -38,10 +38,14 @@ check_inputs(
 
 - tl3_typology, exchange_rates:
 
-  Reference data for the data frames given (as the package datasets
-  [tl3_typology](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md),
-  [exchange_rates](https://amannj.github.io/OECDscaleup/reference/exchange_rates.md));
-  read from `config$input_dir` when the files are read.
+  Reference data replacing the package's
+  [tl3_typology](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md)
+  and
+  [exchange_rates](https://amannj.github.io/OECDscaleup/reference/exchange_rates.md),
+  as in
+  [`build_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_accounts_indicators.md).
+  `NULL` (the default) uses the package's, or, when the files are read,
+  a `tl3_typology.dta` / `exchange_rates.dta` in `config$input_dir`.
 
 ## Value
 
@@ -77,9 +81,11 @@ Checks:
   groups within their division, section letters against the declared
   `nace_revision`, the sectors the analysis leaves out); `birth_year`
   after `year`; the money unit (turnover per employee, after
-  `financials_unit`); the reference files the build needs
-  (`tl3_typology` for `region_3d`, `exchange_rates` for the years of a
-  non-euro country);
+  `financials_unit`); the reference data: the region codes against the
+  TL3 typology of the declared `tl_classification` (and how many are
+  found under TL2024 and TL2021), the years of a non-euro country
+  against the exchange rates, and which tables are used (the package's,
+  unless files in the input folder or arguments replace them);
 
 - `plants_RAW` and `trade_RAW`: firms not in `base_financials`; for
   trade, whether exports fit EUR thousand next to turnover (after

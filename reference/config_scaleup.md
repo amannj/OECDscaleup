@@ -16,7 +16,8 @@ config_scaleup(
   dom_vars = c("employment", "turnover"),
   dom_num = 2,
   financials_unit = NULL,
-  trade_value_unit = NULL
+  trade_value_unit = NULL,
+  tl_classification = "TL2024"
 )
 ```
 
@@ -32,8 +33,12 @@ config_scaleup(
 - input_dir:
 
   Folder holding `base_financials_<country>.dta` (and
-  `plants_RAW_<country>.dta` if available), `exchange_rates.dta`, and
-  `tl3_typology.dta`. Must already exist.
+  `plants_RAW_<country>.dta` if available). A `tl3_typology.dta` or
+  `exchange_rates.dta` there replaces the package's
+  [tl3_typology](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md)
+  or
+  [exchange_rates](https://amannj.github.io/OECDscaleup/reference/exchange_rates.md).
+  Must already exist.
 
 - output_dir:
 
@@ -88,6 +93,15 @@ config_scaleup(
   `"EUR thousand"`. `NULL` (the default) follows the trade package: EUR
   for PT and HU, EUR thousand otherwise
   (`country_patches$trade_values_in_eur`).
+
+- tl_classification:
+
+  The OECD territorial classification of the region codes (`region_2d`,
+  `region_3d`): `"TL2024"` (the default; NUTS 2024 for EU countries) or
+  `"TL2021"` (NUTS 2021). It selects the regional typology of
+  [tl3_typology](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md);
+  see
+  [`vignette("input-data")`](https://amannj.github.io/OECDscaleup/articles/input-data.md).
 
 ## Value
 

@@ -176,9 +176,9 @@ Firm-level international trade in goods.
 - [`example_scaleup_data()`](https://amannj.github.io/OECDscaleup/reference/example_scaleup_data.md)
   : Simulate example input data
 - [`tl3_typology`](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md)
-  : TL3/NUTS3 region urbanisation typology
+  : OECD regional typology of small (TL3) regions
 - [`exchange_rates`](https://amannj.github.io/OECDscaleup/reference/exchange_rates.md)
-  : Annual average Eurostat exchange rates
+  : Annual average euro exchange rates
 
 # Articles
 

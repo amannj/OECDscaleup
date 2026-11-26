@@ -95,13 +95,15 @@ If <code>NULL</code> (the default), no <code>multiplant</code> indicator is prod
 
 
 <dt id="arg-exchange-rates">exchange_rates<a class="anchor" aria-label="anchor" href="#arg-exchange-rates"></a></dt>
-<dd><p>Optional data frame with columns <code>year, country, rate</code> (as shipped in this package's <code>exchange_rates</code> dataset). Required
-only for the non-Euro countries listed in <code>country_patches$non_euro</code>.</p></dd>
+<dd><p>Optional data frame with columns <code>year, country, rate</code>, used for the non-euro countries in <code>country_patches$non_euro</code>.
+<code>NULL</code> (the default) uses the package's <a href="exchange_rates.html">exchange_rates</a>.</p></dd>
 
 
 <dt id="arg-tl-typology">tl3_typology<a class="anchor" aria-label="anchor" href="#arg-tl-typology"></a></dt>
-<dd><p>Optional data frame with columns <code>region_3d, typology_access_cities</code> (as shipped in this package's <code>tl3_typology</code>
-dataset). Required only if <code>base_financials</code> has a <code>region_3d</code> column.</p></dd>
+<dd><p>Optional data frame with columns <code>region_3d, typology_access_cities</code> (and <code>classification</code>, to select
+<code>config$tl_classification</code>), used when <code>base_financials</code> has a
+<code>region_3d</code> column. <code>NULL</code> (the default) uses the package's
+<a href="tl3_typology.html">tl3_typology</a>.</p></dd>
 
 
 <dt id="arg-storage-types">storage_types<a class="anchor" aria-label="anchor" href="#arg-storage-types"></a></dt>

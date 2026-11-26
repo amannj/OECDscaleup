@@ -111,24 +111,24 @@ like)</td>
 </tr>
 <tr class="odd">
 <td><code>tl3_typology.dta</code></td>
-<td>OECD urban/rural typology of TL3 regions (package dataset
-<code>tl3_typology</code>)</td>
-<td>when <code>base_financials</code> has <code>region_3d</code>
+<td>OECD regional typology of TL3 regions</td>
+<td>not needed: replaces the package’s <code>tl3_typology</code>
 </td>
 </tr>
 <tr class="even">
 <td><code>exchange_rates.dta</code></td>
-<td>Eurostat annual average exchange rates (package dataset
-<code>exchange_rates</code>)</td>
-<td>for the non-euro countries in
-<code>country_patches$non_euro</code>
+<td>Annual average euro exchange rates</td>
+<td>not needed: replaces the package’s <code>exchange_rates</code>
 </td>
 </tr>
 </tbody>
 </table>
-<p>The two reference files ship with the package and can be written to
-the input folder with, for example,
-<code>haven::write_dta(tl3_typology, file.path(input_dir, "tl3_typology.dta"))</code>.</p>
+<p>The regional typology and the exchange rates ship with the package
+(see <a href="#reference-data">Reference data</a> below). A
+<code>tl3_typology.dta</code> or <code>exchange_rates.dta</code> in the
+input folder replaces them; remove such files from earlier rounds to use
+the package’s current tables. <code><a href="../reference/check_inputs.html">check_inputs()</a></code> says which
+tables are used.</p>
 </div>
 <div class="section level2">
 <h2 id="general-rules">General rules<a class="anchor" aria-label="anchor" href="#general-rules"></a>
@@ -157,8 +157,14 @@ checks the section letters against the divisions for the declared
 revision, stops on a mismatch, and converts Rev. 2.1 codes to Rev. 2,
 for which the sector rules are written.</li>
 <li>
-<strong>Regions</strong> are NUTS codes of the 2021
-classification.</li>
+<strong>Regions</strong> are codes of the OECD territorial
+classification: TL2 and TL3 regions, which are the NUTS 2 and NUTS 3
+regions in EU countries. The classification is declared with
+<code>config_scaleup(tl_classification =)</code>: <code>"TL2024"</code>
+(the default; NUTS 2024) or <code>"TL2021"</code> (NUTS 2021). It
+selects the regional typology used for the urban/rural breakdown;
+<code><a href="../reference/check_inputs.html">check_inputs()</a></code> reports how many of the region codes are
+found in each.</li>
 <li>
 <strong><code>year</code></strong> is the calendar year the data
 refer to, not the year the accounts were filed. A firm appears at most
@@ -309,18 +315,24 @@ nace_rev21_from (the first Rev. 2.1 year).</td>
 <tr class="odd">
 <td align="left"><code>region_2d</code></td>
 <td align="left">must-have</td>
-<td align="left">NUTS2 code (2021 classification)</td>
+<td align="left">TL2 region code (the NUTS 2 code for EU countries), of
+the declared TL classification</td>
 <td align="left">string</td>
 <td align="left">BR</td>
-<td align="left"></td>
+<td align="left">Declare the classification in
+config_scaleup(tl_classification = ): “TL2024” (the default; NUTS 2024
+for EU countries) or “TL2021” (NUTS 2021).</td>
 </tr>
 <tr class="even">
 <td align="left"><code>region_3d</code></td>
 <td align="left">nice-to-have, first order</td>
-<td align="left">NUTS3 code (2021 classification)</td>
+<td align="left">TL3 region code (the NUTS 3 code for EU countries), of
+the declared TL classification</td>
 <td align="left">string</td>
 <td align="left">BR</td>
-<td align="left"></td>
+<td align="left">Declare the classification in
+config_scaleup(tl_classification = ): “TL2024” (the default; NUTS 2024
+for EU countries) or “TL2021” (NUTS 2021).</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>employment</code></td>
@@ -638,9 +650,10 @@ merged into their NUTS1 region. Region x sector group cells
 <tr class="even">
 <td align="left"><code>region_3d</code></td>
 <td align="left">optional</td>
-<td align="left">Joined to the OECD TL3 typology (tl3_typology.dta in
-the input folder, required when region_3d is present) to give the
-urban/rural breakdown typology_UR.</td>
+<td align="left">Joined to the OECD TL3 regional typology of the
+declared classification (the package’s tl3_typology, unless a
+tl3_typology.dta is in the input folder) to give the urban/rural
+breakdown typology_UR (access to cities).</td>
 <td align="left"></td>
 </tr>
 <tr class="odd">
@@ -855,14 +868,14 @@ single- and multi-plant firms.</p>
 <div class="section level3">
 <h3 id="what-to-supply-1">What to supply<a class="anchor" aria-label="anchor" href="#what-to-supply-1"></a>
 </h3>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
 <col width="5%">
 <col width="10%">
+<col width="25%">
+<col width="29%">
+<col width="6%">
 <col width="22%">
-<col width="30%">
-<col width="7%">
-<col width="23%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Variable</th>
@@ -901,7 +914,8 @@ firm.</td>
 <tr class="even">
 <td align="left"><code>p_region_2d</code></td>
 <td align="left">nice-to-have, second order</td>
-<td align="left">plant location, NUTS2 code (2021 classification)</td>
+<td align="left">plant location, TL2 (NUTS 2) code, same classification
+as region_2d</td>
 <td align="left">string</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -909,7 +923,8 @@ firm.</td>
 <tr class="odd">
 <td align="left"><code>p_region_3d</code></td>
 <td align="left">nice-to-have, second order</td>
-<td align="left">plant location, NUTS3 code (2021 classification)</td>
+<td align="left">plant location, TL3 (NUTS 3) code, same classification
+as region_3d</td>
 <td align="left">string</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -985,6 +1000,65 @@ a share in the tables.</td>
 </tbody>
 </table>
 </div>
+</div>
+<div class="section level2">
+<h2 id="reference-data">Reference data<a class="anchor" aria-label="anchor" href="#reference-data"></a>
+</h2>
+<p>Two reference tables ship with the package and are updated with
+it:</p>
+<ul>
+<li>
+<code>tl3_typology</code>: the OECD regional typology of small (TL3)
+regions, from the OECD territorial correspondence table (<a href="https://www.oecd.org/en/data/datasets/oecd-geographical-definitions.html" class="external-link">OECD
+geographical definitions</a>, <a href="http://oe.cd/geostats" class="external-link uri">http://oe.cd/geostats</a>). The package uses its
+access-to-cities typology (large metropolitan, metropolitan, near a
+metropolitan area, near a small or medium city, remote) for the
+urban/rural breakdown, in the classification declared with
+<code>tl_classification</code>.</li>
+<li>
+<code>exchange_rates</code>: annual average euro exchange rates for
+the non-euro countries (Canada, Denmark, Croatia, Hungary, Romania).
+Turnover is converted to national currency before growth is computed, so
+that growth rates do not move with the exchange rate.</li>
+</ul>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Package version</th>
+<th>Regional typology (<code>tl3_typology</code>)</th>
+<th>Exchange rates (<code>exchange_rates</code>)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<strong>0.2.0.9000</strong> (current)</td>
+<td>OECD territorial correspondence table TL2024, <strong>version of 20
+November 2026</strong>: TL2024 (default) and TL2021</td>
+<td>
+<strong>2008-2025</strong>: Eurostat <code>ert_bil_eur_a</code>
+(update of 8 July 2026); Croatia: ECB annual averages to 2022, the fixed
+conversion rate 7.53450 from 2023 (euro adoption)</td>
+</tr>
+<tr class="even">
+<td>0.1.0</td>
+<td>OECD TL2021 typology</td>
+<td>2008-2022</td>
+</tr>
+</tbody>
+</table>
+<p>The OECD revises the typology within a version of the classification:
+in the version of 20 November 2026, the access-to-cities typology of
+non-metropolitan regions in EU countries and of non-EU countries was
+still being updated, and Türkiye has no access-to-cities typology.
+Between TL2021 and TL2024 the TL3 codes changed in Germany, Finland, the
+United Kingdom, Latvia, the Netherlands, Norway and Portugal, and the
+typology changed for about 200 regions, so the urban/rural breakdown can
+differ from version 0.1.0. Details: <code><a href="../reference/tl3_typology.html">?tl3_typology</a></code>,
+<code><a href="../reference/exchange_rates.html">?exchange_rates</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="sources-and-references">Sources and references<a class="anchor" aria-label="anchor" href="#sources-and-references"></a>

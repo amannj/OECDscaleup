@@ -2,7 +2,11 @@
 
 Reads `base_financials_<country>.dta`, `trade_RAW_<country>.dta` and (if
 present) `plants_RAW_<country>.dta`, `exchange_rates.dta` and
-`tl3_typology.dta` from `config$input_dir`; runs
+`tl3_typology.dta` (else the package's
+[exchange_rates](https://amannj.github.io/OECDscaleup/reference/exchange_rates.md)
+and
+[tl3_typology](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md))
+from `config$input_dir`; runs
 [`build_trade_accounts_indicators()`](https://amannj.github.io/OECDscaleup/reference/build_trade_accounts_indicators.md)
 and
 [`compute_trade_characteristics()`](https://amannj.github.io/OECDscaleup/reference/compute_trade_characteristics.md);

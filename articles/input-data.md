@@ -30,12 +30,15 @@ The pipeline reads its inputs from `config$input_dir`, as `.dta` files.
 |----|----|----|
 | `base_financials_<CT>.dta` | Firm-level panel: one row per firm and year, basic variables with a standard naming structure and no derived indices (growth rates and the like) | always |
 | `plants_RAW_<CT>.dta` | Establishment-level data: one row per plant and year | optional (gives `multiplant`) |
-| `tl3_typology.dta` | OECD urban/rural typology of TL3 regions (package dataset `tl3_typology`) | when `base_financials` has `region_3d` |
-| `exchange_rates.dta` | Eurostat annual average exchange rates (package dataset `exchange_rates`) | for the non-euro countries in `country_patches$non_euro` |
+| `tl3_typology.dta` | OECD regional typology of TL3 regions | not needed: replaces the package’s `tl3_typology` |
+| `exchange_rates.dta` | Annual average euro exchange rates | not needed: replaces the package’s `exchange_rates` |
 
-The two reference files ship with the package and can be written to the
-input folder with, for example,
-`haven::write_dta(tl3_typology, file.path(input_dir, "tl3_typology.dta"))`.
+The regional typology and the exchange rates ship with the package (see
+[Reference data](#reference-data) below). A `tl3_typology.dta` or
+`exchange_rates.dta` in the input folder replaces them; remove such
+files from earlier rounds to use the package’s current tables.
+[`check_inputs()`](https://amannj.github.io/OECDscaleup/reference/check_inputs.md)
+says which tables are used.
 
 ## General rules
 
@@ -58,7 +61,14 @@ input folder with, for example,
     divisions for the declared revision, stops on a mismatch, and
     converts Rev. 2.1 codes to Rev. 2, for which the sector rules are
     written.
-4.  **Regions** are NUTS codes of the 2021 classification.
+4.  **Regions** are codes of the OECD territorial classification: TL2
+    and TL3 regions, which are the NUTS 2 and NUTS 3 regions in EU
+    countries. The classification is declared with
+    `config_scaleup(tl_classification =)`: `"TL2024"` (the default;
+    NUTS 2024) or `"TL2021"` (NUTS 2021). It selects the regional
+    typology used for the urban/rural breakdown;
+    [`check_inputs()`](https://amannj.github.io/OECDscaleup/reference/check_inputs.md)
+    reports how many of the region codes are found in each.
 5.  **`year`** is the calendar year the data refer to, not the year the
     accounts were filed. A firm appears at most once per year.
 
@@ -91,8 +101,8 @@ collected for future work and not used yet.
 | `sector_3d` | must-have | core sector, 3 digits, NACE Rev. 2 or Rev. 2.1 (or ISIC Rev. 4); not ISIC Rev. 3 or NACE Rev. 1.1 | numeric | BR | Declare the revision in config_scaleup(nace_revision = ); a panel that switches from Rev. 2 to Rev. 2.1 also gives nace_rev21_from (the first Rev. 2.1 year). |
 | `sector_2d` | must-have | core sector, 2 digits (division), NACE Rev. 2 or Rev. 2.1 (or ISIC Rev. 4); not ISIC Rev. 3 or NACE Rev. 1.1 | numeric | BR | Declare the revision in config_scaleup(nace_revision = ); a panel that switches from Rev. 2 to Rev. 2.1 also gives nace_rev21_from (the first Rev. 2.1 year). |
 | `sector_1d` | must-have | core sector, section letter, NACE Rev. 2 or Rev. 2.1 (or ISIC Rev. 4); not ISIC Rev. 3 or NACE Rev. 1.1 | string (letter) | BR | Declare the revision in config_scaleup(nace_revision = ); a panel that switches from Rev. 2 to Rev. 2.1 also gives nace_rev21_from (the first Rev. 2.1 year). |
-| `region_2d` | must-have | NUTS2 code (2021 classification) | string | BR |  |
-| `region_3d` | nice-to-have, first order | NUTS3 code (2021 classification) | string | BR |  |
+| `region_2d` | must-have | TL2 region code (the NUTS 2 code for EU countries), of the declared TL classification | string | BR | Declare the classification in config_scaleup(tl_classification = ): “TL2024” (the default; NUTS 2024 for EU countries) or “TL2021” (NUTS 2021). |
+| `region_3d` | nice-to-have, first order | TL3 region code (the NUTS 3 code for EU countries), of the declared TL classification | string | BR | Declare the classification in config_scaleup(tl_classification = ): “TL2024” (the default; NUTS 2024 for EU countries) or “TL2021” (NUTS 2021). |
 | `employment` | must-have | full-time equivalent (FTE) number of persons employed | numeric | SBS (220103) | If FTE is not available, the headcount (SBS code 220102) can be used. Persons employed exclude owners and self-employed. |
 | `turnover` | must-have | total sales or revenues in current prices, or value of output | numeric | SBS (250301) |  |
 | `exp_revenues_goods` | nice-to-have, second order | value of exports of goods | numeric | ITGS |  |
@@ -131,7 +141,7 @@ collected for future work and not used yet.
 | `sector_2d` | required | Sector groups (tech_grad) and OECD STAN A38 industries (ind_a38). Divisions 01-03, 64-66, 84 and 97-99 (agriculture, finance, public administration, households) are left out. Quartiles of the predictors are taken within division and year. |  |
 | `sector_1d` | required | Checked against the division for the declared revision (the build stops on a mismatch). Used to leave out sections A, K, O, T, U (Rev. 2 letters) only where the division is missing. Section L (real estate) is flagged. |  |
 | `region_2d` | required | Regional breakdown (L3region_2d) and region dummies of the predictor regressions. In countries with small regions (country_patches\$aggregate_small_regions), small NUTS2 regions are merged into their NUTS1 region. Region x sector group cells (reg_techgrad). |  |
-| `region_3d` | optional | Joined to the OECD TL3 typology (tl3_typology.dta in the input folder, required when region_3d is present) to give the urban/rural breakdown typology_UR. |  |
+| `region_3d` | optional | Joined to the OECD TL3 regional typology of the declared classification (the package’s tl3_typology, unless a tl3_typology.dta is in the input folder) to give the urban/rural breakdown typology_UR (access to cities). |  |
 | `employment` | required | Employment growth and the high-growth flags (HGE), size classes (0-9, 10-19, 20-49, 50-99, 100-249, 250+), employment creation (compute_contribution()), labour productivity. Implausible one-year spikes and dips are set to missing. Scaler analysis (run_scaler_analysis()): the top-scaler ranking and the employment thresholds of the SME and mid-cap definitions. | negatives set to missing |
 | `turnover` | required | Turnover growth and the high-growth flags (HGT), turnover creation, labour productivity (turnover per employee), labour share. Implausible one-year spikes and dips are set to missing. Non-euro countries: converted to national currency (exchange_rates.dta) for growth. The build checks that turnover per employee fits EUR thousand. Scaler analysis: the top-scaler ranking and the turnover ceilings of the EU SME and small mid-cap definitions. | money variable; negatives set to missing |
 | `exp_revenues_goods` | not used | Cleaned and rescaled with the other money variables and kept in the panel; no output uses it (the trade package uses trade_RAW instead). | money variable; negatives set to missing |
@@ -186,8 +196,8 @@ firms.
 | `idf` | must-have | unique firm-level identifier | numeric |  | Allows the data to be joined with base_financials. |
 | `idp` | must-have | unique plant-level identifier | numeric |  | It should not change if a plant is acquired by a new firm. |
 | `year` | must-have | calendar year | numeric |  |  |
-| `p_region_2d` | nice-to-have, second order | plant location, NUTS2 code (2021 classification) | string |  |  |
-| `p_region_3d` | nice-to-have, second order | plant location, NUTS3 code (2021 classification) | string |  |  |
+| `p_region_2d` | nice-to-have, second order | plant location, TL2 (NUTS 2) code, same classification as region_2d | string |  |  |
+| `p_region_3d` | nice-to-have, second order | plant location, TL3 (NUTS 3) code, same classification as region_3d | string |  |  |
 | `hq` | nice-to-have, second order | indicator of whether a plant is the firm’s headquarters | numeric; 1 = the plant is the firm’s headquarters, 0 = not the headquarters |  |  |
 
 ### What the package does with it
@@ -200,6 +210,38 @@ firms.
 | `p_region_2d` | not used | Not used. |  |
 | `p_region_3d` | not used | Not used. |  |
 | `hq` | not used | Not used. |  |
+
+## Reference data
+
+Two reference tables ship with the package and are updated with it:
+
+- `tl3_typology`: the OECD regional typology of small (TL3) regions,
+  from the OECD territorial correspondence table ([OECD geographical
+  definitions](https://www.oecd.org/en/data/datasets/oecd-geographical-definitions.html),
+  <http://oe.cd/geostats>). The package uses its access-to-cities
+  typology (large metropolitan, metropolitan, near a metropolitan area,
+  near a small or medium city, remote) for the urban/rural breakdown, in
+  the classification declared with `tl_classification`.
+- `exchange_rates`: annual average euro exchange rates for the non-euro
+  countries (Canada, Denmark, Croatia, Hungary, Romania). Turnover is
+  converted to national currency before growth is computed, so that
+  growth rates do not move with the exchange rate.
+
+| Package version | Regional typology (`tl3_typology`) | Exchange rates (`exchange_rates`) |
+|----|----|----|
+| **0.2.0.9000** (current) | OECD territorial correspondence table TL2024, **version of 20 November 2026**: TL2024 (default) and TL2021 | **2008-2025**: Eurostat `ert_bil_eur_a` (update of 8 July 2026); Croatia: ECB annual averages to 2022, the fixed conversion rate 7.53450 from 2023 (euro adoption) |
+| 0.1.0 | OECD TL2021 typology | 2008-2022 |
+
+The OECD revises the typology within a version of the classification: in
+the version of 20 November 2026, the access-to-cities typology of
+non-metropolitan regions in EU countries and of non-EU countries was
+still being updated, and Türkiye has no access-to-cities typology.
+Between TL2021 and TL2024 the TL3 codes changed in Germany, Finland, the
+United Kingdom, Latvia, the Netherlands, Norway and Portugal, and the
+typology changed for about 200 regions, so the urban/rural breakdown can
+differ from version 0.1.0. Details:
+[`?tl3_typology`](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md),
+[`?exchange_rates`](https://amannj.github.io/OECDscaleup/reference/exchange_rates.md).
 
 ## Sources and references
 

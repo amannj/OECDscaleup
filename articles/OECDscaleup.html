@@ -189,7 +189,18 @@ euros instead of EUR thousand; the build then divides them by 1000.</li>
 <li>
 <code>dominance = TRUE</code> adds the dominance statistics for the
 confidentiality checks (step 10).</li>
+<li>
+<code>tl_classification</code> declares the OECD territorial
+classification of the region codes: <code>"TL2024"</code> (the default;
+NUTS 2024 for EU countries) or <code>"TL2021"</code> (NUTS 2021).</li>
 </ul>
+<p>The package ships its reference data: the OECD regional typology used
+for the urban/rural breakdown and the euro exchange rates of the
+non-euro countries. <strong>Version 0.2.0.9000 ships the OECD
+territorial correspondence table TL2024 of 20 November 2026 (TL2024 and
+TL2021) and exchange rates for 2008-2025.</strong> The versions by
+package version are listed in <a href="input-data.html#reference-data">Input data: reference
+data</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="step-3-check-the-inputs">Step 3: Check the inputs<a class="anchor" aria-label="anchor" href="#step-3-check-the-inputs"></a>
@@ -200,9 +211,8 @@ the build), warnings (what looks wrong or will be lost) and notes (what
 the build will do to the data). The report holds counts and shares only,
 so it can be shared.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">chk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/check_inputs.html">check_inputs</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span>, <span class="va">ex</span><span class="op">$</span><span class="va">trade_raw</span>,</span>
-<span>                    tl3_typology <span class="op">=</span> <span class="va">tl3_typology</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Input check for FR: 0 error(s), 0 warning(s), 24 note(s); 31 check(s) ok.</span></span>
+<code class="sourceCode R"><span><span class="va">chk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/check_inputs.html">check_inputs</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span>, <span class="va">ex</span><span class="op">$</span><span class="va">trade_raw</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Input check for FR: 0 error(s), 0 warning(s), 25 note(s); 31 check(s) ok.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Notes:</span></span>
 <span><span class="co">#&gt;   base_financials$age                      absent (nice-to-have, second order; package: optional).</span></span>
@@ -226,6 +236,7 @@ so it can be shared.</p>
 <span><span class="co">#&gt;   base_financials$uco                      missing in 459 of 25,182 (1.8 %) rows.</span></span>
 <span><span class="co">#&gt;   base_financials                          25,182 firm-years of 3,000 firms, years 2010 to 2022.</span></span>
 <span><span class="co">#&gt;   base_financials                          569 of 25,182 (2.3 %) firm-years in sectors the analysis leaves out (agriculture, finance, public administration, households, extraterritorial).</span></span>
+<span><span class="co">#&gt;   base_financials$region_3d                region codes found in TL2024: 25,182 of 25,182 (100.0 %); in TL2021: 25,182 of 25,182 (100.0 %).</span></span>
 <span><span class="co">#&gt;   plants_RAW$p_region_2d                   absent (nice-to-have, second order; package: not used).</span></span>
 <span><span class="co">#&gt;   plants_RAW$p_region_3d                   absent (nice-to-have, second order; package: not used).</span></span>
 <span><span class="co">#&gt;   plants_RAW$hq                            absent (nice-to-have, second order; package: not used).</span></span></code></pre></div>
@@ -240,8 +251,7 @@ the analysis leaves out.</p>
 every indicator the tables use: growth rates, the scaler flags, size,
 age and sector classes, productivity and financial ratios.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ai</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_accounts_indicators.html">build_accounts_indicators</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span>,</span>
-<span>                                tl3_typology <span class="op">=</span> <span class="va">tl3_typology</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">ai</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_accounts_indicators.html">build_accounts_indicators</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">ai</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 24613    98</span></span></code></pre></div>
 <p>The scaler flags compare year <em>t</em> with year <em>t-3</em>:</p>
@@ -853,15 +863,13 @@ needed for it.</p>
 <h2 id="step-11-running-everything-from-files">Step 11: Running everything from files<a class="anchor" aria-label="anchor" href="#step-11-running-everything-from-files"></a>
 </h2>
 <p>In production, the input files are <code>.dta</code> files in
-<code>input_dir</code>, named as in <code><a href="../articles/input-data.html">vignette("input-data")</a></code>,
-together with the reference files <code>tl3_typology.dta</code> (for
-<code>region_3d</code>) and <code>exchange_rates.dta</code> (for
-non-euro countries). With the example data:</p>
+<code>input_dir</code>, named as in <code><a href="../articles/input-data.html">vignette("input-data")</a></code>.
+The regional typology and the exchange rates come from the package. With
+the example data:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="st">"path/to/input"</span></span>
 <span><span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_dta.html" class="external-link">write_dta</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"base_financials_FR.dta"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_dta.html" class="external-link">write_dta</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"plants_RAW_FR.dta"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_dta.html" class="external-link">write_dta</a></span><span class="op">(</span><span class="va">tl3_typology</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"tl3_typology.dta"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/config_scaleup.html">config_scaleup</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"FR"</span>, input_dir <span class="op">=</span> <span class="va">dir</span>, output_dir <span class="op">=</span> <span class="st">"path/to/output"</span>,</span>
 <span>                      nace_revision <span class="op">=</span> <span class="st">"2"</span><span class="op">)</span></span>
@@ -882,8 +890,7 @@ file <code>trade_RAW_&lt;CT&gt;.dta</code> (see
 <code><a href="../articles/input-trade-data.html">vignette("input-trade-data")</a></code>) is summed per firm and year
 and merged onto the panel.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tai</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_trade_accounts_indicators.html">build_trade_accounts_indicators</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="va">ex</span><span class="op">$</span><span class="va">trade_raw</span>, <span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span>,</span>
-<span>                                       tl3_typology <span class="op">=</span> <span class="va">tl3_typology</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">tai</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_trade_accounts_indicators.html">build_trade_accounts_indicators</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">ex</span><span class="op">$</span><span class="va">base_financials</span>, <span class="va">ex</span><span class="op">$</span><span class="va">trade_raw</span>, <span class="va">ex</span><span class="op">$</span><span class="va">plants_raw</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">tai</span><span class="op">$</span><span class="va">exporter</span>, <span class="va">tai</span><span class="op">$</span><span class="va">year</span>, <span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 </span></span>
 <span><span class="co">#&gt; 20.9 21.4 21.3 21.2 21.0 21.0 21.0 21.8 21.6 22.1 21.1 21.0 21.0</span></span></code></pre></div>

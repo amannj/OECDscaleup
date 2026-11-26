@@ -21,6 +21,12 @@ The development version, on the default branch `ScalerAnalysis`.
   checks a country’s files before a run; a step-by-step walkthrough of
   the whole analysis on simulated data
   ([`example_scaleup_data()`](https://amannj.github.io/OECDscaleup/reference/example_scaleup_data.md)).
+- **Reference data.** The OECD regional typology of the TL2024
+  territorial classification (version of 20 November 2026), with TL2021
+  still available (`config_scaleup(tl_classification = "TL2021")`), and
+  euro exchange rates for 2008-2025 ship with the package and are used
+  unless files in the input folder replace them. See the versions in
+  [`vignette("input-data")`](https://amannj.github.io/OECDscaleup/articles/input-data.md).
 - **Performance.** A panel of 8 million firm-years runs in about 15
   minutes with under 20 GB of memory.
 - [`config_scaleup()`](https://amannj.github.io/OECDscaleup/reference/config_scaleup.md)

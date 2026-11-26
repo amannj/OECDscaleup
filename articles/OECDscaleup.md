@@ -121,6 +121,17 @@ cfg <- config_scaleup(
   EUR thousand; the build then divides them by 1000.
 - `dominance = TRUE` adds the dominance statistics for the
   confidentiality checks (step 10).
+- `tl_classification` declares the OECD territorial classification of
+  the region codes: `"TL2024"` (the default; NUTS 2024 for EU countries)
+  or `"TL2021"` (NUTS 2021).
+
+The package ships its reference data: the OECD regional typology used
+for the urban/rural breakdown and the euro exchange rates of the
+non-euro countries. **Version 0.2.0.9000 ships the OECD territorial
+correspondence table TL2024 of 20 November 2026 (TL2024 and TL2021) and
+exchange rates for 2008-2025.** The versions by package version are
+listed in [Input data: reference
+data](https://amannj.github.io/OECDscaleup/articles/input-data.html#reference-data).
 
 ## Step 3: Check the inputs
 
@@ -132,9 +143,8 @@ data). The report holds counts and shares only, so it can be shared.
 
 ``` r
 
-chk <- check_inputs(cfg, ex$base_financials, ex$plants_raw, ex$trade_raw,
-                    tl3_typology = tl3_typology)
-#> Input check for FR: 0 error(s), 0 warning(s), 24 note(s); 31 check(s) ok.
+chk <- check_inputs(cfg, ex$base_financials, ex$plants_raw, ex$trade_raw)
+#> Input check for FR: 0 error(s), 0 warning(s), 25 note(s); 31 check(s) ok.
 #> 
 #> Notes:
 #>   base_financials$age                      absent (nice-to-have, second order; package: optional).
@@ -158,6 +168,7 @@ chk <- check_inputs(cfg, ex$base_financials, ex$plants_raw, ex$trade_raw,
 #>   base_financials$uco                      missing in 459 of 25,182 (1.8 %) rows.
 #>   base_financials                          25,182 firm-years of 3,000 firms, years 2010 to 2022.
 #>   base_financials                          569 of 25,182 (2.3 %) firm-years in sectors the analysis leaves out (agriculture, finance, public administration, households, extraterritorial).
+#>   base_financials$region_3d                region codes found in TL2024: 25,182 of 25,182 (100.0 %); in TL2021: 25,182 of 25,182 (100.0 %).
 #>   plants_RAW$p_region_2d                   absent (nice-to-have, second order; package: not used).
 #>   plants_RAW$p_region_3d                   absent (nice-to-have, second order; package: not used).
 #>   plants_RAW$hq                            absent (nice-to-have, second order; package: not used).
@@ -176,8 +187,7 @@ financial ratios.
 
 ``` r
 
-ai <- build_accounts_indicators(cfg, ex$base_financials, ex$plants_raw,
-                                tl3_typology = tl3_typology)
+ai <- build_accounts_indicators(cfg, ex$base_financials, ex$plants_raw)
 dim(ai)
 #> [1] 24613    98
 ```
@@ -458,17 +468,15 @@ statistical institute; the package reports the statistics needed for it.
 
 In production, the input files are `.dta` files in `input_dir`, named as
 in
-[`vignette("input-data")`](https://amannj.github.io/OECDscaleup/articles/input-data.md),
-together with the reference files `tl3_typology.dta` (for `region_3d`)
-and `exchange_rates.dta` (for non-euro countries). With the example
-data:
+[`vignette("input-data")`](https://amannj.github.io/OECDscaleup/articles/input-data.md).
+The regional typology and the exchange rates come from the package. With
+the example data:
 
 ``` r
 
 dir <- "path/to/input"
 haven::write_dta(ex$base_financials, file.path(dir, "base_financials_FR.dta"))
 haven::write_dta(ex$plants_raw, file.path(dir, "plants_RAW_FR.dta"))
-haven::write_dta(tl3_typology, file.path(dir, "tl3_typology.dta"))
 
 cfg <- config_scaleup(country = "FR", input_dir = dir, output_dir = "path/to/output",
                       nace_revision = "2")
@@ -492,8 +500,7 @@ is summed per firm and year and merged onto the panel.
 
 ``` r
 
-tai <- build_trade_accounts_indicators(cfg, ex$base_financials, ex$trade_raw, ex$plants_raw,
-                                       tl3_typology = tl3_typology)
+tai <- build_trade_accounts_indicators(cfg, ex$base_financials, ex$trade_raw, ex$plants_raw)
 round(100 * tapply(tai$exporter, tai$year, mean, na.rm = TRUE), 1)
 #> 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 
 #> 20.9 21.4 21.3 21.2 21.0 21.0 21.0 21.8 21.6 22.1 21.1 21.0 21.0

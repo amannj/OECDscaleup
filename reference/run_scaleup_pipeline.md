@@ -35,5 +35,11 @@ same tables written to `config$output_dir`).
 This is the only function in the package that performs file I/O; every
 `compute_*()`/`build_*()` function is a pure, directly-testable
 data-frame-in-data-frame-out transformation. Call the pure functions
-directly if you already have the inputs loaded in R (e.g. this package's
-own bundled `tl3_typology`/`exchange_rates` data).
+directly if you already have the inputs loaded in R.
+
+The regional typology and the exchange rates are the package's
+[tl3_typology](https://amannj.github.io/OECDscaleup/reference/tl3_typology.md)
+(for `config$tl_classification`) and
+[exchange_rates](https://amannj.github.io/OECDscaleup/reference/exchange_rates.md),
+unless `tl3_typology.dta` or `exchange_rates.dta` is in
+`config$input_dir`.
